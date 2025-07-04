@@ -13,17 +13,14 @@ namespace FormBuilder.Domain.FormSubmissions;
 
 public class FormSubmission : BaseEntity<Guid>
 {
-    //public Guid FormId { get; private set; }
-    //public Form Form { get; private set; }  // <- nullable navigation
+    public Guid FormVersionId { get;  set; }
+    public FormVersion FormVersion { get;  set; }  
 
-    public Guid FormVersionId { get; private set; }
-    public FormVersion FormVersion { get; private set; }  // <- nullable navigation
+    public DateTime SubmittedAt { get;  set; } = DateTime.UtcNow;
 
-    public DateTime SubmittedAt { get; private set; } = DateTime.UtcNow;
+    public ICollection<FormSubmissionValue> Values { get;  set; } = new List<FormSubmissionValue>();
 
-    public ICollection<FormSubmissionValue> Values { get; private set; } = new List<FormSubmissionValue>();
-
-    private FormSubmission() { }
+    public FormSubmission() { }
 
     public FormSubmission(Guid formId, Guid formVersionId)
     {

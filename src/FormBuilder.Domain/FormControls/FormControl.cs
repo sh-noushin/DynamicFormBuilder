@@ -14,16 +14,16 @@ using System.Threading.Tasks;
 namespace FormBuilder.Domain.FormControls;
 public class FormControl : BaseEntity<Guid>
 {
-    public string Label { get; private set; }
-    public ControlType Type { get; private set; }
-    public bool IsRequired { get; set; }
-    public Guid FormVersionId { get; private set; }
-    public FormVersion FormVersion { get; private set; } = null!;
+    public string Label { get;  set; }
+    public ControlType Type { get;  set; }
+    public bool IsRequired { get;  set; }
+    public Guid FormVersionId { get;  set; }
+    public FormVersion FormVersion { get;  set; } = null!;
 
-    public ICollection<FormControlValue> Values { get; private set; } = new List<FormControlValue>();
-    public ICollection<FormSubmissionValue> SubmissionValues { get; private set; } = new List<FormSubmissionValue>();
+    public ICollection<FormControlValue> Values { get;  set; } = new List<FormControlValue>();
+    public ICollection<FormSubmissionValue> SubmissionValues { get;  set; } = new List<FormSubmissionValue>();
 
-    private FormControl() { }
+    public FormControl() { }
 
     public FormControl(string label, ControlType type, bool isRequired, Guid formVersionId)
     {

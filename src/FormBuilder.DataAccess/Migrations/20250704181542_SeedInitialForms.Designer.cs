@@ -4,6 +4,7 @@ using FormBuilder.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FormBuilder.DataAccess.Migrations
 {
     [DbContext(typeof(FormBuilderDbContext))]
-    partial class FormBuilderDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250704181542_SeedInitialForms")]
+    partial class SeedInitialForms
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -179,7 +182,7 @@ namespace FormBuilder.DataAccess.Migrations
                         {
                             Id = new Guid("ddd111aa-0000-0000-0000-000000000001"),
                             FormVersionId = new Guid("d372874d-577c-49d9-ae98-cb445e6a7b9c"),
-                            SubmittedAt = new DateTime(2025, 7, 1, 16, 0, 0, 0, DateTimeKind.Local)
+                            SubmittedAt = new DateTime(2025, 7, 4, 18, 15, 41, 690, DateTimeKind.Utc).AddTicks(2369)
                         });
                 });
 
@@ -209,42 +212,42 @@ namespace FormBuilder.DataAccess.Migrations
                         new
                         {
                             Id = new Guid("d372874d-577c-49d9-ae98-cb445e6a7b9c"),
-                            CreatedAt = new DateTime(2025, 7, 1, 10, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2025, 7, 4, 18, 15, 41, 689, DateTimeKind.Utc).AddTicks(8889),
                             FormId = new Guid("332ce45d-814e-46d3-8e1a-a129ab63b58d"),
                             Version = "v1.0"
                         },
                         new
                         {
                             Id = new Guid("309f9fe8-1975-4526-821d-e13abb8ad0dc"),
-                            CreatedAt = new DateTime(2025, 7, 1, 11, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2025, 7, 4, 18, 15, 41, 689, DateTimeKind.Utc).AddTicks(9117),
                             FormId = new Guid("332ce45d-814e-46d3-8e1a-a129ab63b58d"),
                             Version = "v2.0"
                         },
                         new
                         {
                             Id = new Guid("cc3d790a-da55-47db-98b7-75dac4dd5de5"),
-                            CreatedAt = new DateTime(2025, 7, 1, 12, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2025, 7, 4, 18, 15, 41, 689, DateTimeKind.Utc).AddTicks(9121),
                             FormId = new Guid("2daa2bec-d937-44e1-8b3e-9c2331acc94b"),
                             Version = "v1.0"
                         },
                         new
                         {
                             Id = new Guid("a0727ace-3630-4c6c-8583-432df14cffc9"),
-                            CreatedAt = new DateTime(2025, 7, 1, 13, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2025, 7, 4, 18, 15, 41, 689, DateTimeKind.Utc).AddTicks(9125),
                             FormId = new Guid("2daa2bec-d937-44e1-8b3e-9c2331acc94b"),
                             Version = "v2.0"
                         },
                         new
                         {
                             Id = new Guid("f3b7fa94-1bef-4f8d-835d-73865f07c77f"),
-                            CreatedAt = new DateTime(2025, 7, 1, 14, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2025, 7, 4, 18, 15, 41, 689, DateTimeKind.Utc).AddTicks(9128),
                             FormId = new Guid("ef1ac28c-b2b4-4a1e-bc99-7ad17b0c5461"),
                             Version = "v1.0"
                         },
                         new
                         {
                             Id = new Guid("488cc030-a7a9-4135-81b1-cd4338fddf0c"),
-                            CreatedAt = new DateTime(2025, 7, 1, 15, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2025, 7, 4, 18, 15, 41, 689, DateTimeKind.Utc).AddTicks(9130),
                             FormId = new Guid("ef1ac28c-b2b4-4a1e-bc99-7ad17b0c5461"),
                             Version = "v2.0"
                         });

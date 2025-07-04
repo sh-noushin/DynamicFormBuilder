@@ -12,15 +12,15 @@ namespace FormBuilder.Domain.FormSubmissionValues;
 
 public class FormSubmissionValue : BaseEntity<Guid>
 {
-    public Guid FormSubmissionId { get; private set; }
-    public FormSubmission FormSubmission { get; private set; } = null!;
+    public Guid FormSubmissionId { get;  set; }
+    public FormSubmission FormSubmission { get;  set; } = null!;
 
-    public Guid FormControlId { get; private set; }
-    public FormControl FormControl { get; private set; } = null!;
+    public Guid FormControlId { get;  set; }
+    public FormControl FormControl { get;  set; } = null!;
 
-    public string Value { get; private set; }
+    public string Value { get;  set; }
 
-    private FormSubmissionValue() { }
+    public FormSubmissionValue() { }
 
     public FormSubmissionValue(Guid formSubmissionId, Guid formControlId, string value)
     {

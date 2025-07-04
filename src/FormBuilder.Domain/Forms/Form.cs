@@ -12,10 +12,10 @@ namespace FormBuilder.Domain.Forms;
 
 public class Form : BaseEntity<Guid>
 {
-    public string Name { get; private set; }
+    public string Name { get;  set; }
     public ICollection<FormVersion> Versions { get; set; } = new List<FormVersion>();
 
-    private Form()
+    public Form()
     {
 
     }

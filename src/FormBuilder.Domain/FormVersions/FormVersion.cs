@@ -12,15 +12,15 @@ namespace FormBuilder.Domain.FormVersions;
 
 public class FormVersion : BaseEntity<Guid>
 {
-    public Guid FormId { get; private set; }
-    public Form Form { get; private set; } = null!;
+    public Guid FormId { get;  set; }
+    public Form Form { get;  set; } = null!;
 
-    public string Version { get; private set; }
-    public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+    public string Version { get;  set; }
+    public DateTime CreatedAt { get;  set; } = DateTime.UtcNow;
 
-    public ICollection<FormControl> Controls { get; private set; } = new List<FormControl>();
+    public ICollection<FormControl> Controls { get;  set; } = new List<FormControl>();
 
-    private FormVersion() { }
+    public FormVersion() { }
 
     public FormVersion(string version, Guid formId)
     {

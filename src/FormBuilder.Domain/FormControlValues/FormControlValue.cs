@@ -11,11 +11,11 @@ namespace FormBuilder.Domain.FormControlValues;
 
 public class FormControlValue : BaseEntity<Guid>
 {
-    public string Value { get; private set; }
-    public Guid FormControlId { get; private set; }
-    public FormControl FormControl { get; private set; } = null!;
+    public string Value { get;  set; }
+    public Guid FormControlId { get;  set; }
+    public FormControl FormControl { get;  set; } = null!;
 
-    private FormControlValue() { }
+    public FormControlValue() { }
 
     public FormControlValue(string value, Guid formControlId)
     {
