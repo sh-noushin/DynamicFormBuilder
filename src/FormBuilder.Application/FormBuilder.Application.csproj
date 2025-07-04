@@ -6,4 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="15.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FormBuilder.Application.Contract\FormBuilder.Application.Contract.csproj" />
+    <ProjectReference Include="..\FormBuilder.Domain\FormBuilder.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
