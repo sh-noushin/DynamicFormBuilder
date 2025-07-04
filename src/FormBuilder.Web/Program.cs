@@ -18,8 +18,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("https://localhost:7152/swagger/v1/swagger.json", "FormBuilder API v1");
+    });
 }
+
 
 app.UseHttpsRedirection();
 
