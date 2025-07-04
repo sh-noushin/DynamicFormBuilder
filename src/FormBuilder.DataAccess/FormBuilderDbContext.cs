@@ -5,12 +5,6 @@ using FormBuilder.Domain.FormSubmissions;
 using FormBuilder.Domain.FormSubmissionValues;
 using FormBuilder.Domain.FormVersions;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FormBuilder.DataAccess;
 
