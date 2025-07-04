@@ -7,7 +7,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="15.0.0" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FormBuilder.Application.Contract\FormBuilder.Application.Contract.csproj" />
+    <ProjectReference Include="..\FormBuilder.Application\FormBuilder.Application.csproj" />
+    <ProjectReference Include="..\FormBuilder.DataAccess\FormBuilder.DataAccess.csproj" />
+    <ProjectReference Include="..\FormBuilder.Domain.Shared\FormBuilder.Domain.Shared.csproj" />
+    <ProjectReference Include="..\FormBuilder.Domain\FormBuilder.Domain.csproj" />
   </ItemGroup>
 
 </Project>
