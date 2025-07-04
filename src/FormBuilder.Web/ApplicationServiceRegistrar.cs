@@ -37,6 +37,13 @@ public static class ApplicationServiceRegistrar
 
         // AutoMapper
         services.AddAutoMapper(typeof(ApplicationServiceRegistrar).Assembly);
+        services.AddAutoMapper(typeof(FormControlMappingProfile).Assembly);
+        services.AddAutoMapper(typeof(FormControlValueMappoinProfile).Assembly);
+        services.AddAutoMapper(typeof(FormMappingProfile).Assembly);
+        services.AddAutoMapper(typeof(FormSubmissionMappingProfile).Assembly);
+        services.AddAutoMapper(typeof(FormSubmissionValueMappingProfile).Assembly);
+        services.AddAutoMapper(typeof(FormVersionMappingProfile).Assembly);
+
 
         // Services
         services.AddScoped<IFormControlService, FormControlService>();
