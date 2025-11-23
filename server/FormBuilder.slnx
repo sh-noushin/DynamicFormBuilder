@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/server/">
+    <Project Path="FormBuilder.API/FormBuilder.API.csproj" Id="4a6858d6-bcfe-4dea-adf5-94ecfbc33dae" />
+    <Project Path="FormBuilder.Core/FormBuilder.Core.csproj" Id="55cb3a59-6f52-4068-8117-c9f55ca8ca2d" />
+    <Project Path="FormBuilder.Infrastructure/FormBuilder.Infrastructure.csproj" Id="bf2ce8c7-8ff8-4888-8dcf-23c0eebafd6f" />
+    <Project Path="FormBuilder.Models/FormBuilder.Models.csproj" Id="e7a2304f-844f-4f8d-b597-90f34231d829" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>
