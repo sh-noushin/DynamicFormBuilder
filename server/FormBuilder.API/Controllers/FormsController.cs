@@ -1,9 +1,7 @@
-﻿using FormBuilder.Core.DTOs;
-using FormBuilder.Models.Entities;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using FormBuilder.Core.DTOs;
 using FormBuilder.Core.Interfaces;
-using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FormBuilder.API.Controllers
 {

@@ -3,7 +3,6 @@ using FormBuilder.Core.Interfaces;
 using FormBuilder.Models.Entities;
 using FormBuilder.Models.Exceptions;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FormBuilder.API.Controllers;
