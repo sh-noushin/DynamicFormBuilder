@@ -37,8 +37,7 @@ public class FormFieldsController : ControllerBase
         }
 
         var fields = await _formFieldService.GetFieldsByVersionIdAsync(version.Id);
-        var fieldDtos = fields.Select(f => _mapper.Map<FormFieldDto>(f));
-        return Ok(fieldDtos);
+        return Ok(fields);
     }
 
     [HttpGet("{fieldId}")]
@@ -59,7 +58,7 @@ public class FormFieldsController : ControllerBase
             return NotFound();
         }
 
-        return Ok(_mapper.Map<FormFieldDto>(field));
+        return Ok(field);
     }
 
     [HttpPost]

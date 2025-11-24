@@ -69,6 +69,5 @@ namespace FormBuilder.API.Controllers
             return Ok(updatedForm);
         }
 
-        // Remove static mapping methods
     }
 }
