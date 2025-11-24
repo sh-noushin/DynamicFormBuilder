@@ -138,6 +138,10 @@ public class FormFieldsController : ControllerBase
 
     [HttpPost("reorder")]
     [Authorize(Roles = "Admin")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(void), 204)]
+    [ProducesResponseType(typeof(void), 400)]
+    [ProducesResponseType(typeof(void), 404)]
     public async Task<IActionResult> ReorderFormFields(Guid formId, int versionNumber, List<Guid> fieldIds)
     {
         var version = await _formVersionService.GetVersionAsync(formId, versionNumber);
