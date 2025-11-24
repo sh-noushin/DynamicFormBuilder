@@ -1,6 +1,6 @@
-﻿using FormBuilder.Models.Entities;
+using FormBuilder.Models.Entities;
 
-namespace FormBuilder.Core.Interfaces;
+namespace FormBuilder.Models.Repositories;
 
 public interface IFormSubmissionRepository
 {
