@@ -5,5 +5,7 @@
     <Project Path="FormBuilder.Infrastructure/FormBuilder.Infrastructure.csproj" Id="bf2ce8c7-8ff8-4888-8dcf-23c0eebafd6f" />
     <Project Path="FormBuilder.Models/FormBuilder.Models.csproj" Id="e7a2304f-844f-4f8d-b597-90f34231d829" />
   </Folder>
-  <Folder Name="/tests/" />
+  <Folder Name="/tests/">
+    <Project Path="../tests/FormBuilder.Tests/FormBuilder.Tests.csproj" Id="faeec74b-59bd-4ec2-9537-43ac90b458cc" />
+  </Folder>
 </Solution>

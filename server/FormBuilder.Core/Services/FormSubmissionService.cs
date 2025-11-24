@@ -10,11 +10,17 @@ public class FormSubmissionService : IFormSubmissionService
 {
     private readonly IFormSubmissionRepository _repository;
     private readonly IMapper _mapper;
+    private IFormSubmissionRepository repo;
 
     public FormSubmissionService(IFormSubmissionRepository repository, IMapper mapper)
     {
         _repository = repository;
         _mapper = mapper;
+    }
+
+    public FormSubmissionService(IFormSubmissionRepository repo)
+    {
+        this.repo = repo;
     }
 
     public async Task<FormSubmissionDto> CreateSubmissionAsync(CreateFormSubmissionDto submissionDto)
