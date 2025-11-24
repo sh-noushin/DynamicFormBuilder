@@ -1,6 +1,8 @@
 ﻿using FormBuilder.Infrastructure.Data;
 using FormBuilder.Models.Entities;
 using FormBuilder.Models.Exceptions;
+using FormBuilder.Models.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace FormBuilder.Infrastructure.Repositories;
 
@@ -69,7 +71,6 @@ public class FormSubmissionRepository : IFormSubmissionRepository
         submission.SubmitterEmail = submitterEmail;
         submission.SubmittedAt = DateTime.UtcNow;
 
-        // Replace value collection with the new set
         _context.FormSubmissionValues.RemoveRange(submission.Values);
         submission.Values.Clear();
 
@@ -84,7 +85,6 @@ public class FormSubmissionRepository : IFormSubmissionRepository
 
         await _context.SaveChangesAsync();
 
-        // Ensure navigation collection is refreshed with generated IDs
         await _context.Entry(submission).Collection(s => s.Values).LoadAsync();
 
         return submission;

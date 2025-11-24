@@ -1,5 +1,6 @@
 ﻿using FormBuilder.Models.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace FormBuilder.Infrastructure.Data;
 
