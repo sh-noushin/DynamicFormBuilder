@@ -15,6 +15,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CreateVersionDialogComponent } from '../create-version-dialog.component/create-version-dialog.component';
 import { ManageFieldsDialogComponent } from '../manage-fields-dialog.component/manage-fields-dialog.component';
 import { DeleteDialogComponent, DeleteDialogData } from '../../../../shared/delete-dialog.component/delete-dialog.component';
+import { EditVersionDialogComponent } from '../edit-version-dialog.component/edit-version-dialog.component';
 
 
 export type EditFormDialogData = {
