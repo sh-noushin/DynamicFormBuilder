@@ -1,5 +1,4 @@
 using FormBuilder.API.Extensions;
-using Microsoft.AspNetCore.OpenApi;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
