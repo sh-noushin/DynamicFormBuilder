@@ -1,5 +1,6 @@
 using FormBuilder.API.Extensions;
 using Scalar.AspNetCore;
+using Microsoft.AspNetCore.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,8 +15,11 @@ builder.Services.AddControllers()
             new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 
-// Add OpenAPI for Scalar
-builder.Services.AddOpenApi();
+// Add OpenAPI for Scalar – force OpenAPI 3.0
+builder.Services.AddOpenApi(options =>
+{
+    options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_0;
+});
 
 // Add DbContext
 builder.Services.AddFormBuilderDbContext(
@@ -31,7 +35,7 @@ builder.Services.AddFormBuilderAutoMapper();
 // Add Authentication (JWT)
 builder.Services.AddFormBuilderJwtAuthentication(builder.Configuration);
 
-// Add built-in OpenAPI (can stay, not harmful)
+// Endpoints API explorer (optional)
 builder.Services.AddEndpointsApiExplorer();
 
 // Add Repositories and Services
@@ -50,15 +54,11 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference(options =>
     {
         options.WithTitle("FormBuilder API");
-        // you can customize more: theme, dark mode, etc.
     });
 }
 
+// Use only the CORS policy you really want
 app.UseCors("AllowAngular");
-
-
-// This will override previous CORS, maybe you only want one of them:
-app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
@@ -78,4 +78,3 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
-

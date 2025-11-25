@@ -1,0 +1,147 @@
+.action-btn {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  padding: 0;
+  margin: 0;
+
+  &.edit-btn {
+    background-color: #2196f3;
+    color: white;
+    &:hover {
+      background-color: #42a5f5;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(33, 150, 243, 0.4), 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3), 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  &.delete-btn {
+    background-color: #f44336;
+    color: white;
+    &:hover {
+      background-color: #ef5350;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(244, 67, 54, 0.4), 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(244, 67, 54, 0.3), 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  mat-icon {
+    font-size: 18px !important;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+  }
+}
+.dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  mat-icon {
+    color: #2196f3;
+    background: rgba(33,150,243,0.12);
+    border-radius: 8px;
+    padding: 4px;
+  }
+  .spacer { flex: 1; }
+}
+
+.dialog-content { padding: 4px 8px 0 8px; max-width: 1200px; }
+.dialog-form { padding-top: 4px; display: grid; gap: 6px; }
+.full-width { width: 100%; }
+.toggle-row { margin-top: 2px; }
+.dialog-actions { padding: 6px 8px 8px; display: flex; gap: 6px; }
+.versions-header { display: flex; align-items: center; justify-content: space-between; margin: 8px 0 12px; }
+.versions-title { display: flex; flex-direction: column; gap: 4px; }
+.versions-title h3 { margin: 0; font-weight: 600; color: #1a1a1a; }
+.section-subtitle { margin: 0; color: #666; font-size: 0.9rem; }
+
+/* Outline form-field styling to match login */
+:host ::ng-deep .mat-mdc-form-field {
+  --mdc-outlined-text-field-outline-color: #ddd;
+  --mdc-outlined-text-field-focus-outline-color: #2196f3;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(33,150,243,0.07);
+}
+:host ::ng-deep input.mat-input-element { transition: box-shadow 0.2s; }
+:host ::ng-deep input.mat-input-element:focus { outline: none; box-shadow: 0 0 0 2px #2196f3; }
+
+/* Versions table style similar to forms list */
+/* Table styles now provided globally via styles/_tables.scss (.forms-table extends .table-base) */
+.versions-table-card {
+  /* Match Forms card shadow exactly */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  /* Add horizontal space from dialog edges */
+  margin: 12px 16px 16px 16px;
+  width: auto;
+  /* Use container width like Forms card (no fixed min/max) */
+    mat-card-header {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    padding: 12px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    mat-card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    mat-card-subtitle {
+      color: #666;
+      font-size: 0.85rem;
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+  mat-card-content {
+    padding: 0;
+  }
+}
+.cell { color: #111827; }
+.table-row { transition: all 0.2s ease; }
+.table-row:hover { background: #f8f9ff; }
+.actions-cell .mat-mdc-icon-button { box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+.btn-edit { color: #0284c7; }
+.btn-publish { color: #10b981; }
+.btn-current { color: #6366f1; }
+.btn-delete { color: #ef4444; }
+.status-indicator {
+  width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+}
+.status-active { background-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
+.status-inactive { background-color: #d1d5db; box-shadow: 0 0 0 3px rgba(209,213,219,0.4); }
+.badge { font-size: 12px; padding: 2px 6px; background: #e5e7eb; border-radius: 999px; color: #374151; }
+.badge-current { background: #d1fae5; color: #065f46; }
+
