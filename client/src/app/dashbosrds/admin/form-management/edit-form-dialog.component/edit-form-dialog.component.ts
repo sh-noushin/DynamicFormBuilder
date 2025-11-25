@@ -14,6 +14,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CreateVersionDialogComponent } from '../create-version-dialog.component/create-version-dialog.component';
 import { ManageFieldsDialogComponent } from '../manage-fields-dialog.component/manage-fields-dialog.component';
+import { DeleteDialogComponent, DeleteDialogData } from '../../../../shared/delete-dialog.component/delete-dialog.component';
 
 
 export type EditFormDialogData = {

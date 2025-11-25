@@ -1,0 +1,21 @@
+<div class="dialog-wrapper">
+  <div class="dialog-header">
+    <div class="icon-circle warning">
+      <mat-icon>warning</mat-icon>
+    </div>
+    <h2 class="title">Delete {{ data.itemType | titlecase }}</h2>
+  </div>
+  <div class="dialog-body" mat-dialog-content>
+    <p class="message">
+      Are you sure you want to permanently delete
+      <span class="entity">{{ data.itemType | titlecase }}</span>
+      @if (data.itemName) { <span class="name">“{{ data.itemName }}”</span> }
+      ?
+    </p>
+    <p class="note">This action cannot be undone. All related data may be removed.</p>
+  </div>
+  <div class="dialog-actions" mat-dialog-actions>
+    <button mat-stroked-button color="primary" (click)="onCancel()" cdkFocusInitial>Cancel</button>
+    <button mat-flat-button color="warn" (click)="onDelete()" class="btn-danger">Delete</button>
+  </div>
+</div>

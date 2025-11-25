@@ -10,6 +10,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Client, CreateFormFieldDto, FormFieldDto } from '../../../../core/services/api-service';
 import { AddFieldDialogComponent } from '../add-field-dialog.component/add-field-dialog.component';
+import { DeleteDialogComponent, DeleteDialogData } from '../../../../shared/delete-dialog.component/delete-dialog.component';
 
 export type ManageFieldsDialogData = {
   formId: string;
@@ -68,7 +69,6 @@ export class ManageFieldsDialogComponent implements OnInit {
     });
     ref.afterClosed().subscribe((result?: any) => {
       if (!result) return;
-      // Determine next order if user left 0
       const nextOrder = this.fields().length
         ? Math.max(...this.fields().map(f => f.order ?? 0)) + 1
         : 0;
