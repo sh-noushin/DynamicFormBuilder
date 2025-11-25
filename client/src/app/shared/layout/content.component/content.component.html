@@ -1,0 +1,27 @@
+<app-header></app-header>
+
+@if (showSidenav()) {
+  <mat-sidenav-container class="sidenav-container">
+    <mat-sidenav mode="side" opened class="sidenav">
+      <div class="nav-list">
+        <a mat-list-item routerLink="/admin/forms" routerLinkActive="active"> <mat-icon>description</mat-icon> <span>Forms</span> </a>
+        <a mat-list-item routerLink="/admin/users" routerLinkActive="active"> <mat-icon>people</mat-icon> <span>Users</span> </a>
+      </div>
+    </mat-sidenav>
+
+    <mat-sidenav-content class="main-content">
+      <div class="content-wrapper">
+        <router-outlet></router-outlet>
+      </div>
+      <app-footer></app-footer>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+} @else {
+  <main class="main-content">
+    <div class="content-wrapper no-sidenav">
+      <router-outlet></router-outlet>
+    </div>
+    <app-footer></app-footer>
+  </main>
+}
+

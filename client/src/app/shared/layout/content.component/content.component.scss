@@ -1,0 +1,35 @@
+.main-content {
+  min-height: 60vh;
+  padding: 24px;
+}
+
+.sidenav-container {
+  position: fixed;
+  top: 56px; /* header height */
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #f5f5f5;
+}
+
+.sidenav {
+  width: 260px;
+  background: #fff;
+  border-right: 1px solid #e0e0e0;
+}
+
+.content-wrapper {
+  padding: 24px;
+}
+
+.content-wrapper.no-sidenav {
+  padding: 8px 24px 24px; /* tighter top spacing for user dashboard */
+}
+
+.nav-list {
+  padding: 12px 8px;
+}
+
+.nav-list a.mat-list-item.active {
+  background: #e8f3ff;
+}
