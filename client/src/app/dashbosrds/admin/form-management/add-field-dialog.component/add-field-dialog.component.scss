@@ -1,0 +1,105 @@
+.dialog-title { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.dialog-title mat-icon { color: #4caf50; background: rgba(76,175,80,0.12); border-radius: 8px; padding: 4px; }
+.dialog-title .spacer { flex: 1; }
+.dialog-content { padding: 8px 16px 0 16px; margin-bottom: 0 !important; padding-bottom: 0 !important; }
+.dialog-form { display: grid; gap: 12px; padding-top: 8px; margin-bottom: 0 !important; }
+.dialog-actions { padding: 8px 16px 12px; display: flex; gap: 8px; margin-top: 0 !important; }
+.full-width { width: 100%; }
+
+/* Tighter, consistent layout */
+
+
+.two-col {
+	grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+	.two-col {
+		grid-template-columns: 1fr 1fr;
+		column-gap: 16px;
+		row-gap: 12px;
+	}
+	.two-col > mat-form-field.full-width:not(.span-2) {
+		grid-column: auto;
+		min-width: 0;
+	}
+	.two-col > mat-form-field.span-2 {
+		grid-column: 1 / span 2;
+	}
+	/* Force Name field to always span both columns so hint never overlaps */
+	.two-col > mat-form-field.name-field {
+		grid-column: 1 / span 2;
+	}
+}
+.span-2 { grid-column: 1 / -1; }
+
+.checkbox-row {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 4px 2px 2px;
+}
+
+/* Options section styling */
+.options-section {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 12px 16px 16px;
+	border: 1px dashed #d0d7de;
+	background: #fafafa;
+	border-radius: 12px;
+}
+.options-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.options-header .title-row { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+.option-rows { display: flex; flex-direction: column; gap: 10px; }
+.option-row { display: flex; align-items: flex-end; gap: 8px; }
+.option-row .opt-label, .option-row .opt-value { flex: 1; }
+.options-error { color: #d32f2f; font-size: 0.75rem; font-weight: 500; }
+.options-hint { font-size: 0.7rem; color: #555; }
+
+/* Fix mat-hint and mat-error overlap by forcing hints and errors to wrap and not overflow */
+
+/* Only wrap hints/errors for the Name field to avoid affecting other fields */
+
+.mat-mdc-form-field-hint-wrapper.name-hint,
+.mat-mdc-form-field-error-wrapper.name-error {
+	white-space: normal !important;
+	overflow-wrap: break-word;
+	word-break: break-word;
+	max-width: 100%;
+	margin-bottom: 2px;
+}
+
+/* Ensure input fields do not overlap with hints/errors */
+.mat-mdc-form-field-subscript-wrapper {
+	display: block !important;
+	width: 100%;
+}
+
+.checkbox-row {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 4px 2px 2px;
+}
+
+/* Match outline and radius with other dialogs */
+:host ::ng-deep .mat-mdc-form-field {
+	--mdc-outlined-text-field-outline-color: #ddd;
+	--mdc-outlined-text-field-focus-outline-color: #2196f3;
+	border-radius: 12px;
+	box-shadow: 0 1px 6px rgba(33,150,243,0.07);
+}
+:host ::ng-deep input.mat-input-element,
+:host ::ng-deep textarea.mat-mdc-input-element {
+	transition: box-shadow 0.2s;
+}
+:host ::ng-deep input.mat-input-element:focus,
+:host ::ng-deep textarea.mat-mdc-input-element:focus {
+	outline: none;
+	box-shadow: 0 0 0 2px #2196f3;
+}
