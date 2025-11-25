@@ -5,8 +5,8 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatIconModule } from '@angular/material/icon';
 
 export interface DeleteDialogData {
-  itemType: string; // e.g. 'form', 'user', 'version'
-  itemName?: string; // e.g. 'Form 1', 'Nooshin', 'v2'
+  itemType: string; 
+  itemName?: string; 
 }
 
 @Component({
@@ -14,7 +14,7 @@ export interface DeleteDialogData {
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
   templateUrl: './delete-dialog.component.html',
-  styleUrls: ['./delete-dialog.component.css']
+  styleUrls: ['./delete-dialog.component.scss']
 })
 export class DeleteDialogComponent {
   constructor(

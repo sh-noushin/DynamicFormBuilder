@@ -16,6 +16,21 @@ export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
 @Injectable()
 export class Client {
+    formsDELETE(id: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/Forms/" + encodeURIComponent(id);
+        let options_: any = {
+            observe: "response",
+            responseType: "blob"
+        };
+        return this.http.request("delete", url_, options_).pipe(
+            _observableMergeMap((response_: any) => {
+                return _observableOf(undefined);
+            }),
+            _observableCatch((error: any) => {
+                return _observableThrow(error);
+            })
+        );
+    }
     private http: HttpClient;
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
