@@ -2814,7 +2814,7 @@ export class LoginResultDto implements ILoginResultDto {
     success?: boolean;
     username?: string;
     email?: string;
-    roles?: number[];
+    roles?: UserRole[];
     token?: string;
 
     [key: string]: any;
@@ -2876,7 +2876,7 @@ export interface ILoginResultDto {
     success?: boolean;
     username?: string;
     email?: string;
-    roles?: number[];
+    roles?: UserRole[];
     token?: string;
 
     [key: string]: any;
@@ -2886,7 +2886,7 @@ export class RegisterUserDto implements IRegisterUserDto {
     username?: string;
     email?: string;
     password?: string;
-    role?: number;
+    role?: UserRole;
 
     [key: string]: any;
 
@@ -2937,7 +2937,7 @@ export interface IRegisterUserDto {
     username?: string;
     email?: string;
     password?: string;
-    role?: number;
+    role?: UserRole;
 
     [key: string]: any;
 }
@@ -3286,7 +3286,7 @@ export class UserDto implements IUserDto {
     id?: string;
     username?: string;
     email?: string;
-    roles?: number[];
+    roles?: UserRole[];
     createdAt?: Date;
 
     [key: string]: any;
@@ -3348,7 +3348,7 @@ export interface IUserDto {
     id?: string;
     username?: string;
     email?: string;
-    roles?: number[];
+    roles?: UserRole[];
     createdAt?: Date;
 
     [key: string]: any;
@@ -3357,7 +3357,7 @@ export interface IUserDto {
 export class UserInfoDto implements IUserInfoDto {
     username?: string;
     email?: string;
-    roles?: number[];
+    roles?: UserRole[];
 
     [key: string]: any;
 
@@ -3411,11 +3411,14 @@ export class UserInfoDto implements IUserInfoDto {
 }
 
 export interface IUserInfoDto {
-    username?: string;
-    email?: string;
-    roles?: number[];
+    username?: string | undefined;
+    email?: string | undefined;
+    roles?: UserRole[] | undefined;
+}
 
-    [key: string]: any;
+export enum UserRole {
+    User = "User",
+    Admin = "Admin",
 }
 
 export class ApiException extends Error {

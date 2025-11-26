@@ -1,0 +1,50 @@
+/* Match Create Form dialog styling */
+.dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+
+  mat-icon {
+    color: #2196f3;
+    background: rgba(33, 150, 243, 0.12);
+    border-radius: 8px;
+    padding: 4px;
+  }
+  .spacer { flex: 1; }
+}
+
+.dialog-content {
+  padding: 8px 16px 0 16px;
+  max-width: 640px;
+}
+
+.dialog-form {
+  padding-top: 8px;
+  display: grid;
+  gap: 12px;
+}
+
+.full-width { width: 100%; }
+
+.dialog-actions {
+   /* Removed local primary-action-btn styling; now uses global .btn-primary utility */
+  --mdc-outlined-text-field-focus-outline-color: #2196f3;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(33,150,243,0.07);
+}
+
+:host ::ng-deep input.mat-input-element { transition: box-shadow 0.2s; }
+:host ::ng-deep input.mat-input-element:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #2196f3;
+}
+
+.primary-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #2196f3 !important;
+  color: #fff !important;
+  box-shadow: 0 2px 4px rgba(33,150,243,0.3) !important;
+}

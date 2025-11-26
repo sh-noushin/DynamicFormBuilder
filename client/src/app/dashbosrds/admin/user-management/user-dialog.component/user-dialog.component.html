@@ -1,0 +1,47 @@
+<h2 mat-dialog-title class="dialog-title">
+  <mat-icon>person_add</mat-icon>
+  <span>{{ isCreate ? 'Create New User' : 'Edit User' }}</span>
+  <span class="spacer"></span>
+</h2>
+
+<mat-dialog-content class="dialog-content">
+  <div class="dialog-form" id="user-dialog-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Username</mat-label>
+      <input matInput [value]="username()" (input)="username.set($event.target.value); touched.username.set(true)" placeholder="Enter username" autofocus />
+      @if (usernameError()) { <mat-error>{{ usernameError() }}</mat-error> }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Email</mat-label>
+      <input matInput type="email" [value]="email()" (input)="email.set($event.target.value); touched.email.set(true)" placeholder="name@example.com" />
+      @if (emailError()) { <mat-error>{{ emailError() }}</mat-error> }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Role</mat-label>
+      <mat-select [value]="role()" (selectionChange)="role.set($event.value); touched.role.set(true)">
+        @for (r of roles; track r) { <mat-option [value]="r">{{ r }}</mat-option> }
+      </mat-select>
+      @if (roleError()) { <mat-error>{{ roleError() }}</mat-error> }
+    </mat-form-field>
+
+    @if (isCreate) {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" [value]="password()" (input)="password.set($event.target.value); touched.password.set(true)" placeholder="Enter password" />
+        @if (passwordError()) { <mat-error>{{ passwordError() }}</mat-error> }
+      </mat-form-field>
+    }
+
+  @if (error()) { <div class="error">{{ error() }}</div> }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-raised-button type="button" class="btn-cancel" (click)="cancel()" [disabled]="submitting()">Cancel</button>
+  <button mat-raised-button color="primary" type="button" class="btn-primary" (click)="submit()" [disabled]="submitting() || invalid">
+    @if (!submitting()) { <mat-icon>save</mat-icon> } @else { <mat-icon>hourglass_top</mat-icon> }
+    @if (!submitting()) { <span>Save</span> } @else { <span>Saving...</span> }
+  </button>
+</mat-dialog-actions>
