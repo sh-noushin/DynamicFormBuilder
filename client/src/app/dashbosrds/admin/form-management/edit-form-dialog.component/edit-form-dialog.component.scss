@@ -77,7 +77,6 @@
 .versions-title h3 { margin: 0; font-weight: 600; color: #1a1a1a; }
 .section-subtitle { margin: 0; color: #666; font-size: 0.9rem; }
 
-/* Outline form-field styling to match login */
 :host ::ng-deep .mat-mdc-form-field {
   --mdc-outlined-text-field-outline-color: #ddd;
   --mdc-outlined-text-field-focus-outline-color: #2196f3;
@@ -87,17 +86,13 @@
 :host ::ng-deep input.mat-input-element { transition: box-shadow 0.2s; }
 :host ::ng-deep input.mat-input-element:focus { outline: none; box-shadow: 0 0 0 2px #2196f3; }
 
-/* Versions table style similar to forms list */
-/* Table styles now provided globally via styles/_tables.scss (.forms-table extends .table-base) */
+
 .versions-table-card {
-  /* Match Forms card shadow exactly */
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   border-radius: 16px;
   overflow: hidden;
-  /* Add horizontal space from dialog edges */
   margin: 12px 16px 16px 16px;
   width: auto;
-  /* Use container width like Forms card (no fixed min/max) */
     mat-card-header {
     background: linear-gradient(135deg, #f8f9fa, #e9ecef);
     padding: 12px;

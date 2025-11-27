@@ -1,0 +1,19 @@
+@use 'variables' as *;
+
+@use 'sass:color';
+.table-base { width:100%; border-spacing:0; background:$color-surface; font-size:$font-size-base; color:$color-text;
+  thead { background: $color-surface-alt; }
+  th { font-weight:600; color:$color-text; font-size:$font-size-base; padding:$space-4; border-bottom:2px solid $color-border; text-align:left; }
+  td { padding:$space-4; border-bottom:1px solid $color-border-subtle; vertical-align:middle; }
+  tbody tr { transition: background-color $transition-base ease; }
+  tbody tr:hover { background: color.adjust($color-primary, $lightness: 46%); }
+}
+
+.table-compact { th, td { padding:$space-2 $space-3; } }
+
+.table-actions { display:flex; align-items:center; gap:$space-2; }
+
+.forms-table { @extend .table-base; }
+.header-cell { font-weight:600; color:$color-text; font-size:$font-size-base; }
+.cell { color:$color-text-strong; }
+.actions-cell { @extend .table-actions; }

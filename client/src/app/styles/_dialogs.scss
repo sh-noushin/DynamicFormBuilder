@@ -1,0 +1,12 @@
+@use './variables' as *;
+
+.mat-mdc-dialog-panel {
+  border-radius: $radius-md !important;
+  overflow: hidden;
+}
+
+.mat-mdc-dialog-panel .mdc-dialog__surface,
+.mat-mdc-dialog-panel.elevated-dialog-panel,
+.mat-mdc-dialog-panel.wide-dialog-panel {
+  border-radius: $radius-md !important;
+}

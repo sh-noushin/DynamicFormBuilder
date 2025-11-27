@@ -1,4 +1,3 @@
-/* Match Create Form dialog styling */
 .dialog-title {
   display: flex;
   align-items: center;
@@ -28,7 +27,6 @@
 .full-width { width: 100%; }
 
 .dialog-actions {
-   /* Removed local primary-action-btn styling; now uses global .btn-primary utility */
   --mdc-outlined-text-field-focus-outline-color: #2196f3;
   border-radius: 12px;
   box-shadow: 0 1px 6px rgba(33,150,243,0.07);
