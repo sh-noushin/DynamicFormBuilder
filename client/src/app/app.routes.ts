@@ -1,12 +1,15 @@
+
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from './core/guards/role.guard';
 import { UserRole } from './core/services/api-service';
+import { LoginComponent } from './core/components/login.component/login.component';
+import { ContentComponent } from './shared/layout/content.component/content.component';
 
 export const routes: Routes = [
   {
     path: 'login',
-    loadComponent: () => import('./shared/layout/content.component/content.component').then(m => m.ContentComponent)
+    component: LoginComponent
   },
   {
     path: 'admin',
@@ -31,13 +34,13 @@ export const routes: Routes = [
   },
   {
     path: 'user',
-    loadComponent: () => import('./shared/layout/content.component/content.component').then(m => m.ContentComponent),
+    component: ContentComponent,
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: [UserRole.User] },
     children: [
       {
         path: '',
-        loadComponent: () => import('./shared/layout/content.component/content.component').then(m => m.ContentComponent)
+        component: ContentComponent
       }
     ]
   },

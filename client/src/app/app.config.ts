@@ -1,9 +1,9 @@
+
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
-
+import { provideHttpClient } from '@angular/common/http';
 import { routes } from './app.routes';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { API_BASE_URL } from './core/services/api-service';
+import { API_BASE_URL, Client } from './core/services/api-service';
 import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
@@ -11,7 +11,8 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
-    provideClientHydration(withEventReplay()),
-    { provide: API_BASE_URL, useValue: environment.apiBaseUrl }
+    provideHttpClient(),
+    { provide: API_BASE_URL, useValue: environment.apiBaseUrl },
+    Client
   ]
 };

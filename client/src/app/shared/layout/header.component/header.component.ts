@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { Client } from '../../../core/services/api-service';
-import { Router } from 'express';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
