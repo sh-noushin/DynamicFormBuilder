@@ -25,12 +25,20 @@ export class AuthGuard implements CanActivate {
 
     const token = localStorage.getItem('auth_token');
     if (token) {
-      this.apiClient.user().subscribe({
-        error: err => {
-          console.warn('[AuthGuard] Token validation failed:', err);
-        }
+      return new Observable<boolean>(observer => {
+        this.apiClient.user().subscribe({
+          next: () => {
+            observer.next(true);
+            observer.complete();
+          },
+          error: err => {
+            console.warn('[AuthGuard] Token validation failed:', err);
+            this.removeTokenAndRedirect();
+            observer.next(false);
+            observer.complete();
+          }
+        });
       });
-      return of(true);
     } else {
       this.router.navigate(['/login']);
       return of(false);
