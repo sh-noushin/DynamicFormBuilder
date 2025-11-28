@@ -472,6 +472,9 @@
   border-radius: 16px;
   padding: 16px;
   min-height: 160px;
+  max-width: 1000px; 
+  width: 100%;
+  margin: 8px auto 24px; 
 
   .submissions-list {
     display: flex;
