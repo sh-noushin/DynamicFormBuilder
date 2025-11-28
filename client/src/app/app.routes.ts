@@ -34,15 +34,9 @@ export const routes: Routes = [
   },
   {
     path: 'user',
-    component: ContentComponent,
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: [UserRole.User] },
-    children: [
-      {
-        path: '',
-        component: ContentComponent
-      }
-    ]
+    loadComponent: () => import('./dashbosrds/user/user-dashboard.component/user-dashboard.component').then(m => m.UserDashboardComponent)
   },
   {
     path: '',
