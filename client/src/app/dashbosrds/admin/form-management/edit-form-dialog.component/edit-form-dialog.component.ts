@@ -124,13 +124,14 @@ export class EditFormDialogComponent implements OnInit {
 				});
 				this.api.versionsPOST(this.data.form.id, payload).subscribe({
 				next: v => {
+					const vNum = (v && v.versionNumber != null) ? v.versionNumber : nextVersionNumber;
 						const actions: Array<Promise<void>> = [];
 						const newFields = result.fields || [];
 						if (newFields.length) {
 							actions.push(
 								new Promise((resolve) => {
 									Promise.all(
-										newFields.map((f:any) => new Promise<void>((res) => this.api.fieldsPOST(this.data.form!.id!, v.versionNumber!, new CreateFormFieldDto({
+										newFields.map((f:any) => new Promise<void>((res) => this.api.fieldsPOST(this.data.form!.id!, vNum!, new CreateFormFieldDto({
 											name: f.name,
 											label: f.label,
 											type: f.type,
@@ -150,10 +151,10 @@ export class EditFormDialogComponent implements OnInit {
 							);
 						}
 						if (result.publish) {
-							actions.push(new Promise((resolve) => this.api.publish(this.data.form!.id!, v.versionNumber!).subscribe({ next: () => resolve(), error: () => resolve() })));
+							actions.push(new Promise((resolve) => this.api.publish(this.data.form!.id!, vNum!).subscribe({ next: () => resolve(), error: () => resolve() })));
 						}
 						if (result.makeCurrent) {
-							actions.push(new Promise((resolve) => this.api.setCurrent(this.data.form!.id!, v.versionNumber!).subscribe({ next: () => resolve(), error: () => resolve() })));
+							actions.push(new Promise((resolve) => this.api.setCurrent(this.data.form!.id!, vNum!).subscribe({ next: () => resolve(), error: () => resolve() })));
 						}
 						if (actions.length) {
 							Promise.all(actions).then(() => {
@@ -165,7 +166,7 @@ export class EditFormDialogComponent implements OnInit {
 										maxWidth: '85vw',
 										height: '70vh',
 										panelClass: 'elevated-dialog-panel',
-										data: { formId: this.data.form!.id!, versionNumber: v.versionNumber! },
+										data: { formId: this.data.form!.id!, versionNumber: vNum! },
 										disableClose: false
 									});
 								}
@@ -179,7 +180,7 @@ export class EditFormDialogComponent implements OnInit {
 									maxWidth: '85vw',
 									height: '70vh',
 									panelClass: 'elevated-dialog-panel',
-									data: { formId: this.data.form!.id!, versionNumber: v.versionNumber! },
+									data: { formId: this.data.form!.id!, versionNumber: vNum! },
 									disableClose: false
 								});
 							}

@@ -16,14 +16,14 @@
               <mat-form-field appearance="outline" class="filter">
                 <mat-label>Form</mat-label>
                 <mat-select [value]="selectedForm()" (selectionChange)="selectForm($event.value)">
-                  @for (f of forms(); track f) { <mat-option [value]="f">{{ f.name }}</mat-option> }
+                  @for (f of forms(); track f.id) { <mat-option [value]="f">{{ f.name }}</mat-option> }
                 </mat-select>
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="filter">
                 <mat-label>Published Version</mat-label>
                 <mat-select [disabled]="!selectedForm() || !versions().length" [value]="selectedVersion()" (selectionChange)="selectVersion($event.value)">
-                  @for (v of versions(); track v) { <mat-option [value]="v">v{{ v.versionNumber }} • {{ v.createdAt | date:'MMM d, y' }}</mat-option> }
+                  @for (v of versions(); track v.id) { <mat-option [value]="v">v{{ v.versionNumber }} • {{ v.createdAt | date:'MMM d, y' }}</mat-option> }
                 </mat-select>
               </mat-form-field>
             </div>
@@ -41,7 +41,7 @@
               </div>
               @if (fields().length) {
                 <form [formGroup]="formGroup" class="dynamic-form">
-                  @for (f of fields(); track f) {
+                  @for (f of fields(); track f.id) {
                     <div class="field-row">
                       @switch (f.type) {
                         @case ('Text') {
@@ -123,7 +123,7 @@
                               @if (!formGroup.get(fieldName(f))?.value) {
                                 <mat-option value="" disabled>-- select --</mat-option>
                               }
-                              @for (opt of getOptions(f); track opt) {
+                              @for (opt of getOptions(f); track opt.value) {
                                 <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
                               }
                             </mat-select>
@@ -144,7 +144,7 @@
                           <div class="radio-row">
                             <label class="field-label">{{ f.label }}</label>
                             <mat-radio-group [formControlName]="fieldName(f)">
-                              @for (opt of getOptions(f); track opt) {
+                              @for (opt of getOptions(f); track opt.value) {
                                 <mat-radio-button [value]="opt.value">{{ opt.label }}</mat-radio-button>
                               }
                             </mat-radio-group>
@@ -192,7 +192,7 @@
               <mat-form-field appearance="outline" class="filter">
                 <mat-label>Form</mat-label>
                 <mat-select [value]="submissionForm()" (selectionChange)="selectSubmissionForm($event.value)">
-                  @for (f of forms(); track f) {
+                  @for (f of forms(); track f.id) {
                     <mat-option [value]="f">{{ f.name }}</mat-option>
                   }
                 </mat-select>
@@ -201,7 +201,7 @@
               <mat-form-field appearance="outline" class="filter">
                 <mat-label>Published Version</mat-label>
                 <mat-select [disabled]="!submissionForm() || !submissionVersions().length" [value]="submissionVersion()" (selectionChange)="selectSubmissionVersion($event.value)">
-                  @for (v of submissionVersions(); track v) {
+                  @for (v of submissionVersions(); track v.id) {
                     <mat-option [value]="v">v{{ v.versionNumber }} • {{ v.createdAt | date:'MMM d, y' }}</mat-option>
                   }
                 </mat-select>
@@ -229,7 +229,7 @@
                 </div>
               } @else {
                 <div class="submissions-list">
-                  @for (submission of submissions(); track submission) {
+                  @for (submission of submissions(); track submission.id) {
                     <div class="submission-entry">
                       <div class="submission-header">
                         <div class="submission-meta">
@@ -261,7 +261,7 @@
                       </div>
 
                       <div class="submission-values">
-                        @for (val of submission.values || []; track val) {
+                        @for (val of submission.values || []; track val.fieldName) {
                           <div class="value-row">
                             <div class="value-label">{{ submissionFieldLabel(val.fieldName) }}</div>
                             <div class="value-content">{{ submissionValueLabel(val.fieldName, val.fieldValue) }}</div>
