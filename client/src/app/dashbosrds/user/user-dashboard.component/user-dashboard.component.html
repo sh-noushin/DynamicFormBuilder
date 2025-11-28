@@ -251,10 +251,10 @@
                           }
                         </div>
                         <div class="submission-actions">
-                          <button mat-icon-button color="primary" type="button" (click)="openSubmissionEditDialog(submission)">
+                          <button mat-icon-button type="button" (click)="openSubmissionEditDialog(submission)" class="btn-edit" matTooltip="Edit Submission">
                             <mat-icon>edit</mat-icon>
                           </button>
-                          <button mat-icon-button color="warn" type="button" (click)="deleteSubmission(submission)">
+                          <button mat-icon-button type="button" (click)="deleteSubmission(submission)" class="btn-delete" matTooltip="Delete Submission">
                             <mat-icon>delete</mat-icon>
                           </button>
                         </div>
