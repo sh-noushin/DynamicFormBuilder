@@ -19,6 +19,7 @@ import { SubmissionEditDialogComponent } from '../submission-edit-dialog.compone
 import { Client, CreateFormSubmissionDto, FormDto, FormFieldDto, FormSubmissionDto, FormVersionDto, UpdateFormSubmissionDto } from '../../../core/services/api-service';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../../../shared/layout/header.component/header.component';
+import { DeleteDialogComponent } from '../../../shared/delete-dialog.component/delete-dialog.component';
 
 @Component({
   selector: 'app-user-dashboard',
@@ -41,7 +42,8 @@ import { HeaderComponent } from '../../../shared/layout/header.component/header.
     MatSnackBarModule,
     ReactiveFormsModule,
     MatDialogModule,
-    HeaderComponent
+    HeaderComponent,
+    DeleteDialogComponent
   ],
   templateUrl: './user-dashboard.component.html',
   styleUrls: ['./user-dashboard.component.scss']
@@ -518,24 +520,27 @@ export class UserDashboardComponent implements OnInit {
       return;
     }
 
-    const confirmed = window.confirm('Delete this submission?');
-    if (!confirmed) {
-      return;
-    }
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      width: '420px',
+      data: { itemType: 'submission', itemName: undefined }
+    });
 
-    const versionId = this.submissionVersion()?.id;
-    this.api.formSubmissionsDELETE(submission.id).subscribe({
-      next: () => {
-        this.snack.open('Submission deleted', 'Close', { duration: 2500 });
-        if (versionId) {
-          this.submissionsLoading.set(true);
-          this.fetchSubmissions(versionId);
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+      const versionId = this.submissionVersion()?.id;
+      this.api.formSubmissionsDELETE(submission.id!).subscribe({
+        next: () => {
+          this.snack.open('Submission deleted', 'Close', { duration: 2500 });
+          if (versionId) {
+            this.submissionsLoading.set(true);
+            this.fetchSubmissions(versionId);
+          }
+        },
+        error: err => {
+          console.error('Failed to delete submission', err);
+          this.snack.open('Failed to delete submission', 'Close', { duration: 3000 });
         }
-      },
-      error: err => {
-        console.error('Failed to delete submission', err);
-        this.snack.open('Failed to delete submission', 'Close', { duration: 3000 });
-      }
+      });
     });
   }
 }
