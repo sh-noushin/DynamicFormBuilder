@@ -26,7 +26,7 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  margin-top: 72px; 
+  margin-top: 100px; 
 }
 
 .forms-header {
@@ -205,8 +205,12 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   border-radius: 16px;
   overflow: hidden;
-  margin-top: 24px; 
-  margin-bottom: 40px; 
+  margin-top: 8px; 
+  margin-bottom: 24px; 
+  max-width: 650px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 
   mat-card-header {
     background: linear-gradient(135deg, #f8f9fa, #e9ecef);
@@ -236,12 +240,15 @@
 
 .filters-row {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   align-items: center;
   flex-wrap: wrap;
 }
 
-.filter { min-width: 200px; max-width: 200px; }
+.filter {
+  min-width: 140px;
+  max-width: 180px;
+}
 
 .forms-table {
   width: 100%;
@@ -357,8 +364,10 @@
 .form-header-inline {
   padding-bottom: 12px;
   border-bottom: 1px solid #e0e0e0;
-  margin-bottom: 16px;
-  text-align: left;
+}
+.created-form-container, .created-form {
+  margin-top: 32px;
+  margin-bottom: 48px;
 }
 .form-header-inline .form-name {
   margin: 0;
