@@ -1,6 +1,8 @@
-<header class="app-header">
-  <div class="header-content">
-    <span class="username">Logged in as: {{ username() }}</span>
-    <button mat-button color="warn" (click)="logout()">Logout</button>
-  </div>
-</header>
+<mat-toolbar color="primary" class="toolbar">
+  <span class="toolbar-title">{{ title }}</span>
+  <span class="spacer"></span>
+  <span class="username">{{ user()?.username || 'Not available' }}</span>
+  <button mat-icon-button (click)="logout()" class="logout-btn">
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>

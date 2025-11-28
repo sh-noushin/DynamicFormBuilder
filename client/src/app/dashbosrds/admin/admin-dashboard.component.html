@@ -1,10 +1,5 @@
-<mat-toolbar color="primary" class="toolbar">
-  <span class="toolbar-title">Admin Dashboard</span>
-  <span class="spacer"></span>
-  <button mat-icon-button (click)="logout()" class="logout-btn">
-    <mat-icon>logout</mat-icon>
-  </button>
- </mat-toolbar>
+
+<app-header title="Admin Dashboard"></app-header>
 
 <div class="admin-dashboard">
   <mat-tab-group class="dashboard-tabs" [selectedIndex]="selectedIndex()" (selectedIndexChange)="onTabChange($event)" mat-stretch-tabs="false" mat-align-tabs="start">

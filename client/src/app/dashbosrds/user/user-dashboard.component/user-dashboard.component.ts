@@ -18,6 +18,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { SubmissionEditDialogComponent } from '../submission-edit-dialog.component/submission-edit-dialog.component';
 import { Client, CreateFormSubmissionDto, FormDto, FormFieldDto, FormSubmissionDto, FormVersionDto, UpdateFormSubmissionDto } from '../../../core/services/api-service';
 import { Router } from '@angular/router';
+import { HeaderComponent } from '../../../shared/layout/header.component/header.component';
 
 @Component({
   selector: 'app-user-dashboard',
@@ -39,7 +40,8 @@ import { Router } from '@angular/router';
     MatRadioModule,
     MatSnackBarModule,
     ReactiveFormsModule,
-    MatDialogModule
+    MatDialogModule,
+    HeaderComponent
   ],
   templateUrl: './user-dashboard.component.html',
   styleUrls: ['./user-dashboard.component.scss']
@@ -75,7 +77,7 @@ export class UserDashboardComponent implements OnInit {
     private snack: MatSnackBar,
     private router: Router,
     private dialog: MatDialog
-  ) {}
+  ){}
 
   logout() {
     localStorage.removeItem('auth_token');

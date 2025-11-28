@@ -8,6 +8,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
 import { filter } from 'rxjs/operators';
+import { HeaderComponent } from '../../shared/layout/header.component/header.component';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -20,7 +21,8 @@ import { filter } from 'rxjs/operators';
     MatIconModule,
     MatToolbarModule,
     MatButtonModule,
-    MatTabsModule
+    MatTabsModule,
+    HeaderComponent
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss']

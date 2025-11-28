@@ -6,6 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Client, LoginDto, LoginResultDto, RegisterUserDto } from '../../services/api-service';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -21,10 +22,18 @@ import { Router } from '@angular/router';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
+  private auth = inject(AuthService);
   regUsername = signal('');
   regEmail = signal('');
   regPassword = signal('');
   regConfirmPassword = signal('');
+  username = signal('');
+  password = signal('');
+  isLoading = signal(false);
+  error = signal('');
+  private client = inject(Client);
+  private router = inject(Router);
+
   register() {
     this.isLoading.set(true);
     this.error.set('');
@@ -59,12 +68,6 @@ export class LoginComponent {
       }
     });
   }
-  username = signal('');
-  password = signal('');
-  isLoading = signal(false);
-  error = signal('');
-  private client = inject(Client);
-  private router = inject(Router);
 
   login() {
     this.isLoading.set(true);
@@ -79,14 +82,20 @@ export class LoginComponent {
       password: this.password()
     });
 
-
     this.client.login(dto).subscribe({
       next: (result: LoginResultDto) => {
-        if (result?.token && result?.roles) {
+        if (result?.token) {
           if (typeof window !== 'undefined' && window.localStorage) {
             localStorage.setItem('auth_token', result.token);
           }
-          const route = String(result.roles[0]) === 'Admin' ? '/admin' : '/user';
+          const userInfo = {
+            username: result.username || this.username(),
+            email: result.email || '',
+            roles: result.roles ?? []
+          };
+          this.auth.setUser(userInfo);
+          const primaryRole = result.roles && result.roles.length > 0 ? String(result.roles[0]) : 'User';
+          const route = primaryRole === 'Admin' ? '/admin' : '/user';
           this.router.navigate([route]);
         } else {
           this.error.set('Invalid credentials');
