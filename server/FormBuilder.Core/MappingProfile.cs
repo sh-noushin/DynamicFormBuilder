@@ -21,8 +21,14 @@ namespace FormBuilder.Core
             CreateMap<FormVersionField, UpdateFormFieldDto>().ReverseMap();
 
             CreateMap<FormSubmission, FormSubmissionDto>().ReverseMap();
-            CreateMap<FormSubmission, CreateFormSubmissionDto>().ReverseMap();
             CreateMap<FormSubmission, UpdateFormSubmissionDto>().ReverseMap();
+
+            CreateMap<CreateFormSubmissionDto, FormSubmission>()
+                .ForMember(dest => dest.Values, opt => opt.MapFrom(src =>
+                    (src.FieldValues ?? new System.Collections.Generic.Dictionary<string, string?>())
+                        .Select(kv => new FormSubmissionValue { FieldName = kv.Key, FieldValue = kv.Value })
+                        .ToList()
+                ));
 
             CreateMap<FormSubmissionValue, FormSubmissionValueDto>().ReverseMap();
 

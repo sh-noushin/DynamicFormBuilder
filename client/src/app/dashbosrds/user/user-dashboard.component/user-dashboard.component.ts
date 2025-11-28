@@ -345,14 +345,8 @@ export class UserDashboardComponent implements OnInit {
       return;
     }
 
-    const versionId = version.id;
-    if (!versionId) {
-      this.snack.open('Selected version is missing an identifier', 'Close', { duration: 3000 });
-      return;
-    }
-
     this.submissionsLoading.set(true);
-    this.fetchSubmissions(versionId);
+    this.fetchSubmissions(version.id!);
 
     this.api.fieldsAll(form.id!, version.versionNumber).subscribe({
       next: fields => {

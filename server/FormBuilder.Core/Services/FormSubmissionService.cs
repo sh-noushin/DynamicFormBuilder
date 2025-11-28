@@ -18,11 +18,6 @@ public class FormSubmissionService : IFormSubmissionService
         _mapper = mapper;
     }
 
-    public FormSubmissionService(IFormSubmissionRepository repo)
-    {
-        this.repo = repo;
-    }
-
     public async Task<FormSubmissionDto> CreateSubmissionAsync(CreateFormSubmissionDto submissionDto)
     {
         if (submissionDto == null)
@@ -32,6 +27,20 @@ public class FormSubmissionService : IFormSubmissionService
         {
             var entity = _mapper.Map<FormBuilder.Models.Entities.FormSubmission>(submissionDto);
             entity.SubmittedAt = DateTime.UtcNow;
+
+            if ((entity.Values == null || entity.Values.Count == 0) && submissionDto.FieldValues != null && submissionDto.FieldValues.Count > 0)
+            {
+                entity.Values = submissionDto.FieldValues
+                    .Select(kv => new FormBuilder.Models.Entities.FormSubmissionValue
+                    {
+                        FieldName = kv.Key,
+                        FieldValue = kv.Value
+                    })
+                    .ToList();
+            }
+
+            entity.SubmitterName = entity.SubmitterName ?? submissionDto.SubmitterName;
+            entity.SubmitterEmail = entity.SubmitterEmail ?? submissionDto.SubmitterEmail;
             var created = await _repository.CreateAsync(entity);
             return _mapper.Map<FormSubmissionDto>(created);
         }
