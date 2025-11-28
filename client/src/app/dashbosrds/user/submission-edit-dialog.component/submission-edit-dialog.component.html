@@ -1,0 +1,202 @@
+<h2 mat-dialog-title class="dialog-title">
+  <mat-icon>edit</mat-icon>
+  <span>Edit Submission</span>
+</h2>
+
+<div mat-dialog-content>
+  @if (form) {
+    <form [formGroup]="form" class="edit-form">
+      @for (item of fieldsWithKey; track item.key) {
+        <div class="field-row">
+          @switch (item.field.type) {
+            @case ('Text') {
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ getLabel(item.field) }}</mat-label>
+                <input matInput [formControlName]="item.key" />
+                @if (item.field.helpText) {
+                  <mat-hint>{{ item.field.helpText }}</mat-hint>
+                }
+                @if (form.get(item.key)?.hasError('required')) {
+                  <mat-error>
+                    This field is required
+                  </mat-error>
+                }
+              </mat-form-field>
+            }
+            @case ('Email') {
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ getLabel(item.field) }}</mat-label>
+                <input type="email" matInput [formControlName]="item.key" />
+                @if (item.field.helpText) {
+                  <mat-hint>{{ item.field.helpText }}</mat-hint>
+                }
+                @if (form.get(item.key)?.hasError('required')) {
+                  <mat-error>
+                    This field is required
+                  </mat-error>
+                }
+              </mat-form-field>
+            }
+            @case ('Number') {
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ getLabel(item.field) }}</mat-label>
+                <input type="number" matInput [formControlName]="item.key" />
+                @if (item.field.helpText) {
+                  <mat-hint>{{ item.field.helpText }}</mat-hint>
+                }
+                @if (form.get(item.key)?.hasError('required')) {
+                  <mat-error>
+                    This field is required
+                  </mat-error>
+                }
+              </mat-form-field>
+            }
+            @case ('Phone') {
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ getLabel(item.field) }}</mat-label>
+                <input type="tel" matInput [formControlName]="item.key" />
+                @if (item.field.helpText) {
+                  <mat-hint>{{ item.field.helpText }}</mat-hint>
+                }
+                @if (form.get(item.key)?.hasError('required')) {
+                  <mat-error>
+                    This field is required
+                  </mat-error>
+                }
+              </mat-form-field>
+            }
+            @case ('Password') {
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ getLabel(item.field) }}</mat-label>
+                <input type="password" matInput [formControlName]="item.key" />
+                @if (item.field.helpText) {
+                  <mat-hint>{{ item.field.helpText }}</mat-hint>
+                }
+                @if (form.get(item.key)?.hasError('required')) {
+                  <mat-error>
+                    This field is required
+                  </mat-error>
+                }
+              </mat-form-field>
+            }
+            @case ('Textarea') {
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ getLabel(item.field) }}</mat-label>
+                <textarea matInput rows="4" [formControlName]="item.key"></textarea>
+                @if (item.field.helpText) {
+                  <mat-hint>{{ item.field.helpText }}</mat-hint>
+                }
+                @if (form.get(item.key)?.hasError('required')) {
+                  <mat-error>
+                    This field is required
+                  </mat-error>
+                }
+              </mat-form-field>
+            }
+            @case ('Date') {
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ getLabel(item.field) }}</mat-label>
+                <input type="date" matInput [formControlName]="item.key" />
+                @if (item.field.helpText) {
+                  <mat-hint>{{ item.field.helpText }}</mat-hint>
+                }
+                @if (form.get(item.key)?.hasError('required')) {
+                  <mat-error>
+                    This field is required
+                  </mat-error>
+                }
+              </mat-form-field>
+            }
+            @case ('DateTime') {
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ getLabel(item.field) }}</mat-label>
+                <input type="datetime-local" matInput [formControlName]="item.key" />
+                @if (item.field.helpText) {
+                  <mat-hint>{{ item.field.helpText }}</mat-hint>
+                }
+                @if (form.get(item.key)?.hasError('required')) {
+                  <mat-error>
+                    This field is required
+                  </mat-error>
+                }
+              </mat-form-field>
+            }
+            @case ('Select') {
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ getLabel(item.field) }}</mat-label>
+                <mat-select [formControlName]="item.key">
+                  @if (!form.get(item.key)?.value) {
+                    <mat-option value="">-- select --</mat-option>
+                  }
+                  @for (opt of item.options; track opt) {
+                    <mat-option [value]="opt.value">
+                      {{ opt.label }}
+                    </mat-option>
+                  }
+                </mat-select>
+                @if (item.field.helpText) {
+                  <mat-hint>{{ item.field.helpText }}</mat-hint>
+                }
+                @if (form.get(item.key)?.hasError('required')) {
+                  <mat-error>
+                    This field is required
+                  </mat-error>
+                }
+              </mat-form-field>
+            }
+            @case ('Checkbox') {
+              <div class="checkbox-row">
+                <mat-checkbox [formControlName]="item.key">
+                  {{ getLabel(item.field) }}
+                </mat-checkbox>
+                @if (item.field.helpText) {
+                  <div class="help-text">{{ item.field.helpText }}</div>
+                }
+              </div>
+            }
+            @case ('Radio') {
+              <div class="radio-row">
+                <label class="field-label">{{ getLabel(item.field) }}</label>
+                <mat-radio-group [formControlName]="item.key">
+                  @for (opt of item.options; track opt) {
+                    <mat-radio-button [value]="opt.value">
+                      {{ opt.label }}
+                    </mat-radio-button>
+                  }
+                </mat-radio-group>
+                @if (item.field.helpText) {
+                  <div class="help-text">{{ item.field.helpText }}</div>
+                }
+              </div>
+            }
+            @default {
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ getLabel(item.field) }}</mat-label>
+                <input matInput [formControlName]="item.key" />
+                @if (item.field.helpText) {
+                  <mat-hint>{{ item.field.helpText }}</mat-hint>
+                }
+                @if (form.get(item.key)?.hasError('required')) {
+                  <mat-error>
+                    This field is required
+                  </mat-error>
+                }
+              </mat-form-field>
+            }
+          }
+        </div>
+      }
+
+      @if (errorMessage) {
+        <div class="dialog-error">{{ errorMessage }}</div>
+      }
+    </form>
+  }
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="onCancel()">Cancel</button>
+    <button mat-raised-button color="primary" type="button" (click)="onSave()" [disabled]="form.invalid">
+    Save
+  </button>
+</div>

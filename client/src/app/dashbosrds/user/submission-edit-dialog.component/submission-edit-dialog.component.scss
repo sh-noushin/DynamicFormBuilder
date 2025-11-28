@@ -1,0 +1,45 @@
+.dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 8px;
+}
+
+.field-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-field {
+  width: 100%;
+}
+
+.checkbox-row,
+.radio-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.radio-row mat-radio-button {
+  margin-right: 16px;
+}
+
+.help-text {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.dialog-error {
+  color: #d32f2f;
+  font-weight: 500;
+  margin-top: 8px;
+}
