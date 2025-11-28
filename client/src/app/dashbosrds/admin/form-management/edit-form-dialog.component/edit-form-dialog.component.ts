@@ -124,67 +124,17 @@ export class EditFormDialogComponent implements OnInit {
 				});
 				this.api.versionsPOST(this.data.form.id, payload).subscribe({
 				next: v => {
-					const vNum = (v && v.versionNumber != null) ? v.versionNumber : nextVersionNumber;
-						const actions: Array<Promise<void>> = [];
-						const newFields = result.fields || [];
-						if (newFields.length) {
-							actions.push(
-								new Promise((resolve) => {
-									Promise.all(
-										newFields.map((f:any) => new Promise<void>((res) => this.api.fieldsPOST(this.data.form!.id!, vNum!, new CreateFormFieldDto({
-											name: f.name,
-											label: f.label,
-											type: f.type,
-											order: f.order ?? 0,
-											isRequired: !!f.isRequired,
-											isVisible: f.isVisible !== false,
-											isReadOnly: !!f.isReadOnly,
-											placeholder: f.placeholder || '',
-											helpText: f.helpText || '',
-											defaultValue: f.defaultValue || '',
-											validation: f.validation || '',
-											options: f.options || ''
-										})).subscribe({ next: () => res(), error: () => res() })))
-									)
-									.then(() => resolve());
-								})
-							);
-						}
-						if (result.publish) {
-							actions.push(new Promise((resolve) => this.api.publish(this.data.form!.id!, vNum!).subscribe({ next: () => resolve(), error: () => resolve() })));
-						}
-						if (result.makeCurrent) {
-							actions.push(new Promise((resolve) => this.api.setCurrent(this.data.form!.id!, vNum!).subscribe({ next: () => resolve(), error: () => resolve() })));
-						}
-						if (actions.length) {
-							Promise.all(actions).then(() => {
-								this.snack.open('Version created', 'Close', { duration: 2000 });
-								this.loadVersions();
-								if (newFields.length) {
-									this.dialog.open(ManageFieldsDialogComponent, {
-										width: '600px',
-										maxWidth: '85vw',
-										height: '70vh',
-										panelClass: 'elevated-dialog-panel',
-										data: { formId: this.data.form!.id!, versionNumber: vNum! },
-										disableClose: false
-									});
-								}
-							});
-						} else {
-							this.snack.open('Version created', 'Close', { duration: 2000 });
-							this.loadVersions();
-							if (newFields.length) {
-								this.dialog.open(ManageFieldsDialogComponent, {
-									width: '600px',
-									maxWidth: '85vw',
-									height: '70vh',
-									panelClass: 'elevated-dialog-panel',
-									data: { formId: this.data.form!.id!, versionNumber: vNum! },
-									disableClose: false
-								});
-							}
-						}
+					const versionNumber = v.versionNumber ?? nextVersionNumber;
+					this.snack.open('Version created', 'Close', { duration: 2000 });
+					this.loadVersions();
+					this.dialog.open(ManageFieldsDialogComponent, {
+						width: '600px',
+						maxWidth: '85vw',
+						height: '70vh',
+						panelClass: 'elevated-dialog-panel',
+						data: { formId: this.data.form!.id!, versionNumber },
+						disableClose: false
+					});
 				},
 				error: err => {
 					console.error('Failed to create version', err);
