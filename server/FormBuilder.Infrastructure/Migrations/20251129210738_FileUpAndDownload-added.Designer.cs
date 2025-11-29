@@ -3,6 +3,7 @@ using System;
 using FormBuilder.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FormBuilder.Infrastructure.Migrations
 {
     [DbContext(typeof(FormBuilderDbContext))]
-    partial class FormBuilderDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251129210738_FileUpAndDownload-added")]
+    partial class FileUpAndDownloadadded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.0");
@@ -147,9 +150,6 @@ namespace FormBuilder.Infrastructure.Migrations
 
                     b.Property<string>("DefaultValue")
                         .HasMaxLength(500)
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("FieldDefinitionId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("FormVersionId")
