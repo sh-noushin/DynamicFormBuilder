@@ -149,9 +149,6 @@ namespace FormBuilder.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("FieldDefinitionId")
-                        .HasColumnType("TEXT");
-
                     b.Property<Guid>("FormVersionId")
                         .HasColumnType("TEXT");
 

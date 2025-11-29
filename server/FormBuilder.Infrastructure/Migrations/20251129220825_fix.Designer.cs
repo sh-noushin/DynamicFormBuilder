@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FormBuilder.Infrastructure.Migrations
 {
     [DbContext(typeof(FormBuilderDbContext))]
-    [Migration("20251129214115_AddFieldDefinitionIdToFormVersionField")]
-    partial class AddFieldDefinitionIdToFormVersionField
+    [Migration("20251129220825_fix")]
+    partial class fix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -150,9 +150,6 @@ namespace FormBuilder.Infrastructure.Migrations
 
                     b.Property<string>("DefaultValue")
                         .HasMaxLength(500)
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("FieldDefinitionId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("FormVersionId")
