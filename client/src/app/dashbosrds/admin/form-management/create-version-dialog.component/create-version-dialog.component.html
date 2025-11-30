@@ -11,23 +11,23 @@
   <textarea matInput [value]="description()" (input)="description.set($any($event.target).value)" rows="3" placeholder="Optional description"></textarea>
     </mat-form-field>
 
-    <div class="initial-fields">
-      <div class="header">
-        <button mat-raised-button color="primary" class="btn-primary" type="button" (click)="openAddFieldDialog()">
-          <mat-icon>add</mat-icon>
-          Add Form Field
-        </button>
+    <div class="actions-row">
+      <div class="toggles">
+        <mat-slide-toggle class="toggle-gap" [checked]="publish()" (change)="publish.set($any($event).checked)">Publish immediately</mat-slide-toggle>
+        <mat-slide-toggle [checked]="makeCurrent()" (change)="makeCurrent.set($any($event).checked)">Set as current</mat-slide-toggle>
       </div>
-    </div>
-
-  <div class="toggles">
-      <mat-slide-toggle class="toggle-gap" [checked]="publish()" (change)="publish.set($any($event).checked)">Publish immediately</mat-slide-toggle>
-      <mat-slide-toggle [checked]="makeCurrent()" (change)="makeCurrent.set($any($event).checked)">Set as current</mat-slide-toggle>
     </div>
   </div>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="dialog-actions">
+  <div class="left-actions">
+    <button mat-raised-button color="primary" class="btn-primary" type="button" (click)="openAddFieldDialog()">
+      <mat-icon>add</mat-icon>
+      <span>Add Form Field</span>
+    </button>
+  </div>
+  <span class="spacer"></span>
   <button mat-raised-button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
   <button mat-raised-button color="primary" type="button" class="btn-primary" (click)="submit()">
     <mat-icon>save</mat-icon>
