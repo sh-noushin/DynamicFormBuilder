@@ -109,9 +109,9 @@ export class EditFormDialogComponent implements OnInit {
 	addVersion() {
 		const nextVersionNumber = (this.versions()?.length || 0) + 1;
 	    const ref = this.dialog.open(CreateVersionDialogComponent, {
-					width: '600px',
+			    width: '550px',
 				maxWidth: '85vw',
-				height: '70vh',
+				height: '50vh',
 				panelClass: 'elevated-dialog-panel',
 				disableClose: true,
 					data: { nextVersionNumber }
