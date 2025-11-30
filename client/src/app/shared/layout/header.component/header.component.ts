@@ -9,6 +9,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { ChangePasswordDialogComponent, ChangePasswordPayload } from '../../change-password/change-password-dialog.component';
+import { Client as ApiClient } from '../../../core/services/api-service';
 
 @Component({
   selector: 'app-header',
@@ -22,6 +23,7 @@ export class HeaderComponent {
   private router = inject(Router);
   private auth = inject(AuthService);
   private dialog = inject(MatDialog);
+  private api = inject(ApiClient);
   user = this.auth.user;
   readonly initials = computed(() => {
     const current = this.user();
@@ -77,7 +79,15 @@ export class HeaderComponent {
   }
 
   private handlePasswordChange(payload: ChangePasswordPayload) {
-    console.info('Change password payload submitted', payload);
-    // TODO: wire to API endpoint and provide user feedback.
+    this.api.changePassword(payload).subscribe({
+      next: (result) => {
+        console.info('Password changed successfully', result);
+        // TODO: Show success feedback to user
+      },
+      error: (err) => {
+        console.error('Password change failed', err);
+        // TODO: Show error feedback to user
+      }
+    });
   }
 }
