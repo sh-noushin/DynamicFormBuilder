@@ -38,11 +38,4 @@
   box-shadow: 0 0 0 2px #2196f3;
 }
 
-.primary-action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background-color: #2196f3 !important;
-  color: #fff !important;
-  box-shadow: 0 2px 4px rgba(33,150,243,0.3) !important;
-}
+.primary-action-btn { @extend .btn-primary; }
