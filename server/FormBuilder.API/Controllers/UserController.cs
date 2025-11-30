@@ -3,6 +3,7 @@ using FormBuilder.Core.Interfaces;
 using FormBuilder.Models.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FormBuilder.API.Controllers;
 
@@ -141,10 +142,6 @@ public class UserController : ControllerBase
         {
             return BadRequest(new { Message = ex.Message });
         }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { Message = ex.Message });
-        }
         catch (Exception)
         {
             return StatusCode(500, new { Message = "An internal error occurred while updating the user." });
@@ -173,13 +170,52 @@ public class UserController : ControllerBase
         {
             return BadRequest(new { Message = ex.Message });
         }
-        catch (ArgumentException ex)
+        catch (Exception)
+        {
+            return StatusCode(500, new { Message = "An internal error occurred while deleting the user." });
+        }
+    }
+
+    [HttpPost("change-password")]
+    [Authorize]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(object), 200)]
+    [ProducesResponseType(typeof(object), 400)]
+    [ProducesResponseType(typeof(object), 401)]
+    [ProducesResponseType(typeof(object), 404)]
+    [ProducesResponseType(typeof(object), 500)]
+    public async Task<IActionResult> ChangePassword(ChangePasswordDto changePasswordDto)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized(new { Message = "Unable to resolve the current user." });
+        }
+
+        try
+        {
+            await _userService.ChangePasswordAsync(userId, changePasswordDto);
+            return Ok(new { Message = "Password changed successfully." });
+        }
+        catch (UserNotFoundException ex)
+        {
+            return NotFound(new { Message = ex.Message });
+        }
+        catch (InvalidCurrentPasswordException ex)
+        {
+            return BadRequest(new { Message = ex.Message });
+        }
+        catch (PasswordChangeFailedException ex)
+        {
+            return BadRequest(new { Message = ex.Message });
+        }
+        catch (ArgumentNullException ex)
         {
             return BadRequest(new { Message = ex.Message });
         }
         catch (Exception)
         {
-            return StatusCode(500, new { Message = "An internal error occurred while deleting the user." });
+            return StatusCode(500, new { Message = "An internal error occurred while changing the password." });
         }
     }
 }

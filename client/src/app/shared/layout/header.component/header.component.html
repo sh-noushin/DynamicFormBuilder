@@ -1,8 +1,24 @@
 <mat-toolbar color="primary" class="toolbar">
   <span class="toolbar-title">{{ title }}</span>
   <span class="spacer"></span>
-  <span class="username">{{ user()?.username || 'Not available' }}</span>
-  <button mat-icon-button (click)="logout()" class="logout-btn">
-    <mat-icon>logout</mat-icon>
+  <button
+    type="button"
+    class="profile-trigger"
+    [matMenuTriggerFor]="userMenu"
+    aria-label="Open user menu"
+  >
+    <span class="profile-avatar">{{ initials() }}</span>
+    <span class="profile-name">{{ user()?.username || 'Account' }}</span>
+    <mat-icon class="profile-caret">expand_more</mat-icon>
   </button>
+  <mat-menu #userMenu="matMenu" class="user-menu">
+    <button mat-menu-item (click)="changePassword()">
+      <mat-icon>lock_reset</mat-icon>
+      <span>Change password</span>
+    </button>
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      <span>Logout</span>
+    </button>
+  </mat-menu>
 </mat-toolbar>

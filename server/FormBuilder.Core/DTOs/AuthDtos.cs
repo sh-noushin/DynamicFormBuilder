@@ -46,3 +46,9 @@ public class UserDto
     public List<UserRole> Roles { get; set; } = new List<UserRole>();
     public DateTime CreatedAt { get; set; }
 }
+
+public class ChangePasswordDto
+{
+    public string CurrentPassword { get; set; } = string.Empty;
+    public string NewPassword { get; set; } = string.Empty;
+}
