@@ -10,12 +10,13 @@ public class FormSubmissionService : IFormSubmissionService
 {
     private readonly IFormSubmissionRepository _repository;
     private readonly IMapper _mapper;
-    private IFormSubmissionRepository repo;
+    private readonly IFieldValidator _validator;
 
-    public FormSubmissionService(IFormSubmissionRepository repository, IMapper mapper)
+    public FormSubmissionService(IFormSubmissionRepository repository, IMapper mapper, IFieldValidator validator)
     {
         _repository = repository;
         _mapper = mapper;
+        _validator = validator;
     }
 
     public async Task<FormSubmissionDto> CreateSubmissionAsync(CreateFormSubmissionDto submissionDto)
@@ -25,6 +26,12 @@ public class FormSubmissionService : IFormSubmissionService
 
         try
         {
+            var validationErrors = await _validator.ValidateAsync(submissionDto.FormVersionId, submissionDto.FieldValues);
+            if (validationErrors != null && validationErrors.Count > 0)
+            {
+                throw new FormBuilder.Models.Exceptions.FormSubmissionValidationException("Submission contains validation errors.", validationErrors.ToDictionary(kv => kv.Key, kv => (IEnumerable<string>)kv.Value));
+            }
+
             var entity = _mapper.Map<FormBuilder.Models.Entities.FormSubmission>(submissionDto);
             entity.SubmittedAt = DateTime.UtcNow;
 

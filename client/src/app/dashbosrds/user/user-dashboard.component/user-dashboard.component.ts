@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -42,8 +42,7 @@ import { DeleteDialogComponent } from '../../../shared/delete-dialog.component/d
     MatSnackBarModule,
     ReactiveFormsModule,
     MatDialogModule,
-    HeaderComponent,
-    DeleteDialogComponent
+    HeaderComponent
   ],
   templateUrl: './user-dashboard.component.html',
   styleUrls: ['./user-dashboard.component.scss']
@@ -158,11 +157,31 @@ export class UserDashboardComponent implements OnInit {
       const validators = [] as any[];
 
       if (f.isRequired) validators.push(Validators.required);
-      if (f.validation) {
-        try {
-          validators.push(Validators.pattern(f.validation));
-        } catch {
+      const parsed = this.parseValidationRules(f.validation);
+      try { (f as any).__validation = parsed; } catch {}
+
+      if (parsed) {
+        if (parsed.pattern) {
+          try {
+            const re = new RegExp(parsed.pattern);
+            validators.push(Validators.pattern(re));
+          } catch {
+            validators.push(Validators.pattern(parsed.pattern));
+          }
         }
+        if (parsed.minLength != null) validators.push(Validators.minLength(Number(parsed.minLength)));
+        if (parsed.maxLength != null) validators.push(Validators.maxLength(Number(parsed.maxLength)));
+        if (parsed.minimum != null || parsed.maximum != null) {
+          const minVal = parsed.minimum != null ? Number(parsed.minimum) : undefined;
+          const maxVal = parsed.maximum != null ? Number(parsed.maximum) : undefined;
+          if (this.isNumericFieldType(f.type)) {
+            validators.push(this.numericRangeValidator(minVal, maxVal));
+          } else {
+            if (minVal !== undefined) validators.push(Validators.minLength(Math.max(0, Math.ceil(minVal))));
+            if (maxVal !== undefined) validators.push(Validators.maxLength(Math.max(0, Math.ceil(maxVal))));
+          }
+        }
+        if (parsed.allowed && Array.isArray(parsed.allowed)) validators.push(this.allowedValidator(parsed.allowed));
       }
 
       let defaultVal: any = f.defaultValue ?? '';
@@ -173,6 +192,81 @@ export class UserDashboardComponent implements OnInit {
       group[name] = [defaultVal, validators];
     }
     this.formGroup = this.fb.group(group);
+    try { this.formGroup.updateValueAndValidity(); } catch {}
+    try {
+      for (const f of flds) {
+        const ctrl = this.formGroup.get(this.fieldName(f));
+        // eslint-disable-next-line no-console
+        console.debug('[UserDashboard.buildForm] field=', this.fieldName(f), 'validation=', f.validation, 'valid=', !!ctrl?.valid, 'value=', ctrl?.value);
+      }
+    } catch {}
+  }
+
+  private allowedValidator(allowed: any[]): ValidatorFn {
+    return (control: AbstractControl) => {
+      const val = control.value;
+      if (val == null || val === '') return null;
+      for (const a of allowed) {
+        if (a === val || String(a) === String(val)) return null;
+      }
+      return { allowed: true };
+    };
+  }
+
+  private numericRangeValidator(min?: number, max?: number): ValidatorFn {
+    return (control: AbstractControl) => {
+      const v = control.value;
+      if (v == null || v === '') return null;
+
+      const n = Number(v);
+      if (Number.isNaN(n)) {
+        return { numeric: true };
+      }
+      if (min !== undefined && n < min) {
+        return { min: { requiredMin: min, actual: n } };
+      }
+      if (max !== undefined && n > max) {
+        return { max: { requiredMax: max, actual: n } };
+      }
+      return null;
+    };
+  }
+
+  private parseValidationRules(raw: unknown): any | null {
+    if (raw === null || raw === undefined) return null;
+
+    if (typeof raw === 'object') {
+      if (Array.isArray(raw)) {
+        return { allowed: raw };
+      }
+      return raw;
+    }
+
+    if (typeof raw === 'string') {
+      const trimmed = raw.trim();
+      if (!trimmed.length) return null;
+
+      try {
+        return JSON.parse(trimmed);
+      } catch {}
+
+      try {
+        const relaxed = trimmed
+          .replace(/'/g, '"')
+          .replace(/,\s*}/g, '}')
+          .replace(/,\s*\]/g, ']');
+        return JSON.parse(relaxed);
+      } catch {}
+
+      return { pattern: trimmed };
+    }
+
+    return null;
+  }
+
+  private isNumericFieldType(type?: string | null): boolean {
+    const normalized = (type ?? '').toString().trim().toLowerCase();
+    return normalized === 'number' || normalized === 'integer' || normalized === 'float' || normalized === 'decimal' || normalized === 'currency';
   }
 
   submit() {
@@ -305,6 +399,47 @@ export class UserDashboardComponent implements OnInit {
     const v = `field_auto_${++this.controlSeq}`;
     this.controlNameMap.set(f, v);
     return v;
+  }
+
+  // Template-safe check for whether a parsed validation object was attached to the field
+  public hasParsedValidation(field: FormFieldDto | any): boolean {
+    try {
+      return !!(field && (field as any).__validation);
+    } catch {
+      return false;
+    }
+  }
+
+  private shouldShowValidation(control: AbstractControl | null): boolean {
+    if (!control) return false;
+    const hasValue = this.controlHasValue(control);
+    const interacted = control.touched || control.dirty;
+    if (control.invalid && interacted) return true;
+    return hasValue;
+  }
+
+  private controlHasValue(control: AbstractControl): boolean {
+    const value = control.value;
+    if (value === null || value === undefined) return false;
+    if (typeof value === 'string') return value.trim().length > 0;
+    if (typeof value === 'boolean') return value === true;
+    if (Array.isArray(value)) return value.length > 0;
+    return true;
+  }
+
+  public validationIconClass(control: AbstractControl | null): Record<string, boolean> {
+    const show = this.shouldShowValidation(control);
+    return {
+      valid: !!control && control.valid && show,
+      invalid: !!control && control.invalid && show,
+      neutral: !show
+    };
+  }
+
+  public validationIconName(control: AbstractControl | null): string {
+    const show = this.shouldShowValidation(control);
+    if (!show) return 'help';
+    return control?.valid ? 'check_circle' : 'error';
   }
 
 

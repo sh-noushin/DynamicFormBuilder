@@ -48,6 +48,10 @@ public class FormSubmissionsController : ControllerBase
             var createdSubmission = await _submissionService.CreateSubmissionAsync(createDto);
             return CreatedAtAction(nameof(GetSubmission), new { id = createdSubmission.Id }, createdSubmission);
         }
+        catch (FormBuilder.Models.Exceptions.FormSubmissionValidationException ex)
+        {
+            return BadRequest(new { message = ex.Message, errors = ex.FieldErrors });
+        }
         catch (FormVersionNotFoundException ex)
         {
             return BadRequest(ex.Message);
@@ -61,6 +65,7 @@ public class FormSubmissionsController : ControllerBase
             var message = ex.InnerException?.Message ?? ex.Message;
             return Problem(detail: message, statusCode: 500, title: "Failed to create submission");
         }
+
     }
 
     [HttpGet("{id}")]

@@ -49,6 +49,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFormVersionService, FormVersionService>();
         services.AddScoped<IFormFieldService, FormFieldService>();
         services.AddScoped<IFormSubmissionService, FormSubmissionService>();
+        services.AddScoped<FormBuilder.Core.Interfaces.IFieldValidator, FormBuilder.Core.Services.FieldValidator>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IJwtService, JwtService>();
         return services;

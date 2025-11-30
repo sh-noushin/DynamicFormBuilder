@@ -312,9 +312,11 @@
 
 .field-row {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
   width: 100%;
-  max-width: 420px;
+  max-width: 720px;
 }
 
 .field-label {
@@ -327,7 +329,35 @@
 .form-field,
 .dynamic-form .mat-form-field {
   width: 100%;
-  max-width: 420px;
+  max-width: 100%;
+}
+
+.field-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+.field-with-icon .form-field,
+.field-with-icon .checkbox-row,
+.field-with-icon .radio-row {
+  flex: 1 1 auto;
+}
+
+.validation-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+.validation-icon.valid {
+  color: #4caf50;
+}
+.validation-icon.invalid {
+  color: #f44336;
+}
+
+.validation-icon.neutral {
+  color: #9e9e9e;
 }
 
 
