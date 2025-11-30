@@ -95,7 +95,7 @@ export class FormsListComponent implements OnInit {
 
   editForm(form: FormDto) {
     const dialogRef = this.dialog.open(EditFormDialogComponent, {
-      width: 'min(1100px, 95vw)',
+      width: 'min(1000px, 95vw)',
       maxWidth: '95vw',
       height: '80vh',
       panelClass: 'wide-dialog-panel',

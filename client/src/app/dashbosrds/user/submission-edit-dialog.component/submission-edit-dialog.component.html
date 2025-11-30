@@ -1,77 +1,130 @@
 <div mat-dialog-content>
   <form [formGroup]="form" class="edit-form">
-    <ng-container *ngFor="let item of fieldsWithKey">
+    @for (item of fieldsWithKey; track item.key) {
       <div class="field-row">
         <div class="field-with-icon">
-          <ng-container [ngSwitch]="item.field.type">
-            <mat-form-field *ngSwitchCase="'Text'" appearance="outline" class="form-field">
-              <mat-label>{{ getLabel(item.field) }}</mat-label>
-              <input matInput [formControlName]="item.key" />
-              <mat-hint *ngIf="item.field.helpText">{{ item.field.helpText }}</mat-hint>
-              <mat-error *ngIf="form.get(item.key)?.hasError('required')">This field is required</mat-error>
-            </mat-form-field>
+          @switch (item.field.type) {
+            @case ('Text') {
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ getLabel(item.field) }}</mat-label>
+                <input matInput [formControlName]="item.key" />
+                @if (item.field.helpText) {
+                  <mat-hint>{{ item.field.helpText }}</mat-hint>
+                }
+                @if (form.get(item.key)?.hasError('required')) {
+                  <mat-error>This field is required</mat-error>
+                }
+              </mat-form-field>
+            }
 
-            <mat-form-field *ngSwitchCase="'Email'" appearance="outline" class="form-field">
-              <mat-label>{{ getLabel(item.field) }}</mat-label>
-              <input type="email" matInput [formControlName]="item.key" />
-              <mat-hint *ngIf="item.field.helpText">{{ item.field.helpText }}</mat-hint>
-              <mat-error *ngIf="form.get(item.key)?.hasError('required')">This field is required</mat-error>
-            </mat-form-field>
+            @case ('Email') {
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ getLabel(item.field) }}</mat-label>
+                <input type="email" matInput [formControlName]="item.key" />
+                @if (item.field.helpText) {
+                  <mat-hint>{{ item.field.helpText }}</mat-hint>
+                }
+                @if (form.get(item.key)?.hasError('required')) {
+                  <mat-error>This field is required</mat-error>
+                }
+              </mat-form-field>
+            }
 
-            <mat-form-field *ngSwitchCase="'Number'" appearance="outline" class="form-field">
-              <mat-label>{{ getLabel(item.field) }}</mat-label>
-              <input type="number" matInput [formControlName]="item.key" />
-              <mat-hint *ngIf="item.field.helpText">{{ item.field.helpText }}</mat-hint>
-              <mat-error *ngIf="form.get(item.key)?.hasError('required')">This field is required</mat-error>
-            </mat-form-field>
+            @case ('Number') {
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ getLabel(item.field) }}</mat-label>
+                <input type="number" matInput [formControlName]="item.key" />
+                @if (item.field.helpText) {
+                  <mat-hint>{{ item.field.helpText }}</mat-hint>
+                }
+                @if (form.get(item.key)?.hasError('required')) {
+                  <mat-error>This field is required</mat-error>
+                }
+              </mat-form-field>
+            }
 
-            <mat-form-field *ngSwitchCase="'Textarea'" appearance="outline" class="form-field">
-              <mat-label>{{ getLabel(item.field) }}</mat-label>
-              <textarea matInput rows="4" [formControlName]="item.key"></textarea>
-              <mat-hint *ngIf="item.field.helpText">{{ item.field.helpText }}</mat-hint>
-              <mat-error *ngIf="form.get(item.key)?.hasError('required')">This field is required</mat-error>
-            </mat-form-field>
+            @case ('Textarea') {
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ getLabel(item.field) }}</mat-label>
+                <textarea matInput rows="4" [formControlName]="item.key"></textarea>
+                @if (item.field.helpText) {
+                  <mat-hint>{{ item.field.helpText }}</mat-hint>
+                }
+                @if (form.get(item.key)?.hasError('required')) {
+                  <mat-error>This field is required</mat-error>
+                }
+              </mat-form-field>
+            }
 
-            <mat-form-field *ngSwitchCase="'Select'" appearance="outline" class="form-field">
-              <mat-label>{{ getLabel(item.field) }}</mat-label>
-              <mat-select [formControlName]="item.key">
-                <mat-option *ngIf="!form.get(item.key)?.value" value="">-- select --</mat-option>
-                <mat-option *ngFor="let opt of item.options" [value]="opt.value">{{ opt.label }}</mat-option>
-              </mat-select>
-              <mat-hint *ngIf="item.field.helpText">{{ item.field.helpText }}</mat-hint>
-              <mat-error *ngIf="form.get(item.key)?.hasError('required')">This field is required</mat-error>
-            </mat-form-field>
+            @case ('Select') {
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ getLabel(item.field) }}</mat-label>
+                <mat-select [formControlName]="item.key">
+                  @if (!form.get(item.key)?.value) {
+                    <mat-option value="">-- select --</mat-option>
+                  }
+                  @for (opt of item.options; track opt.value ?? $index) {
+                    <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                  }
+                </mat-select>
+                @if (item.field.helpText) {
+                  <mat-hint>{{ item.field.helpText }}</mat-hint>
+                }
+                @if (form.get(item.key)?.hasError('required')) {
+                  <mat-error>This field is required</mat-error>
+                }
+              </mat-form-field>
+            }
 
-            <div *ngSwitchCase="'Checkbox'" class="checkbox-row">
-              <mat-checkbox [formControlName]="item.key">{{ getLabel(item.field) }}</mat-checkbox>
-              <div *ngIf="item.field.helpText" class="help-text">{{ item.field.helpText }}</div>
-            </div>
+            @case ('Checkbox') {
+              <div class="checkbox-row">
+                <mat-checkbox [formControlName]="item.key">{{ getLabel(item.field) }}</mat-checkbox>
+                @if (item.field.helpText) {
+                  <div class="help-text">{{ item.field.helpText }}</div>
+                }
+              </div>
+            }
 
-            <div *ngSwitchCase="'Radio'" class="radio-row">
-              <label class="field-label">{{ getLabel(item.field) }}</label>
-              <mat-radio-group [formControlName]="item.key">
-                <mat-radio-button *ngFor="let opt of item.options" [value]="opt.value">{{ opt.label }}</mat-radio-button>
-              </mat-radio-group>
-              <div *ngIf="item.field.helpText" class="help-text">{{ item.field.helpText }}</div>
-            </div>
+            @case ('Radio') {
+              <div class="radio-row">
+                <label class="field-label">{{ getLabel(item.field) }}</label>
+                <mat-radio-group [formControlName]="item.key">
+                  @for (opt of item.options; track opt.value ?? $index) {
+                    <mat-radio-button [value]="opt.value">{{ opt.label }}</mat-radio-button>
+                  }
+                </mat-radio-group>
+                @if (item.field.helpText) {
+                  <div class="help-text">{{ item.field.helpText }}</div>
+                }
+              </div>
+            }
 
-            <mat-form-field *ngSwitchDefault appearance="outline" class="form-field">
-              <mat-label>{{ getLabel(item.field) }}</mat-label>
-              <input matInput [formControlName]="item.key" />
-              <mat-hint *ngIf="item.field.helpText">{{ item.field.helpText }}</mat-hint>
-              <mat-error *ngIf="form.get(item.key)?.hasError('required')">This field is required</mat-error>
-            </mat-form-field>
-          </ng-container>
+            @default {
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ getLabel(item.field) }}</mat-label>
+                <input matInput [formControlName]="item.key" />
+                @if (item.field.helpText) {
+                  <mat-hint>{{ item.field.helpText }}</mat-hint>
+                }
+                @if (form.get(item.key)?.hasError('required')) {
+                  <mat-error>This field is required</mat-error>
+                }
+              </mat-form-field>
+            }
+          }
         </div>
 
-        <mat-icon *ngIf="hasParsedValidation(item.field)" class="validation-icon"
-          [ngClass]="validationIconClass(form.get(item.key))">
-          {{ validationIconName(form.get(item.key)) }}
-        </mat-icon>
+        @if (hasParsedValidation(item.field)) {
+          <mat-icon class="validation-icon" [ngClass]="validationIconClass(form.get(item.key))">
+            {{ validationIconName(form.get(item.key)) }}
+          </mat-icon>
+        }
       </div>
-    </ng-container>
+    }
 
-    <div *ngIf="errorMessage" class="dialog-error">{{ errorMessage }}</div>
+    @if (errorMessage) {
+      <div class="dialog-error">{{ errorMessage }}</div>
+    }
   </form>
 </div>
 

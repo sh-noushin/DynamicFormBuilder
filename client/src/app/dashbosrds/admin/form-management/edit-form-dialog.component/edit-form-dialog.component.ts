@@ -108,7 +108,7 @@ export class EditFormDialogComponent implements OnInit {
 
 	addVersion() {
 		const nextVersionNumber = (this.versions()?.length || 0) + 1;
-	    const ref = this.dialog.open(CreateVersionDialogComponent, {
+		const ref = this.dialog.open(CreateVersionDialogComponent, {
 			    width: '550px',
 				maxWidth: '85vw',
 				height: '50vh',
@@ -116,12 +116,25 @@ export class EditFormDialogComponent implements OnInit {
 				disableClose: true,
 					data: { nextVersionNumber }
 			});
-			ref.afterClosed().subscribe((result?: { description?: string, fields?: Array<any>, publish?: boolean, makeCurrent?: boolean }) => {
+		ref.afterClosed().subscribe((result?: { description?: string, fields?: Array<any>, publish?: boolean, makeCurrent?: boolean }) => {
 			if (!result || !this.data.form.id) return;
-				const payload = new CreateFormVersionDto({
-					description: result.description ?? '',
-					fields: [] 
-				});
+			const payload = new CreateFormVersionDto({
+				description: result.description ?? '',
+				fields: (result.fields ?? []).map(f => new CreateFormFieldDto({
+					name: f.name,
+					label: f.label,
+					type: f.type,
+					order: f.order ?? 0,
+					isRequired: !!f.isRequired,
+					isVisible: f.isVisible !== false,
+					isReadOnly: !!f.isReadOnly,
+					placeholder: f.placeholder || '',
+					helpText: f.helpText || '',
+					defaultValue: f.defaultValue || '',
+					validation: f.validation || '',
+					options: f.options || ''
+				}))
+			});
 				this.api.versionsPOST(this.data.form.id, payload).subscribe({
 				next: v => {
 					const versionNumber = v.versionNumber ?? nextVersionNumber;
@@ -146,7 +159,7 @@ export class EditFormDialogComponent implements OnInit {
 
 	editVersion(v: FormVersionDto) {
 		const ref = this.dialog.open(EditVersionDialogComponent, {
-			width: 'min(1000px, 95vw)',
+			width: 'min(500px, 95vw)',
 			maxWidth: '95vw',
 			height: 'auto',
 			maxHeight: '60vh',
