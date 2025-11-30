@@ -16,6 +16,7 @@ import { CreateVersionDialogComponent } from '../create-version-dialog.component
 import { ManageFieldsDialogComponent } from '../manage-fields-dialog.component/manage-fields-dialog.component';
 import { DeleteDialogComponent, DeleteDialogData } from '../../../../shared/delete-dialog.component/delete-dialog.component';
 import { EditVersionDialogComponent } from '../edit-version-dialog.component/edit-version-dialog.component';
+import { Observable } from 'rxjs';
 
 
 export type EditFormDialogData = {
@@ -118,6 +119,7 @@ export class EditFormDialogComponent implements OnInit {
 			});
 		ref.afterClosed().subscribe((result?: { description?: string, fields?: Array<any>, publish?: boolean, makeCurrent?: boolean }) => {
 			if (!result || !this.data.form.id) return;
+			const formId = this.data.form.id;
 			const payload = new CreateFormVersionDto({
 				description: result.description ?? '',
 				fields: (result.fields ?? []).map(f => new CreateFormFieldDto({
@@ -138,16 +140,52 @@ export class EditFormDialogComponent implements OnInit {
 				this.api.versionsPOST(this.data.form.id, payload).subscribe({
 				next: v => {
 					const versionNumber = v.versionNumber ?? nextVersionNumber;
-					this.snack.open('Version created', 'Close', { duration: 2000 });
-					this.loadVersions();
-					this.dialog.open(ManageFieldsDialogComponent, {
-						width: '600px',
-						maxWidth: '85vw',
-						height: '70vh',
-						panelClass: 'elevated-dialog-panel',
-						data: { formId: this.data.form!.id!, versionNumber },
-						disableClose: false
+				const followUps: Array<{ run: () => Observable<void>; label: string }> = [];
+				if (result.publish) {
+					followUps.push({
+						run: () => this.api.publish(formId, versionNumber),
+						label: 'publish the version'
 					});
+				}
+				if (result.makeCurrent) {
+					followUps.push({
+						run: () => this.api.setCurrent(formId, versionNumber),
+						label: 'set the version as current'
+					});
+				}
+
+				const finalize = (hadErrors: boolean) => {
+					this.loadVersions();
+					const requestedActions = followUps.length > 0;
+					const message = hadErrors
+						? 'Version created, but some follow-up actions failed'
+						: requestedActions
+							? 'Version created and settings applied'
+							: 'Version created';
+					this.snack.open(message, 'Close', { duration: hadErrors ? 3500 : 2000 });
+				};
+
+				const runFollowUp = (index: number, hadErrors: boolean) => {
+					if (index >= followUps.length) {
+						finalize(hadErrors);
+						return;
+					}
+					const step = followUps[index];
+					step.run().subscribe({
+						next: () => {},
+						error: err => {
+							console.error(`Failed to ${step.label}`, err);
+							runFollowUp(index + 1, true);
+						},
+						complete: () => runFollowUp(index + 1, hadErrors)
+					});
+				};
+
+				if (followUps.length === 0) {
+					finalize(false);
+				} else {
+					runFollowUp(0, false);
+				}
 				},
 				error: err => {
 					console.error('Failed to create version', err);
