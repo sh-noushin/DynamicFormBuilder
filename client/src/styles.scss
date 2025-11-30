@@ -41,3 +41,46 @@ body {
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.cdk-overlay-container .user-menu.mat-mdc-menu-panel {
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(2, 6, 23, 0.35), 0 3px 10px rgba(2, 132, 199, 0.12);
+  overflow: hidden;
+}
+
+.cdk-overlay-container .user-menu .mat-mdc-menu-content {
+  background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
+  color: #e6f0ff;
+  padding: 10px 0;
+  min-width: 200px;
+  border: 1px solid rgba(56, 189, 248, 0.14);
+  --mdc-list-list-item-label-text-color: #eaf2ff;
+  --mat-menu-item-label-text-color: #eaf2ff;
+  --mdc-list-list-item-leading-icon-color: #1ea7fd;
+}
+
+.cdk-overlay-container .user-menu .mat-mdc-menu-item {
+  font-size: 0.97rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  margin: 4px 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  gap: 10px;
+  transition: background 160ms ease, color 160ms ease;
+  color: #eaf2ff;
+}
+
+.cdk-overlay-container .user-menu .mat-mdc-menu-item .mat-icon {
+  color: #1ea7fd;
+}
+
+.cdk-overlay-container .user-menu .mdc-list-item__primary-text {
+  color: #eaf2ff !important;
+}
+
+.cdk-overlay-container .user-menu .mat-mdc-menu-item:hover,
+.cdk-overlay-container .user-menu .mat-mdc-menu-item:focus-visible {
+  background: rgba(56, 189, 248, 0.12);
+  color: #ffffff;
+}
