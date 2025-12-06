@@ -22,15 +22,15 @@ public class UserController : ControllerBase
     
     [HttpPost("register")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(UserDto), 200)]
-    [ProducesResponseType(typeof(object), 400)]
-    [ProducesResponseType(typeof(object), 500)]
+    [ProducesResponseType(typeof(UserDto), 201)]
+    [ProducesResponseType(typeof(void), 400)]
+    [ProducesResponseType(typeof(void), 500)]
     public async Task<ActionResult<UserDto>> RegisterUser(RegisterUserDto registerDto)
     {
         try
         {
             var userDto = await _userService.RegisterUserAsync(registerDto);
-            return Ok(userDto);
+            return CreatedAtAction(nameof(GetUser), new { id = userDto.Id }, userDto);
         }
         catch (DuplicateUsernameException ex)
         {
@@ -62,7 +62,7 @@ public class UserController : ControllerBase
     [Authorize(Roles = "Admin")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<UserDto>), 200)]
-    [ProducesResponseType(typeof(object), 500)]
+    [ProducesResponseType(typeof(void), 500)]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
     {
         try
@@ -80,9 +80,9 @@ public class UserController : ControllerBase
     [Authorize(Roles = "Admin")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(UserDto), 200)]
-    [ProducesResponseType(typeof(object), 400)]
-    [ProducesResponseType(typeof(object), 404)]
-    [ProducesResponseType(typeof(object), 500)]
+    [ProducesResponseType(typeof(void), 400)]
+    [ProducesResponseType(typeof(void), 404)]
+    [ProducesResponseType(typeof(void), 500)]
     public async Task<ActionResult<UserDto>> GetUser(string id)
     {
         try
@@ -108,9 +108,9 @@ public class UserController : ControllerBase
     [Authorize(Roles = "Admin")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(UserDto), 200)]
-    [ProducesResponseType(typeof(object), 400)]
-    [ProducesResponseType(typeof(object), 404)]
-    [ProducesResponseType(typeof(object), 500)]
+    [ProducesResponseType(typeof(void), 400)]
+    [ProducesResponseType(typeof(void), 404)]
+    [ProducesResponseType(typeof(void), 500)]
     public async Task<ActionResult<UserDto>> UpdateUser(string id, UpdateUserDto updateDto)
     {
         try
@@ -151,16 +151,16 @@ public class UserController : ControllerBase
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(object), 200)]
-    [ProducesResponseType(typeof(object), 400)]
-    [ProducesResponseType(typeof(object), 404)]
-    [ProducesResponseType(typeof(object), 500)]
+    [ProducesResponseType(typeof(void), 204)]
+    [ProducesResponseType(typeof(void), 400)]
+    [ProducesResponseType(typeof(void), 404)]
+    [ProducesResponseType(typeof(void), 500)]
     public async Task<IActionResult> DeleteUser(string id)
     {
         try
         {
             await _userService.DeleteUserAsync(id);
-            return Ok(new { Message = "User deleted successfully" });
+            return NoContent();
         }
         catch (UserNotFoundException ex)
         {
@@ -180,10 +180,10 @@ public class UserController : ControllerBase
     [Authorize]
     [Produces("application/json")]
     [ProducesResponseType(typeof(object), 200)]
-    [ProducesResponseType(typeof(object), 400)]
-    [ProducesResponseType(typeof(object), 401)]
-    [ProducesResponseType(typeof(object), 404)]
-    [ProducesResponseType(typeof(object), 500)]
+    [ProducesResponseType(typeof(void), 400)]
+    [ProducesResponseType(typeof(void), 401)]
+    [ProducesResponseType(typeof(void), 404)]
+    [ProducesResponseType(typeof(void), 500)]
     public async Task<IActionResult> ChangePassword(ChangePasswordDto changePasswordDto)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
