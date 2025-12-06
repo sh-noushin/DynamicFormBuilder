@@ -235,5 +235,8 @@
 .name-cell {
   .form-name { display: flex; align-items: center; gap: 12px; }
   .form-icon { color: #1976d2; font-size: 20px; }
-  .name-text { font-weight: 500; color: #1a1a1a; font-size: 0.95rem; }
+  .name-text { 
+    font-weight: 500; 
+    font-size: 0.95rem; 
+  }
 }

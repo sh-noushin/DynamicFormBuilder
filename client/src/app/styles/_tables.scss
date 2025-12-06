@@ -1,19 +1,92 @@
 @use 'variables' as *;
-
 @use 'sass:color';
-.table-base { width:100%; border-spacing:0; background:$color-surface; font-size:$font-size-base; color:$color-text;
-  thead { background: $color-surface-alt; }
-  th { font-weight:600; color:$color-text; font-size:$font-size-base; padding:$space-4; border-bottom:2px solid $color-border; text-align:left; }
-  td { padding:$space-4; border-bottom:1px solid $color-border-subtle; vertical-align:middle; }
-  tbody tr { transition: background-color $transition-base ease; }
-  tbody tr:hover { background: color.adjust($color-primary, $lightness: 46%); }
+
+.table-base {
+  width: 100%;
+  border-spacing: 0;
+  border-collapse: collapse;
+  font-size: $font-size-base;
+
+  background-color: #0f172a;
+  color: #e2e8f0;
+
+  &.mat-mdc-table {
+    background-color: #0f172a;
+    color: #e2e8f0;
+  }
+
+  thead,
+  &.mat-mdc-table .mat-mdc-header-row {
+    background-color: #020617;
+  }
+
+  th,
+  &.mat-mdc-table .mat-mdc-header-cell {
+    font-weight: 600;
+    font-size: $font-size-base;
+    padding: $space-4;
+    text-align: left;
+
+    color: #cbd5e1;
+    background-color: #020617;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+  }
+
+  td,
+  &.mat-mdc-table .mat-mdc-cell {
+    padding: $space-4;
+    vertical-align: middle;
+
+    color: #e2e8f0;
+    background-color: transparent;
+    border-bottom: 1px solid rgba(30, 41, 59, 0.9);
+  }
+
+  tbody tr:nth-child(odd),
+  &.mat-mdc-table .mat-mdc-row:nth-child(odd) {
+    background-color: #0f172a;
+  }
+
+  tbody tr:nth-child(even),
+  &.mat-mdc-table .mat-mdc-row:nth-child(even) {
+    background-color: #020617;
+  }
+
+  tbody tr:hover,
+  &.mat-mdc-table .mat-mdc-row:hover {
+    background-color: rgba(59, 130, 246, 0.18);
+  }
 }
 
-.table-compact { th, td { padding:$space-2 $space-3; } }
+.table-compact {
+  th,
+  td,
+  .mat-mdc-header-cell,
+  .mat-mdc-cell {
+    padding: $space-2 $space-3;
+  }
+}
 
-.table-actions { display:flex; align-items:center; gap:$space-2; }
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
 
-.forms-table { @extend .table-base; }
-.header-cell { font-weight:600; color:$color-text; font-size:$font-size-base; }
-.cell { color:$color-text-strong; }
-.actions-cell { @extend .table-actions; }
+.forms-table {
+  @extend .table-base;
+}
+
+.header-cell {
+  font-weight: 600;
+  color: #e2e8f0;
+  font-size: $font-size-base;
+}
+
+.cell {
+  color: #e2e8f0;
+}
+
+.actions-cell {
+  @extend .table-actions;
+}
