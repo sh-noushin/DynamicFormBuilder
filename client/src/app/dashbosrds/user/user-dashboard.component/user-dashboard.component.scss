@@ -32,6 +32,9 @@
   gap: 0;
   margin-top: 100px; 
   text-align: left;
+  background: linear-gradient(135deg, #0f172a 0%, #1a2332 100%);
+  min-height: calc(100vh - 100px);
+  color: #e2e8f0;
 }
 
 .forms-header {
@@ -40,12 +43,12 @@
   h1 {
     font-size: 2rem;
     font-weight: 600;
-    color: #1a1a1a;
+    color: #e2e8f0;
     margin: 0 0 6px;
   }
 
   p {
-    color: #666;
+    color: #94a3b8;
     margin: 0;
   }
 }
@@ -78,13 +81,13 @@
   .mat-mdc-tab-label .tab-label,
   .mat-tab-label .tab-label {
     background: transparent;
-    color: rgba(0, 0, 0, 0.87);
+    color: #94a3b8;
   }
 
   .mat-mdc-tab-label.mat-mdc-tab-label-active .tab-label,
   .mat-tab-label.mat-tab-label-active .tab-label {
-    background: rgba(25, 118, 210, 0.12);
-    color: #1976d2;
+    background: rgba(100, 181, 246, 0.12);
+    color: #64b5f6;
     box-shadow: none;
   }
 }
