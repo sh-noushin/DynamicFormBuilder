@@ -2,12 +2,13 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--dialog-text-strong);
   mat-icon {
-    color: #0284c7;
-    background: rgba(2,132,199,0.12);
-    border-radius: 8px;
-    padding: 4px;
+    color: var(--dialog-icon);
+    background: rgba(2,132,199,0.16);
+    border-radius: 10px;
+    padding: 6px;
   }
   .spacer { flex: 1; }
 }
@@ -32,9 +33,6 @@
   align-self: flex-start;
 }
 
-:host ::ng-deep .mat-mdc-form-field {
-  --mdc-outlined-text-field-outline-color: #ddd;
-  --mdc-outlined-text-field-focus-outline-color: #0284c7;
-  border-radius: 12px;
-  box-shadow: 0 1px 6px rgba(2,132,199,0.07);
+:host {
+  color: var(--dialog-text-strong);
 }

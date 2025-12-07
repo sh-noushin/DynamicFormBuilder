@@ -4,6 +4,7 @@
 	padding: 4px 4px 12px;
 	min-width: 320px;
 	max-width: 460px;
+	color: var(--dialog-text-strong);
 }
 
 .dialog-header {
@@ -27,8 +28,9 @@
 
 .title {
 	font-size: 20px;
-	font-weight: 600;
+	font-weight: 700;
 	margin: 0;
+	color: var(--dialog-text-strong);
 }
 
 .dialog-body {
@@ -42,18 +44,18 @@
 }
 
 .entity { font-weight: 600; }
-.name { font-weight: 600; color: #37474f; }
+.name { font-weight: 600; color: var(--dialog-text-strong); }
 
 .note {
 	margin: 0;
 	font-size: 12px;
-	color: #607d8b;
+	color: var(--dialog-text-muted);
 }
 
 .dialog-actions {
 	display: flex;
 	justify-content: flex-end;
-	gap: 12px;
+	gap: 10px;
 	padding: 12px 4px 0;
 }
 

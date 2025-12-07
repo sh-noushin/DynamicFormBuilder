@@ -2,7 +2,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--dialog-text-strong);
 }
 
 .edit-form {
@@ -48,11 +49,11 @@
 
 .help-text {
   font-size: 0.8rem;
-  color: #666;
+  color: var(--dialog-text-muted);
 }
 
 .dialog-error {
-  color: #d32f2f;
+  color: #fca5a5;
   font-weight: 500;
   margin-top: 8px;
 }
@@ -67,4 +68,8 @@
 }
 .validation-icon.invalid {
   color: #f44336;
+}
+
+:host {
+  color: var(--dialog-text-strong);
 }

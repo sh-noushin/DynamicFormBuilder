@@ -57,34 +57,26 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--dialog-text-strong);
   mat-icon {
-    color: #2196f3;
-    background: rgba(33,150,243,0.12);
-    border-radius: 8px;
-    padding: 4px;
+    color: var(--dialog-icon);
+    background: rgba(100,181,246,0.16);
+    border-radius: 10px;
+    padding: 6px;
   }
   .spacer { flex: 1; }
 }
 
-.dialog-content { padding: 4px 8px 0 8px; max-width: 1000px; }
-.dialog-form { padding-top: 4px; display: grid; gap: 6px;margin: 20px; }
+.dialog-content { padding: 8px 12px 2px; max-width: 1000px; }
+.dialog-form { padding-top: 4px; display: grid; gap: 10px;margin: 20px; }
 .full-width { width: 100%; }
 .toggle-row { margin-top: 2px; }
-.dialog-actions { padding: 6px 8px 8px; display: flex; gap: 6px; margin: 30px;}
+.dialog-actions { padding: 10px 12px 12px; display: flex; gap: 10px; margin: 30px;}
 .versions-header { display: flex; align-items: center; justify-content: space-between; margin: 8px 0 12px; }
 .versions-title { display: flex; flex-direction: column; gap: 4px; }
 .versions-title h3 { margin: 0; font-weight: 600; color: #1a1a1a; }
-.section-subtitle { margin: 0; color: #666; font-size: 0.9rem; }
-
-:host ::ng-deep .mat-mdc-form-field {
-  --mdc-outlined-text-field-outline-color: #ddd;
-  --mdc-outlined-text-field-focus-outline-color: #2196f3;
-  border-radius: 12px;
-  box-shadow: 0 1px 6px rgba(33,150,243,0.07);
-}
-:host ::ng-deep input.mat-input-element { transition: box-shadow 0.2s; }
-:host ::ng-deep input.mat-input-element:focus { outline: none; box-shadow: 0 0 0 2px #2196f3; }
+.section-subtitle { margin: 0; color: var(--dialog-text-muted); font-size: 0.9rem; }
 
 
 .versions-table-card {
@@ -139,4 +131,8 @@
 .status-inactive { background-color: #d1d5db; box-shadow: 0 0 0 3px rgba(209,213,219,0.4); }
 .badge { font-size: 12px; padding: 2px 6px; background: #e5e7eb; border-radius: 999px; color: #374151; }
 .badge-current { background: #d1fae5; color: #065f46; }
+
+:host {
+  color: var(--dialog-text-strong);
+}
 
