@@ -114,6 +114,19 @@ $dialog-accent: #64b5f6;
     color: var(--dialog-text-strong);
   }
 
+  .mat-mdc-form-field .mdc-floating-label {
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .mat-mdc-form-field.mat-focused .mdc-floating-label,
+  .mat-mdc-form-field .mdc-floating-label--float-above {
+    opacity: 1;
+    transform: translateY(-18px) scale(0.8);
+    color: #ffffff !important;
+  }
+
   .mat-mdc-form-field .mdc-floating-label,
   .mat-mdc-form-field .mdc-floating-label--float-above {
     color: #ffffff !important;

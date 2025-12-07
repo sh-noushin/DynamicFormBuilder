@@ -8,13 +8,13 @@
   <div class="dialog-form" id="user-dialog-form">
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Username</mat-label>
-      <input matInput [value]="username()" (input)="username.set($event.target.value); touched.username.set(true)" placeholder="Enter username" autofocus />
+      <input matInput [value]="username()" (input)="username.set($event.target.value); touched.username.set(true)" placeholder="Username" autofocus />
       @if (usernameError()) { <mat-error>{{ usernameError() }}</mat-error> }
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Email</mat-label>
-      <input matInput type="email" [value]="email()" (input)="email.set($event.target.value); touched.email.set(true)" placeholder="name@example.com" />
+      <input matInput type="email" [value]="email()" (input)="email.set($event.target.value); touched.email.set(true)" placeholder="Email" />
       @if (emailError()) { <mat-error>{{ emailError() }}</mat-error> }
     </mat-form-field>
 
@@ -29,7 +29,7 @@
     @if (isCreate) {
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Password</mat-label>
-        <input matInput type="password" [value]="password()" (input)="password.set($event.target.value); touched.password.set(true)" placeholder="Enter password" />
+        <input matInput type="password" [value]="password()" (input)="password.set($event.target.value); touched.password.set(true)" placeholder="Password" />
         @if (passwordError()) { <mat-error>{{ passwordError() }}</mat-error> }
       </mat-form-field>
     }
