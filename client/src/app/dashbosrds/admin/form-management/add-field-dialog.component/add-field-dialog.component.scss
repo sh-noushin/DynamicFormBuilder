@@ -1,10 +1,3 @@
-.dialog-title { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--dialog-text-strong); }
-.dialog-title mat-icon { color: var(--dialog-icon); background: rgba(100,181,246,0.16); border-radius: 10px; padding: 6px; }
-.dialog-title .spacer { flex: 1; }
-.dialog-content { padding: 10px 16px 2px; margin-bottom: 0 !important; padding-bottom: 0 !important; }
-.dialog-form { display: grid; gap: 14px; padding-top: 8px; margin-bottom: 0 !important; }
-.dialog-actions { padding: 10px 16px 14px; display: flex; gap: 10px; margin-top: 0 !important; }
-.full-width { width: 100%; }
 
 
 

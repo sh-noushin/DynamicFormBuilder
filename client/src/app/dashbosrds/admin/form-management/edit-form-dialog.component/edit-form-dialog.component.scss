@@ -68,41 +68,34 @@
   .spacer { flex: 1; }
 }
 
-.dialog-content { padding: 8px 12px 2px; max-width: 1000px; }
-.dialog-form { padding-top: 4px; display: grid; gap: 10px;margin: 20px; }
-.full-width { width: 100%; }
-.toggle-row { margin-top: 2px; }
-.dialog-actions { padding: 10px 12px 12px; display: flex; gap: 10px; margin: 30px;}
-.versions-header { display: flex; align-items: center; justify-content: space-between; margin: 8px 0 12px; }
-.versions-title { display: flex; flex-direction: column; gap: 4px; }
-.versions-title h3 { margin: 0; font-weight: 600; color: #1a1a1a; }
-.section-subtitle { margin: 0; color: var(--dialog-text-muted); font-size: 0.9rem; }
 
 
 .versions-table-card {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+   margin-top: 48px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   border-radius: 16px;
   overflow: hidden;
-  margin: 12px 16px 16px 16px;
-  width: auto;
-    mat-card-header {
-    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-    padding: 12px;
-    border-bottom: 1px solid #e0e0e0;
+  background: linear-gradient(135deg, #1a2332 0%, #0f172a 100%);
+  border: 1px solid rgba(100, 181, 246, 0.1);
+  
+  mat-card-header {
+    background: transparent;
+    padding: 24px;
+    border-bottom: 1px solid rgba(100, 181, 246, 0.1);
     display: flex;
     align-items: center;
-    gap: 12px;
-
+    gap: 16px;
+    
     mat-card-title {
-      font-size: 1.1rem;
+      font-size: 1.25rem;
       font-weight: 600;
-      color: #1a1a1a;
+      color: #e2e8f0;
     }
-
+    
     mat-card-subtitle {
-      color: #666;
-      font-size: 0.85rem;
-      margin-top: 2px;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-top: 4px;
     }
 
     .header-actions {
@@ -110,6 +103,15 @@
       display: flex;
       align-items: center;
       gap: 8px;
+
+      button[mat-raised-button] {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background-color: #2196f3;
+        color: #fff;
+        box-shadow: 0 2px 4px rgba(33,150,243,0.3);
+      }
     }
   }
   mat-card-content {

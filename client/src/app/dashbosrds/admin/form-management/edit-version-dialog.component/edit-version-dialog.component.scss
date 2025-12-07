@@ -13,15 +13,7 @@
   .spacer { flex: 1; }
 }
 
-.dialog-content { padding: 8px 24px 0 24px !important; max-width: 100%; max-height: none !important; overflow: visible !important; padding-bottom: 0 !important; }
-.dialog-form { padding-top: 6px !important; display: flex !important; flex-direction: column !important; gap: 8px !important; margin-bottom: 6px !important; min-height: unset !important; }
-.dialog-content { padding-bottom: 0 !important; }
-.dialog-actions { margin-top: 0 !important; }
-.full-width { width: 100%; }
-.dialog-actions { padding: 10px 24px 14px; display: flex; gap: 10px; align-items: center; }
-.dialog-actions .left-actions { display: flex; align-items: center; }
-.dialog-actions .spacer { flex: 1; }
-.dialog-actions .right-actions { display: flex; gap: 12px; align-items: center; }
+
 
 :host ::ng-deep textarea.mat-input-element {
   min-height: 72px !important;
