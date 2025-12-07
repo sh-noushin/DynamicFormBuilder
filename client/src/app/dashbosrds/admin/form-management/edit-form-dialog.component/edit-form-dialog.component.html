@@ -7,14 +7,14 @@
 <mat-dialog-content class="dialog-content">
   <div class="dialog-form">
     <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Name</mat-label>
+      <mat-label>Form name</mat-label>
       <input matInput [value]="name()" (input)="setNameFromEvent($event); nameTouched.set(true)" placeholder="Form name" />
       @if (nameTouched() && nameError()) { <mat-error>{{ nameError() }}</mat-error> }
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Description</mat-label>
-      <textarea matInput [value]="description()" (input)="setDescriptionFromEvent($event)" rows="3" placeholder="Optional description"></textarea>
+      <textarea matInput [value]="description()" (input)="setDescriptionFromEvent($event)" rows="3" placeholder="Descriptionn"></textarea>
     </mat-form-field>
 
     <div class="toggle-row">

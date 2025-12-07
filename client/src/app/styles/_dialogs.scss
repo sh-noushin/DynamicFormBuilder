@@ -102,21 +102,32 @@ $dialog-accent: #64b5f6;
   }
 
   .mat-mdc-form-field {
-    --mdc-outlined-text-field-outline-color: rgba(100, 181, 246, 0.24);
+    --mdc-filled-text-field-container-color: rgba(255, 255, 255, 0.03);
+    --mdc-outlined-text-field-outline-color: rgba(100, 181, 246, 0.1);
     --mdc-outlined-text-field-hover-outline-color: rgba(148, 191, 255, 0.4);
-    --mdc-outlined-text-field-focus-outline-color: #64b5f6;
-    --mdc-outlined-text-field-label-text-color: rgba(232, 241, 255, 0.86);
-    --mat-mdc-form-field-label-text-color: rgba(232, 241, 255, 0.86);
-    --mdc-outlined-text-field-container-shape: 12px;
+    --mdc-outlined-text-field-focus-outline-color: var(--dialog-accent);
+    --mdc-outlined-text-field-label-text-color: rgba(255, 255, 255, 0.9);
+    --mat-mdc-form-field-label-text-color: rgba(255, 255, 255, 0.9);
+    --mdc-outlined-text-field-container-shape: 10px;
+    --mdc-outlined-text-field-outline-width: 1px;
+    border-radius: 10px;
     color: var(--dialog-text-strong);
   }
 
-  .mdc-text-field__input {
-    color: var(--dialog-text-strong) !important;
+  .mat-mdc-form-field .mdc-floating-label,
+  .mat-mdc-form-field .mdc-floating-label--float-above {
+    color: #ffffff !important;
   }
 
+  input.mat-input-element,
+  .mdc-text-field__input {
+    color: #ffffff !important;
+    font-weight: 500;
+  }
+
+  input.mat-input-element::placeholder,
   .mdc-text-field__input::placeholder {
-    color: rgba(232, 241, 255, 0.75) !important;
+    color: #ffffff !important;
     opacity: 1 !important;
   }
 
@@ -124,6 +135,12 @@ $dialog-accent: #64b5f6;
   .mat-mdc-form-field-hint-wrapper,
   .mat-mdc-form-field-error-wrapper {
     color: rgba(232, 241, 255, 0.82);
+  }
+
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__trailing,
+  .mdc-notched-outline__notch {
+    border-color: rgba(100, 181, 246, 0.2);
   }
 
   .mat-mdc-raised-button,

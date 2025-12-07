@@ -8,13 +8,13 @@
   <div class="dialog-form" id="create-form-form">
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Form name</mat-label>
-      <input matInput [value]="name()" (input)="setNameFromEvent($event); touched.name.set(true)" placeholder="Enter form name" autofocus />
+      <input matInput [value]="name()" (input)="setNameFromEvent($event); touched.name.set(true)" placeholder="Form name" autofocus />
       @if (nameError()) { <mat-error>{{ nameError() }}</mat-error> }
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Description</mat-label>
-      <textarea matInput [value]="description()" (input)="setDescriptionFromEvent($event); touched.description.set(true)" placeholder="Optional description" rows="3"></textarea>
+      <textarea matInput [value]="description()" (input)="setDescriptionFromEvent($event); touched.description.set(true)" placeholder="Description" rows="3"></textarea>
     </mat-form-field>
   </div>
 </mat-dialog-content>
