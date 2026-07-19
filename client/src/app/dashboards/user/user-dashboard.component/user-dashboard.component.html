@@ -91,6 +91,46 @@
                             </mat-form-field>
                           }
 
+                          @case ('Password') {
+                            <mat-form-field appearance="outline" class="form-field small-field">
+                              <mat-label>{{ f.label }}</mat-label>
+                              <input type="password" matInput [formControlName]="fieldName(f)" />
+                              @if (f.helpText) {
+                                <mat-hint>{{ f.helpText }}</mat-hint>
+                              }
+                            </mat-form-field>
+                          }
+
+                          @case ('Phone') {
+                            <mat-form-field appearance="outline" class="form-field small-field">
+                              <mat-label>{{ f.label }}</mat-label>
+                              <input type="tel" matInput [formControlName]="fieldName(f)" />
+                              @if (f.helpText) {
+                                <mat-hint>{{ f.helpText }}</mat-hint>
+                              }
+                            </mat-form-field>
+                          }
+
+                          @case ('Date') {
+                            <mat-form-field appearance="outline" class="form-field small-field">
+                              <mat-label>{{ f.label }}</mat-label>
+                              <input type="date" matInput [formControlName]="fieldName(f)" />
+                              @if (f.helpText) {
+                                <mat-hint>{{ f.helpText }}</mat-hint>
+                              }
+                            </mat-form-field>
+                          }
+
+                          @case ('DateTime') {
+                            <mat-form-field appearance="outline" class="form-field small-field">
+                              <mat-label>{{ f.label }}</mat-label>
+                              <input type="datetime-local" matInput [formControlName]="fieldName(f)" />
+                              @if (f.helpText) {
+                                <mat-hint>{{ f.helpText }}</mat-hint>
+                              }
+                            </mat-form-field>
+                          }
+
                           @case ('Select') {
                             <mat-form-field appearance="outline" class="form-field small-field">
                               <mat-label>{{ f.label }}</mat-label>
