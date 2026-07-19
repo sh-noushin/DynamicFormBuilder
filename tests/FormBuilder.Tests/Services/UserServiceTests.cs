@@ -71,13 +71,16 @@ namespace FormBuilder.Tests.Services
         [Fact]
         public async Task GetUsersAsync_ReturnsUserDtos()
         {
-            var users = new List<User> { new User { Id = "1", UserName = "user", Email = "email@test.com" } };
+            var user = new User { Id = "1", UserName = "user", Email = "email@test.com" };
+            var users = new List<User> { user };
             _userManager.Users.Returns(users.AsQueryable());
-            _userManager.GetRolesAsync(Arg.Any<User>()).Returns(new List<string> { "User" });
+            _roleManager.Roles.Returns(new List<IdentityRole> { new IdentityRole("User") }.AsQueryable());
+            _userManager.GetUsersInRoleAsync("User").Returns(new List<User> { user });
 
             var result = await _userService.GetUsersAsync();
             Assert.Single(result);
             Assert.Equal("user", result.First().Username);
+            Assert.Contains(UserRole.User, result.First().Roles);
         }
 
         [Fact]

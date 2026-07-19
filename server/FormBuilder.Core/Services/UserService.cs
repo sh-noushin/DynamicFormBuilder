@@ -60,20 +60,41 @@ public class UserService : IUserService
     public async Task<IEnumerable<UserDto>> GetUsersAsync()
     {
         var users = _userManager.Users.ToList();
-        var userDtos = new List<UserDto>();
-        foreach (var user in users)
+        var userIdToRoles = await BuildUserRoleMapAsync();
+
+        return users.Select(user => new UserDto
         {
-            var roles = await _userManager.GetRolesAsync(user);
-            userDtos.Add(new UserDto
+            Id = user.Id,
+            Username = user.UserName!,
+            Email = user.Email!,
+            Roles = RoleMapper.ToEnumRoles(userIdToRoles.GetValueOrDefault(user.Id, new List<string>())),
+            CreatedAt = DateTime.UtcNow
+        }).ToList();
+    }
+
+    private async Task<Dictionary<string, List<string>>> BuildUserRoleMapAsync()
+    {
+        var allRoles = _roleManager.Roles.ToList();
+        var map = new Dictionary<string, List<string>>();
+
+        foreach (var role in allRoles)
+        {
+            if (string.IsNullOrEmpty(role.Name))
+                continue;
+
+            var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name);
+            foreach (var user in usersInRole)
             {
-                Id = user.Id,
-                Username = user.UserName!,
-                Email = user.Email!,
-                Roles = RoleMapper.ToEnumRoles(roles),
-                CreatedAt = DateTime.UtcNow
-            });
+                if (!map.TryGetValue(user.Id, out var roles))
+                {
+                    roles = new List<string>();
+                    map[user.Id] = roles;
+                }
+                roles.Add(role.Name);
+            }
         }
-        return userDtos;
+
+        return map;
     }
 
     public async Task<UserDto> GetUserByIdAsync(string id)
