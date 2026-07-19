@@ -19,15 +19,8 @@ public class FormService : IFormService
 
     public async Task<IEnumerable<FormDto>> GetAllFormsAsync()
     {
-        try
-        {
-            var forms = await _formRepository.GetAllAsync();
-            return _mapper.Map<IEnumerable<FormDto>>(forms);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("An error occurred while retrieving forms.", ex);
-        }
+        var forms = await _formRepository.GetAllAsync();
+        return _mapper.Map<IEnumerable<FormDto>>(forms);
     }
 
     public async Task<FormDto> GetFormByIdAsync(Guid id)
@@ -35,22 +28,11 @@ public class FormService : IFormService
         if (id == Guid.Empty)
             throw new ArgumentException("Form ID cannot be empty.", nameof(id));
 
-        try
-        {
-            var form = await _formRepository.GetByIdAsync(id);
-            if (form == null)
-                throw new FormNotFoundException(id);
+        var form = await _formRepository.GetByIdAsync(id);
+        if (form == null)
+            throw new FormNotFoundException(id);
 
-            return _mapper.Map<FormDto>(form);
-        }
-        catch (FormNotFoundException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"An error occurred while retrieving form with ID {id}.", ex);
-        }
+        return _mapper.Map<FormDto>(form);
     }
 
     public async Task<FormDto> CreateFormAsync(CreateFormDto formDto)
@@ -58,23 +40,16 @@ public class FormService : IFormService
         if (formDto == null)
             throw new ArgumentNullException(nameof(formDto), "Form cannot be null.");
 
-        try
+        var entity = _mapper.Map<FormBuilder.Models.Entities.Form>(formDto);
+        entity.CreatedAt = DateTime.UtcNow;
+        entity.UpdatedAt = DateTime.UtcNow;
+        foreach (var version in entity.Versions)
         {
-            var entity = _mapper.Map<FormBuilder.Models.Entities.Form>(formDto);
-            entity.CreatedAt = DateTime.UtcNow;
-            entity.UpdatedAt = DateTime.UtcNow;
-            foreach (var version in entity.Versions)
-            {
-                version.CreatedAt = DateTime.UtcNow;
-                version.UpdatedAt = DateTime.UtcNow;
-            }
-            var created = await _formRepository.CreateAsync(entity);
-            return _mapper.Map<FormDto>(created);
+            version.CreatedAt = DateTime.UtcNow;
+            version.UpdatedAt = DateTime.UtcNow;
         }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("An error occurred while creating the form.", ex);
-        }
+        var created = await _formRepository.CreateAsync(entity);
+        return _mapper.Map<FormDto>(created);
     }
 
     public async Task<FormDto> UpdateFormAsync(Guid id, UpdateFormDto formDto)
@@ -84,23 +59,12 @@ public class FormService : IFormService
         if (formDto == null)
             throw new ArgumentNullException(nameof(formDto), "Form cannot be null.");
 
-        try
-        {
-            var entity = _mapper.Map<FormBuilder.Models.Entities.Form>(formDto);
-            entity.UpdatedAt = DateTime.UtcNow;
-            var updatedForm = await _formRepository.UpdateAsync(id, entity);
-            if (updatedForm == null)
-                throw new FormNotFoundException(id);
-            return _mapper.Map<FormDto>(updatedForm);
-        }
-        catch (FormNotFoundException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"An error occurred while updating form with ID {id}.", ex);
-        }
+        var entity = _mapper.Map<FormBuilder.Models.Entities.Form>(formDto);
+        entity.UpdatedAt = DateTime.UtcNow;
+        var updatedForm = await _formRepository.UpdateAsync(id, entity);
+        if (updatedForm == null)
+            throw new FormNotFoundException(id);
+        return _mapper.Map<FormDto>(updatedForm);
     }
 
     public async Task<bool> DeleteFormAsync(Guid id)
@@ -108,70 +72,28 @@ public class FormService : IFormService
         if (id == Guid.Empty)
             throw new ArgumentException("Form ID cannot be empty.", nameof(id));
 
-        try
-        {
-            var result = await _formRepository.DeleteAsync(id);
-            if (!result)
-                throw new FormNotFoundException(id);
-            return result;
-        }
-        catch (FormNotFoundException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"An error occurred while deleting form with ID {id}.", ex);
-        }
+        var result = await _formRepository.DeleteAsync(id);
+        if (!result)
+            throw new FormNotFoundException(id);
+        return result;
     }
 
-    public async Task<bool> ActivateFormAsync(Guid id)
+    public async Task<bool> ActivateFormAsync(Guid id) => await SetFormActiveStateAsync(id, true);
+
+    public async Task<bool> DeactivateFormAsync(Guid id) => await SetFormActiveStateAsync(id, false);
+
+    private async Task<bool> SetFormActiveStateAsync(Guid id, bool isActive)
     {
         if (id == Guid.Empty)
             throw new ArgumentException("Form ID cannot be empty.", nameof(id));
 
-        try
-        {
-            var form = await _formRepository.GetByIdAsync(id);
-            if (form == null)
-                throw new FormNotFoundException(id);
-            form.IsActive = true;
-            form.UpdatedAt = DateTime.UtcNow;
-            var result = await _formRepository.UpdateAsync(id, form);
-            return result != null;
-        }
-        catch (FormNotFoundException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"An error occurred while activating form with ID {id}.", ex);
-        }
-    }
+        var form = await _formRepository.GetByIdAsync(id);
+        if (form == null)
+            throw new FormNotFoundException(id);
 
-    public async Task<bool> DeactivateFormAsync(Guid id)
-    {
-        if (id == Guid.Empty)
-            throw new ArgumentException("Form ID cannot be empty.", nameof(id));
-
-        try
-        {
-            var form = await _formRepository.GetByIdAsync(id);
-            if (form == null)
-                throw new FormNotFoundException(id);
-            form.IsActive = false;
-            form.UpdatedAt = DateTime.UtcNow;
-            var result = await _formRepository.UpdateAsync(id, form);
-            return result != null;
-        }
-        catch (FormNotFoundException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"An error occurred while deactivating form with ID {id}.", ex);
-        }
+        form.IsActive = isActive;
+        form.UpdatedAt = DateTime.UtcNow;
+        var result = await _formRepository.UpdateAsync(id, form);
+        return result != null;
     }
 }

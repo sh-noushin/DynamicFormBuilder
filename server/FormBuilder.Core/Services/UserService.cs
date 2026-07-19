@@ -22,85 +22,57 @@ public class UserService : IUserService
         if (registerDto == null)
             throw new ArgumentNullException(nameof(registerDto), "Register data cannot be null.");
 
-        try
+        var existingUser = await _userManager.FindByNameAsync(registerDto.Username);
+        if (existingUser != null)
+            throw new DuplicateUsernameException(registerDto.Username);
+
+        var existingEmailUser = await _userManager.FindByEmailAsync(registerDto.Email);
+        if (existingEmailUser != null)
+            throw new DuplicateEmailException(registerDto.Email);
+
+        var user = new User
         {
-            var existingUser = await _userManager.FindByNameAsync(registerDto.Username);
-            if (existingUser != null)
-                throw new DuplicateUsernameException(registerDto.Username);
+            UserName = registerDto.Username,
+            Email = registerDto.Email
+        };
 
-            var existingEmailUser = await _userManager.FindByEmailAsync(registerDto.Email);
-            if (existingEmailUser != null)
-                throw new DuplicateEmailException(registerDto.Email);
+        var result = await _userManager.CreateAsync(user, registerDto.Password);
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new UserCreationFailedException($"Failed to create user: {errors}");
+        }
 
-            var user = new User
-            {
-                UserName = registerDto.Username,
-                Email = registerDto.Email
-            };
+        await AssignRoleAsync(user, registerDto.Role.ToString());
 
-            var result = await _userManager.CreateAsync(user, registerDto.Password);
-            if (!result.Succeeded)
-            {
-                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                throw new UserCreationFailedException($"Failed to create user: {errors}");
-            }
+        var roles = await _userManager.GetRolesAsync(user);
+        return new UserDto
+        {
+            Id = user.Id,
+            Username = user.UserName!,
+            Email = user.Email!,
+            Roles = ConvertStringRolesToEnumRoles(roles),
+            CreatedAt = DateTime.UtcNow
+        };
+    }
 
-            var roleToAssign = registerDto.Role.ToString();
-            if (!await _roleManager.RoleExistsAsync(roleToAssign))
-            {
-                var roleResult = await _roleManager.CreateAsync(new IdentityRole(roleToAssign));
-                if (!roleResult.Succeeded)
-                    throw new InvalidUserRoleException($"Failed to create role '{roleToAssign}'");
-            }
-
-            var addRoleResult = await _userManager.AddToRoleAsync(user, roleToAssign);
-            if (!addRoleResult.Succeeded)
-                throw new InvalidUserRoleException($"Failed to assign role '{roleToAssign}' to user");
-
+    public async Task<IEnumerable<UserDto>> GetUsersAsync()
+    {
+        var users = _userManager.Users.ToList();
+        var userDtos = new List<UserDto>();
+        foreach (var user in users)
+        {
             var roles = await _userManager.GetRolesAsync(user);
-            return new UserDto
+            userDtos.Add(new UserDto
             {
                 Id = user.Id,
                 Username = user.UserName!,
                 Email = user.Email!,
                 Roles = ConvertStringRolesToEnumRoles(roles),
                 CreatedAt = DateTime.UtcNow
-            };
+            });
         }
-        catch (DuplicateUsernameException) { throw; }
-        catch (DuplicateEmailException) { throw; }
-        catch (UserCreationFailedException) { throw; }
-        catch (InvalidUserRoleException) { throw; }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("An error occurred while registering the user.", ex);
-        }
-    }
-
-    public async Task<IEnumerable<UserDto>> GetUsersAsync()
-    {
-        try
-        {
-            var users = _userManager.Users.ToList();
-            var userDtos = new List<UserDto>();
-            foreach (var user in users)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                userDtos.Add(new UserDto
-                {
-                    Id = user.Id,
-                    Username = user.UserName!,
-                    Email = user.Email!,
-                    Roles = ConvertStringRolesToEnumRoles(roles),
-                    CreatedAt = DateTime.UtcNow // Ideally from User entity
-                });
-            }
-            return userDtos;
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("An error occurred while retrieving users.", ex);
-        }
+        return userDtos;
     }
 
     public async Task<UserDto> GetUserByIdAsync(string id)
@@ -108,26 +80,18 @@ public class UserService : IUserService
         if (string.IsNullOrEmpty(id))
             throw new ArgumentException("User ID cannot be null or empty.", nameof(id));
 
-        try
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null)
+            throw new UserNotFoundException(id);
+        var roles = await _userManager.GetRolesAsync(user);
+        return new UserDto
         {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-                throw new UserNotFoundException(id);
-            var roles = await _userManager.GetRolesAsync(user);
-            return new UserDto
-            {
-                Id = user.Id,
-                Username = user.UserName!,
-                Email = user.Email!,
-                Roles = ConvertStringRolesToEnumRoles(roles),
-                CreatedAt = DateTime.UtcNow // Ideally from User entity
-            };
-        }
-        catch (UserNotFoundException) { throw; }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"An error occurred while retrieving user with ID {id}.", ex);
-        }
+            Id = user.Id,
+            Username = user.UserName!,
+            Email = user.Email!,
+            Roles = ConvertStringRolesToEnumRoles(roles),
+            CreatedAt = DateTime.UtcNow
+        };
     }
 
     public async Task<UserDto> UpdateUserAsync(string id, UpdateUserDto updateDto)
@@ -137,71 +101,49 @@ public class UserService : IUserService
         if (updateDto == null)
             throw new ArgumentNullException(nameof(updateDto), "Update data cannot be null.");
 
-        try
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null)
+            throw new UserNotFoundException(id);
+
+        if (!string.IsNullOrEmpty(updateDto.Username) && updateDto.Username != user.UserName)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-                throw new UserNotFoundException(id);
-
-            if (!string.IsNullOrEmpty(updateDto.Username) && updateDto.Username != user.UserName)
-            {
-                var existingUser = await _userManager.FindByNameAsync(updateDto.Username);
-                if (existingUser != null)
-                    throw new DuplicateUsernameException(updateDto.Username);
-                user.UserName = updateDto.Username;
-            }
-
-            if (!string.IsNullOrEmpty(updateDto.Email) && updateDto.Email != user.Email)
-            {
-                var existingEmailUser = await _userManager.FindByEmailAsync(updateDto.Email);
-                if (existingEmailUser != null)
-                    throw new DuplicateEmailException(updateDto.Email);
-                user.Email = updateDto.Email;
-            }
-
-            var updateResult = await _userManager.UpdateAsync(user);
-            if (!updateResult.Succeeded)
-            {
-                var errors = string.Join(", ", updateResult.Errors.Select(e => e.Description));
-                throw new UserUpdateFailedException($"Failed to update user: {errors}");
-            }
-
-            var roleToAssign = updateDto.Role.ToString();
-            var currentRoles = await _userManager.GetRolesAsync(user);
-            var removeRolesResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
-            if (!removeRolesResult.Succeeded)
-                throw new UserUpdateFailedException("Failed to remove existing roles from user");
-
-            if (!await _roleManager.RoleExistsAsync(roleToAssign))
-            {
-                var roleResult = await _roleManager.CreateAsync(new IdentityRole(roleToAssign));
-                if (!roleResult.Succeeded)
-                    throw new InvalidUserRoleException($"Failed to create role '{roleToAssign}'");
-            }
-
-            var addRoleResult = await _userManager.AddToRoleAsync(user, roleToAssign);
-            if (!addRoleResult.Succeeded)
-                throw new InvalidUserRoleException($"Failed to assign role '{roleToAssign}' to user");
-
-            var roles = await _userManager.GetRolesAsync(user);
-            return new UserDto
-            {
-                Id = user.Id,
-                Username = user.UserName!,
-                Email = user.Email!,
-                Roles = ConvertStringRolesToEnumRoles(roles),
-                CreatedAt = DateTime.UtcNow
-            };
+            var existingUser = await _userManager.FindByNameAsync(updateDto.Username);
+            if (existingUser != null)
+                throw new DuplicateUsernameException(updateDto.Username);
+            user.UserName = updateDto.Username;
         }
-        catch (UserNotFoundException) { throw; }
-        catch (DuplicateUsernameException) { throw; }
-        catch (DuplicateEmailException) { throw; }
-        catch (UserUpdateFailedException) { throw; }
-        catch (InvalidUserRoleException) { throw; }
-        catch (Exception ex)
+
+        if (!string.IsNullOrEmpty(updateDto.Email) && updateDto.Email != user.Email)
         {
-            throw new InvalidOperationException($"An error occurred while updating user with ID {id}.", ex);
+            var existingEmailUser = await _userManager.FindByEmailAsync(updateDto.Email);
+            if (existingEmailUser != null)
+                throw new DuplicateEmailException(updateDto.Email);
+            user.Email = updateDto.Email;
         }
+
+        var updateResult = await _userManager.UpdateAsync(user);
+        if (!updateResult.Succeeded)
+        {
+            var errors = string.Join(", ", updateResult.Errors.Select(e => e.Description));
+            throw new UserUpdateFailedException($"Failed to update user: {errors}");
+        }
+
+        var currentRoles = await _userManager.GetRolesAsync(user);
+        var removeRolesResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+        if (!removeRolesResult.Succeeded)
+            throw new UserUpdateFailedException("Failed to remove existing roles from user");
+
+        await AssignRoleAsync(user, updateDto.Role.ToString());
+
+        var roles = await _userManager.GetRolesAsync(user);
+        return new UserDto
+        {
+            Id = user.Id,
+            Username = user.UserName!,
+            Email = user.Email!,
+            Roles = ConvertStringRolesToEnumRoles(roles),
+            CreatedAt = DateTime.UtcNow
+        };
     }
 
     public async Task<bool> DeleteUserAsync(string id)
@@ -209,25 +151,16 @@ public class UserService : IUserService
         if (string.IsNullOrEmpty(id))
             throw new ArgumentException("User ID cannot be null or empty.", nameof(id));
 
-        try
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null)
+            throw new UserNotFoundException(id);
+        var result = await _userManager.DeleteAsync(user);
+        if (!result.Succeeded)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-                throw new UserNotFoundException(id);
-            var result = await _userManager.DeleteAsync(user);
-            if (!result.Succeeded)
-            {
-                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                throw new UserDeletionFailedException($"Failed to delete user: {errors}");
-            }
-            return true;
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new UserDeletionFailedException($"Failed to delete user: {errors}");
         }
-        catch (UserNotFoundException) { throw; }
-        catch (UserDeletionFailedException) { throw; }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"An error occurred while deleting user with ID {id}.", ex);
-        }
+        return true;
     }
 
     public async Task ChangePasswordAsync(string userId, ChangePasswordDto changePasswordDto)
@@ -237,32 +170,37 @@ public class UserService : IUserService
         if (changePasswordDto == null)
             throw new ArgumentNullException(nameof(changePasswordDto), "Change password data cannot be null.");
 
-        try
-        {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-                throw new UserNotFoundException(userId);
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+            throw new UserNotFoundException(userId);
 
-            var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.CurrentPassword, changePasswordDto.NewPassword);
-            if (!result.Succeeded)
-            {
-                if (result.Errors.Any(error => string.Equals(error.Code, nameof(IdentityErrorDescriber.PasswordMismatch), StringComparison.OrdinalIgnoreCase) ||
-                                               error.Description.Contains("incorrect", StringComparison.OrdinalIgnoreCase)))
-                {
-                    throw new InvalidCurrentPasswordException();
-                }
+        var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.CurrentPassword, changePasswordDto.NewPassword);
+        if (result.Succeeded)
+            return;
 
-                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                throw new PasswordChangeFailedException(errors);
-            }
-        }
-        catch (UserNotFoundException) { throw; }
-        catch (InvalidCurrentPasswordException) { throw; }
-        catch (PasswordChangeFailedException) { throw; }
-        catch (Exception ex)
+        if (result.Errors.Any(error =>
+            string.Equals(error.Code, nameof(IdentityErrorDescriber.PasswordMismatch), StringComparison.OrdinalIgnoreCase) ||
+            error.Description.Contains("incorrect", StringComparison.OrdinalIgnoreCase)))
         {
-            throw new InvalidOperationException($"An error occurred while changing password for user with ID {userId}.", ex);
+            throw new InvalidCurrentPasswordException();
         }
+
+        var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+        throw new PasswordChangeFailedException(errors);
+    }
+
+    private async Task AssignRoleAsync(User user, string roleName)
+    {
+        if (!await _roleManager.RoleExistsAsync(roleName))
+        {
+            var roleResult = await _roleManager.CreateAsync(new IdentityRole(roleName));
+            if (!roleResult.Succeeded)
+                throw new InvalidUserRoleException($"Failed to create role '{roleName}'");
+        }
+
+        var addRoleResult = await _userManager.AddToRoleAsync(user, roleName);
+        if (!addRoleResult.Succeeded)
+            throw new InvalidUserRoleException($"Failed to assign role '{roleName}' to user");
     }
 
     private static List<UserRole> ConvertStringRolesToEnumRoles(IList<string> stringRoles)
