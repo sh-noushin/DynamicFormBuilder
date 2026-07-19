@@ -31,6 +31,10 @@ export const routes: Routes = [
         loadComponent: () => import('./dashbosrds/admin/form-management/forms-list.component/forms-list.component').then(m => m.FormsListComponent)
       },
       {
+        path: 'forms/:id/submissions',
+        loadComponent: () => import('./dashbosrds/admin/form-management/admin-submissions.component/admin-submissions.component').then(m => m.AdminSubmissionsComponent)
+      },
+      {
         path: 'users',
         loadComponent: () => import('./dashbosrds/admin/user-management/users-list.component/users-list.component').then(m => m.UsersListComponent)
       }
