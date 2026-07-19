@@ -1,4 +1,4 @@
-<div class="public-form-page">
+<div class="public-form-page" [style.--brand-primary]="form()?.brandColor || null" [style.--brand-primary-hover]="form()?.brandColor || null">
   <div class="public-form-shell">
     @if (loading()) {
       <div class="state-block">

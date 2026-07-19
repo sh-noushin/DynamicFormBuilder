@@ -1,4 +1,4 @@
-<div class="preview-page">
+<div class="preview-page" [style.--brand-primary]="form()?.['brandColor'] || null" [style.--brand-primary-hover]="form()?.['brandColor'] || null">
   <div class="preview-shell">
     <div class="preview-banner">
       <mat-icon>visibility</mat-icon>

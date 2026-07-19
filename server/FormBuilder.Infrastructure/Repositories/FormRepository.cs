@@ -57,6 +57,7 @@ public class FormRepository : IFormRepository
 
         existingForm.Name = form.Name;
         existingForm.Description = form.Description;
+        existingForm.BrandColor = form.BrandColor;
         existingForm.IsActive = form.IsActive;
 
         await _context.SaveChangesAsync();

@@ -34,6 +34,7 @@ interface PublicForm {
   slug: string;
   name: string;
   description?: string;
+  brandColor?: string;
   formVersionId: string;
   versionNumber: number;
   fields: PublicField[];

@@ -6,6 +6,7 @@ public class FormDto
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string Slug { get; set; } = string.Empty;
+    public string? BrandColor { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public bool IsActive { get; set; } = true;

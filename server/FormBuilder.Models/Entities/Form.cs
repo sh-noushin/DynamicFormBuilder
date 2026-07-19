@@ -6,6 +6,9 @@ public class Form
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string Slug { get; set; } = string.Empty;
+    // Hex color like "#6366f1" used to theme the public /f/:slug page and
+    // admin preview. Null falls back to the app-wide indigo palette.
+    public string? BrandColor { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public bool IsActive { get; set; } = true;

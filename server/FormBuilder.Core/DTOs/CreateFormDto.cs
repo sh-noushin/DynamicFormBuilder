@@ -10,5 +10,8 @@ public class CreateFormDto
     [StringLength(2000)]
     public string Description { get; set; } = string.Empty;
 
+    [StringLength(9)]
+    public string? BrandColor { get; set; }
+
     public List<CreateFormFieldDto> Fields { get; set; } = new List<CreateFormFieldDto>();
 }

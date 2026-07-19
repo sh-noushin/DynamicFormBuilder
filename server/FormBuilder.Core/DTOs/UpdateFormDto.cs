@@ -10,5 +10,8 @@ public class UpdateFormDto
     [StringLength(2000)]
     public string? Description { get; set; }
 
+    [StringLength(9)]
+    public string? BrandColor { get; set; }
+
     public bool IsActive { get; set; } = true;
 }

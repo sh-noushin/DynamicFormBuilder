@@ -10,6 +10,7 @@ public class PublicFormDto
     public string Slug { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
+    public string? BrandColor { get; set; }
     public Guid FormVersionId { get; set; }
     public int VersionNumber { get; set; }
     public List<FormFieldDto> Fields { get; set; } = new List<FormFieldDto>();

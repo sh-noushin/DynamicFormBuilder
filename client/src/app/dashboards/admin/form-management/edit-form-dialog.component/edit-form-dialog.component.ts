@@ -48,6 +48,7 @@ export class EditFormDialogComponent implements OnInit {
 	name = signal<string>('');
 	description = signal<string>('');
 	isActive = signal<boolean>(true);
+	brandColor = signal<string>('');
 	
 	nameTouched = signal<boolean>(false);
 	isSaving = signal(false);
@@ -65,7 +66,10 @@ export class EditFormDialogComponent implements OnInit {
 			this.name.set(src.name ?? '');
 			this.description.set(src.description ?? '');
 			this.isActive.set(!!src.isActive);
+			this.brandColor.set((src as any).brandColor ?? '');
 		}
+
+		clearBrandColor() { this.brandColor.set(''); }
 
 
 	ngOnInit(): void {
@@ -90,6 +94,7 @@ export class EditFormDialogComponent implements OnInit {
 			name: this.name(),
 			description: this.description(),
 			isActive: this.isActive(),
+			brandColor: this.brandColor().trim() || undefined,
 		});
 		this.api.formsPUT(this.data.form.id, payload).subscribe({
 			next: updated => {

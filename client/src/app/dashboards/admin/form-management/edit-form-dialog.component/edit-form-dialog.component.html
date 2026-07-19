@@ -20,6 +20,21 @@
     <div class="toggle-row">
       <mat-slide-toggle color="primary" [checked]="isActive()" (change)="isActive.set($any($event).checked)">Active</mat-slide-toggle>
     </div>
+
+    <div class="brand-row">
+      <label class="brand-label">
+        <mat-icon>palette</mat-icon>
+        <span>Brand color</span>
+      </label>
+      <input type="color" class="brand-input" [value]="brandColor() || '#6366f1'" (input)="brandColor.set($any($event.target).value)" />
+      <span class="brand-hex" [style.color]="brandColor() || '#94a3b8'">{{ brandColor() || 'Default' }}</span>
+      @if (brandColor()) {
+        <button mat-button type="button" class="brand-reset" (click)="clearBrandColor()">
+          <mat-icon>refresh</mat-icon>
+          <span>Reset</span>
+        </button>
+      }
+    </div>
   </div>
 
   <mat-card class="versions-table-card">
