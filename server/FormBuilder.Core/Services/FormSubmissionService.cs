@@ -96,7 +96,22 @@ public class FormSubmissionService : IFormSubmissionService
         if (updateDto == null)
             throw new ArgumentNullException(nameof(updateDto), "Update DTO cannot be null.");
 
-        var updated = await _repository.UpdateAsync(id, updateDto.SubmitterName, updateDto.SubmitterEmail, updateDto.FieldValues);
+        var source = new FormBuilder.Models.Entities.FormSubmission
+        {
+            SubmitterName = updateDto.SubmitterName,
+            SubmitterEmail = updateDto.SubmitterEmail,
+            Values = updateDto.FieldValues
+                .Select(kv => new FormBuilder.Models.Entities.FormSubmissionValue
+                {
+                    FieldName = kv.Key,
+                    FieldValue = kv.Value
+                })
+                .ToList()
+        };
+
+        var updated = await _repository.UpdateAsync(id, source);
+        if (updated == null)
+            throw new FormSubmissionNotFoundException(id);
         return _mapper.Map<FormSubmissionDto>(updated);
     }
 

@@ -1,6 +1,5 @@
 ﻿using FormBuilder.Infrastructure.Data;
 using FormBuilder.Models.Entities;
-using FormBuilder.Models.Exceptions;
 using FormBuilder.Models.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -56,35 +55,32 @@ public class FormSubmissionRepository : IFormSubmissionRepository
             .CountAsync(s => s.FormVersionId == formVersionId);
     }
 
-    public async Task<FormSubmission> UpdateAsync(Guid id, string? submitterName, string? submitterEmail, Dictionary<string, string?> fieldValues)
+    public async Task<FormSubmission?> UpdateAsync(Guid id, FormSubmission source)
     {
         var submission = await _context.FormSubmissions
             .Include(s => s.Values)
             .FirstOrDefaultAsync(s => s.Id == id);
 
         if (submission == null)
-        {
-            throw new FormSubmissionNotFoundException(id);
-        }
+            return null;
 
-        submission.SubmitterName = submitterName;
-        submission.SubmitterEmail = submitterEmail;
+        submission.SubmitterName = source.SubmitterName;
+        submission.SubmitterEmail = source.SubmitterEmail;
         submission.SubmittedAt = DateTime.UtcNow;
 
         _context.FormSubmissionValues.RemoveRange(submission.Values);
         submission.Values.Clear();
 
-        foreach (var kvp in fieldValues)
+        foreach (var value in source.Values)
         {
             submission.Values.Add(new FormSubmissionValue
             {
-                FieldName = kvp.Key,
-                FieldValue = kvp.Value
+                FieldName = value.FieldName,
+                FieldValue = value.FieldValue
             });
         }
 
         await _context.SaveChangesAsync();
-
         await _context.Entry(submission).Collection(s => s.Values).LoadAsync();
 
         return submission;

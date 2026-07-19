@@ -93,7 +93,7 @@ namespace FormBuilder.Tests.Services
             var updateDto = new UpdateFormSubmissionDto { SubmitterName = "Updated" };
             var updatedEntity = new FormBuilder.Models.Entities.FormSubmission { Id = submissionId, SubmitterName = "Updated" };
             var resultDto = new FormSubmissionDto { Id = submissionId, SubmitterName = "Updated" };
-            _repo.UpdateAsync(submissionId, updateDto.SubmitterName, updateDto.SubmitterEmail, updateDto.FieldValues).Returns(updatedEntity);
+            _repo.UpdateAsync(submissionId, Arg.Any<FormBuilder.Models.Entities.FormSubmission>()).Returns(updatedEntity);
             _mapper.Map<FormSubmissionDto>(updatedEntity).Returns(resultDto);
             var validator = Substitute.For<FormBuilder.Core.Interfaces.IFieldValidator>();
             var service = new FormSubmissionService(_repo, _mapper, validator);
