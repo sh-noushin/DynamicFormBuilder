@@ -1,22 +1,21 @@
-using Microsoft.Extensions.DependencyInjection;
+using FormBuilder.Core.Options;
 
 namespace FormBuilder.API.Extensions;
 
 public static class CorsExtensions
 {
-    public static IServiceCollection AddFormBuilderCors(this IServiceCollection services)
+    public static IServiceCollection AddFormBuilderCors(this IServiceCollection services, IConfiguration configuration)
     {
+        var corsOptions = configuration.GetSection(CorsOptions.SectionName).Get<CorsOptions>() ?? new CorsOptions();
+
+        if (corsOptions.AllowedOrigins.Length == 0)
+            throw new InvalidOperationException($"'{CorsOptions.SectionName}:{nameof(CorsOptions.AllowedOrigins)}' is required and must not be empty.");
+
         services.AddCors(options =>
         {
-            options.AddPolicy("AllowAngular", policy =>
+            options.AddPolicy(CorsOptions.AngularPolicyName, policy =>
             {
-                policy.WithOrigins("http://localhost:4200")
-                      .AllowAnyMethod()
-                      .AllowAnyHeader();
-            });
-            options.AddPolicy("AllowAll", policy =>
-            {
-                policy.AllowAnyOrigin()
+                policy.WithOrigins(corsOptions.AllowedOrigins)
                       .AllowAnyMethod()
                       .AllowAnyHeader();
             });

@@ -9,7 +9,7 @@ using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add CORS
-builder.Services.AddFormBuilderCors();
+builder.Services.AddFormBuilderCors(builder.Configuration);
 
 // Add Controllers and JSON options
 builder.Services.AddControllers()
@@ -67,8 +67,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// Use only the CORS policy you really want
-app.UseCors("AllowAngular");
+app.UseCors(CorsOptions.AngularPolicyName);
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
