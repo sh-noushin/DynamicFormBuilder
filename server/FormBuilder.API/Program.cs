@@ -1,7 +1,10 @@
 using FormBuilder.API.Extensions;
 using FormBuilder.API.Middleware;
-using Scalar.AspNetCore;
+using FormBuilder.Core.Options;
+using FormBuilder.Infrastructure.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.OpenApi;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,16 +75,22 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// Ensure database is migrated and seeded
+// Always ensure the schema is up to date; only seed sample data in Development.
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider
-        .GetRequiredService<FormBuilder.Infrastructure.Data.FormBuilderDbContext>();
-    var userManager = scope.ServiceProvider
-        .GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<FormBuilder.Models.Entities.User>>();
-    var roleManager = scope.ServiceProvider
-        .GetRequiredService<Microsoft.AspNetCore.Identity.RoleManager<Microsoft.AspNetCore.Identity.IdentityRole>>();
-    await FormBuilder.Infrastructure.Data.DataSeeder.SeedAsync(context, userManager, roleManager);
+    var context = scope.ServiceProvider.GetRequiredService<FormBuilderDbContext>();
+    await DataSeeder.EnsureDatabaseAsync(context);
+
+    if (app.Environment.IsDevelopment())
+    {
+        var userManager = scope.ServiceProvider
+            .GetRequiredService<UserManager<FormBuilder.Models.Entities.User>>();
+        var roleManager = scope.ServiceProvider
+            .GetRequiredService<RoleManager<IdentityRole>>();
+        var seedOptions = app.Configuration.GetSection(SeedOptions.SectionName).Get<SeedOptions>()
+            ?? throw new InvalidOperationException($"Missing '{SeedOptions.SectionName}' configuration section for development seeding.");
+        await DataSeeder.SeedAsync(context, userManager, roleManager, seedOptions);
+    }
 }
 
 app.Run();

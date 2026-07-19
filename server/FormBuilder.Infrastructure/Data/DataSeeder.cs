@@ -1,4 +1,5 @@
 ﻿using FormBuilder.Core.Constants;
+using FormBuilder.Core.Options;
 using FormBuilder.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -7,29 +8,36 @@ namespace FormBuilder.Infrastructure.Data;
 
 public static class DataSeeder
 {
-    public static async Task SeedAsync(FormBuilderDbContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+    public static async Task EnsureDatabaseAsync(FormBuilderDbContext context)
     {
-        // Ensure the database is migrated (only for real databases)
         if (!context.Database.IsInMemory())
         {
             await context.Database.MigrateAsync();
         }
         else
         {
-            // For in-memory databases, ensure the database is created
             await context.Database.EnsureCreatedAsync();
         }
+    }
 
-        // Seed roles first
+    public static async Task SeedAsync(
+        FormBuilderDbContext context,
+        UserManager<User> userManager,
+        RoleManager<IdentityRole> roleManager,
+        SeedOptions options)
+    {
+        if (string.IsNullOrWhiteSpace(options.AdminPassword))
+            throw new InvalidOperationException($"'{SeedOptions.SectionName}:{nameof(SeedOptions.AdminPassword)}' is required to seed the admin user.");
+        if (string.IsNullOrWhiteSpace(options.UserPassword))
+            throw new InvalidOperationException($"'{SeedOptions.SectionName}:{nameof(SeedOptions.UserPassword)}' is required to seed the sample user.");
+
+        await EnsureDatabaseAsync(context);
         await SeedRolesAsync(roleManager);
+        await SeedUsersAsync(userManager, options);
 
-        // Seed users
-        await SeedUsersAsync(userManager);
-
-        // Check if data already exists
         if (await context.Forms.AnyAsync())
         {
-            return; // Data already seeded
+            return;
         }
 
         await SeedFormsAsync(context);
@@ -39,21 +47,11 @@ public static class DataSeeder
     // Overload for tests that don't need Identity seeding
     public static async Task SeedAsync(FormBuilderDbContext context)
     {
-        // Ensure the database is migrated (only for real databases)
-        if (!context.Database.IsInMemory())
-        {
-            await context.Database.MigrateAsync();
-        }
-        else
-        {
-            // For in-memory databases, ensure the database is created
-            await context.Database.EnsureCreatedAsync();
-        }
+        await EnsureDatabaseAsync(context);
 
-        // Check if data already exists
         if (await context.Forms.AnyAsync())
         {
-            return; // Data already seeded
+            return;
         }
 
         await SeedFormsAsync(context);
@@ -73,9 +71,8 @@ public static class DataSeeder
         }
     }
 
-    private static async Task SeedUsersAsync(UserManager<User> userManager)
+    private static async Task SeedUsersAsync(UserManager<User> userManager, SeedOptions options)
     {
-        // Create admin user
         if (await userManager.FindByNameAsync("admin") == null)
         {
             var adminUser = new User
@@ -84,14 +81,13 @@ public static class DataSeeder
                 Email = "admin@formbuilder.com"
             };
 
-            var result = await userManager.CreateAsync(adminUser, "123456");
+            var result = await userManager.CreateAsync(adminUser, options.AdminPassword);
             if (result.Succeeded)
             {
                 await userManager.AddToRoleAsync(adminUser, Roles.Admin);
             }
         }
 
-        // Create regular user
         if (await userManager.FindByNameAsync("user") == null)
         {
             var regularUser = new User
@@ -100,7 +96,7 @@ public static class DataSeeder
                 Email = "user@formbuilder.com"
             };
 
-            var result = await userManager.CreateAsync(regularUser, "123456");
+            var result = await userManager.CreateAsync(regularUser, options.UserPassword);
             if (result.Succeeded)
             {
                 await userManager.AddToRoleAsync(regularUser, Roles.User);
