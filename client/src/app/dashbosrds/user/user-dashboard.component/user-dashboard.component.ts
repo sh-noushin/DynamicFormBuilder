@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -28,6 +29,7 @@ import { DeleteDialogComponent } from '../../../shared/delete-dialog.component/d
     CommonModule,
     MatCardModule,
     MatListModule,
+    MatProgressSpinnerModule,
     MatButtonModule,
     MatIconModule,
     MatToolbarModule,

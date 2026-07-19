@@ -156,7 +156,11 @@
                   </div>
                 </form>
               } @else {
-                <div>No fields defined for selected version.</div>
+                <div class="empty-state">
+                  <mat-icon class="empty-icon">description</mat-icon>
+                  <h3>No fields yet</h3>
+                  <p>The admin has not added any fields to this version.</p>
+                </div>
               }
             </mat-card-content>
           </mat-card>
@@ -201,13 +205,23 @@
           <mat-card class="submissions-card">
             <mat-card-content>
               @if (submissionsLoading()) {
-                <div>Loading submissions…</div>
+                <div class="loading-block">
+                  <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+                  <p>Loading submissions&hellip;</p>
+                </div>
               }
               @if (!submissionsLoading() && submissionsError()) {
-                <div>{{ submissionsError() }}</div>
+                <div class="empty-state error">
+                  <mat-icon class="empty-icon">error_outline</mat-icon>
+                  <p>{{ submissionsError() }}</p>
+                </div>
               }
-              @if (!submissionsLoading() && !submissions().length) {
-                <div>No submissions yet.</div>
+              @if (!submissionsLoading() && !submissionsError() && !submissions().length) {
+                <div class="empty-state">
+                  <mat-icon class="empty-icon">inbox</mat-icon>
+                  <h3>No submissions yet</h3>
+                  <p>Submissions you make against this version will appear here.</p>
+                </div>
               }
 
               @if (submissions().length) {
