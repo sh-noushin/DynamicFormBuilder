@@ -91,7 +91,8 @@ export class ManageFieldsDialogComponent implements OnInit {
     const ref = this.dialog.open(AddFieldDialogComponent, {
       width: '560px',
       panelClass: 'elevated-dialog-panel',
-      disableClose: true
+      disableClose: true,
+      data: { siblingFields: this.fields() }
     });
     ref.afterClosed().subscribe((result?: any) => {
       if (!result) return;

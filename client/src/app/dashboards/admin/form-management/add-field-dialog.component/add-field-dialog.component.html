@@ -53,11 +53,58 @@
       <input matInput [value]="validation()" (input)="validation.set($event.target.value)" />
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width span-2">
-      <mat-label>Show If (JSON rule)</mat-label>
-      <input matInput [value]="showIfCondition()" (input)="showIfCondition.set($event.target.value)" />
-      <mat-hint>Optional. Field is hidden unless the rule matches. Example: <code>{{ '{' }}"field":"contactMethod","equals":"Phone"{{ '}' }}</code></mat-hint>
-    </mat-form-field>
+    <div class="show-if-builder span-2">
+      <div class="show-if-header">
+        <mat-icon>visibility</mat-icon>
+        <span>Show only when</span>
+      </div>
+
+      <div class="show-if-row">
+        <mat-form-field appearance="outline" class="show-if-picker">
+          <mat-label>Field</mat-label>
+          <mat-select [value]="showIfField()" (selectionChange)="onShowIfFieldChange($event.value)">
+            <mat-option [value]="''">Always show</mat-option>
+            @for (sibling of siblingFields; track sibling.id ?? sibling.name) {
+              <mat-option [value]="sibling.name">{{ sibling.label || sibling.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        @if (showIfField()) {
+          <span class="show-if-eq">equals</span>
+
+          @if (triggerFieldOptions().length) {
+            <mat-form-field appearance="outline" class="show-if-value">
+              <mat-label>Value</mat-label>
+              <mat-select [value]="showIfEquals()" (selectionChange)="showIfEquals.set($event.value)">
+                @for (opt of triggerFieldOptions(); track opt.value) {
+                  <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          } @else if (triggerFieldType() === 'Checkbox') {
+            <mat-form-field appearance="outline" class="show-if-value">
+              <mat-label>State</mat-label>
+              <mat-select [value]="showIfEquals()" (selectionChange)="showIfEquals.set($event.value)">
+                <mat-option value="true">Checked</mat-option>
+                <mat-option value="false">Unchecked</mat-option>
+              </mat-select>
+            </mat-form-field>
+          } @else {
+            <mat-form-field appearance="outline" class="show-if-value">
+              <mat-label>Value</mat-label>
+              <input matInput [value]="showIfEquals()" (input)="showIfEquals.set($event.target.value)" />
+            </mat-form-field>
+          }
+        }
+      </div>
+
+      @if (siblingFields.length === 0) {
+        <div class="show-if-empty">Add other fields to this version first to make one dependent on another.</div>
+      } @else {
+        <div class="show-if-hint">Leave "Field" set to <em>Always show</em> if this field should never be hidden.</div>
+      }
+    </div>
 
     @if (showOptions) {
       <div class="options-section span-2">

@@ -1,12 +1,16 @@
-
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Inject, signal, ChangeDetectionStrategy, computed } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { FormFieldDto } from '../../../../core/services/api-service';
+
+export interface AddFieldDialogData {
+  siblingFields?: FormFieldDto[];
+}
 
 @Component({
   selector: 'app-add-field-dialog',
@@ -29,7 +33,10 @@ export class AddFieldDialogComponent {
   helpText = signal('');
   defaultValue = signal('');
   validation = signal('');
-  showIfCondition = signal('');
+
+  // Show If builder state - selected trigger field name + expected value.
+  showIfField = signal<string>('');
+  showIfEquals = signal<string>('');
 
   optionItems = signal<Array<{label: string; value: string}>>([]);
 
@@ -39,7 +46,40 @@ export class AddFieldDialogComponent {
     type: signal(false)
   };
 
-  constructor(private dialogRef: MatDialogRef<AddFieldDialogComponent>) {}
+  siblingFields: FormFieldDto[];
+
+  constructor(
+    private dialogRef: MatDialogRef<AddFieldDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) data: AddFieldDialogData | null
+  ) {
+    // File and Signature fields cannot be used as show-if triggers (their
+    // values are opaque tokens / base64 blobs, not user-typed answers).
+    const excludedTriggerTypes = new Set(['File', 'Signature']);
+    this.siblingFields = (data?.siblingFields ?? [])
+      .filter(f => f.name && !excludedTriggerTypes.has(String(f.type)));
+  }
+
+  // Options of the currently selected trigger field, if any (Select or Radio).
+  triggerFieldOptions = computed<Array<{ value: string; label: string }>>(() => {
+    const target = this.siblingFields.find(f => f.name === this.showIfField());
+    if (!target) return [];
+    const raw = target.options as string | undefined;
+    if (!raw) return [];
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed
+          .map((o: any) => ({ value: String(o?.value ?? ''), label: String(o?.label ?? o?.value ?? '') }))
+          .filter(o => o.value.length);
+      }
+    } catch { /* fall through to comma-split */ }
+    return raw.split(',').map(s => s.trim()).filter(Boolean).map(s => ({ value: s, label: s }));
+  });
+
+  triggerFieldType = computed<string>(() => {
+    const target = this.siblingFields.find(f => f.name === this.showIfField());
+    return target ? String(target.type ?? '') : '';
+  });
 
   nameError = () => {
     if (!this.touched.name()) return null;
@@ -74,6 +114,12 @@ export class AddFieldDialogComponent {
     this.ensureInitialOptionRow();
   }
 
+  onShowIfFieldChange(fieldName: string) {
+    this.showIfField.set(fieldName);
+    // Reset equals when trigger changes so a stale value cannot linger.
+    this.showIfEquals.set('');
+  }
+
   addOption() {
     this.optionItems.set([...this.optionItems(), { label: '', value: '' }]);
   }
@@ -104,6 +150,15 @@ export class AddFieldDialogComponent {
     return !!(this.nameError() || this.labelError() || this.optionsInvalid());
   }
 
+  private buildShowIfJson(): string | undefined {
+    const field = this.showIfField().trim();
+    if (!field) return undefined;
+    const equals = this.showIfEquals();
+    // Allow an empty string equals ("show when field is blank" is a rare but
+    // legitimate rule); only skip if the user did not pick a trigger.
+    return JSON.stringify({ field, equals });
+  }
+
   save() {
     this.touched.name.set(true);
     this.touched.label.set(true);
@@ -122,7 +177,7 @@ export class AddFieldDialogComponent {
       helpText: this.helpText(),
       defaultValue: this.defaultValue(),
       validation: this.validation(),
-      showIfCondition: this.showIfCondition().trim() || undefined,
+      showIfCondition: this.buildShowIfJson(),
       options: optionJson
     };
     this.dialogRef.close(value);
