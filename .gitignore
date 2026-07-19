@@ -416,3 +416,7 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# SQLite write-ahead log files (transient, per-run)
+*.db-shm
+*.db-wal
