@@ -18,7 +18,7 @@ public class JwtService : IJwtService
         _options = options.Value;
     }
 
-    public Task<string> GenerateTokenAsync(UserDto user, IList<string> roles)
+    public string GenerateToken(UserDto user, IList<string> roles)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Key));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -47,6 +47,6 @@ public class JwtService : IJwtService
             signingCredentials: credentials
         );
 
-        return Task.FromResult(new JwtSecurityTokenHandler().WriteToken(token));
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

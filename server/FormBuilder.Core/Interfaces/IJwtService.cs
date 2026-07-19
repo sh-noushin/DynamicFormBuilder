@@ -1,8 +1,8 @@
-﻿using FormBuilder.Core.DTOs;
+using FormBuilder.Core.DTOs;
 
 namespace FormBuilder.Core.Interfaces;
 
 public interface IJwtService
 {
-    Task<string> GenerateTokenAsync(UserDto user, IList<string> roles);
+    string GenerateToken(UserDto user, IList<string> roles);
 }

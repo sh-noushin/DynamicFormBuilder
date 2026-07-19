@@ -27,7 +27,7 @@ namespace FormBuilder.Tests.Services
         }
 
         [Fact]
-        public async Task GenerateTokenAsync_ReturnsTokenString()
+        public void GenerateToken_ReturnsTokenString()
         {
             var user = new UserDto
             {
@@ -39,7 +39,7 @@ namespace FormBuilder.Tests.Services
             };
             var roles = new List<string> { "User" };
 
-            var token = await _jwtService.GenerateTokenAsync(user, roles);
+            var token = _jwtService.GenerateToken(user, roles);
 
             Assert.False(string.IsNullOrWhiteSpace(token));
         }

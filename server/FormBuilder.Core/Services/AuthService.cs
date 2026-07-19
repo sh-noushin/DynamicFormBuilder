@@ -37,7 +37,7 @@ public class AuthService : IAuthService
 
         var roles = await _userManager.GetRolesAsync(user);
         var userDto = _mapper.Map<UserDto>(user);
-        var token = await _jwtService.GenerateTokenAsync(userDto, roles);
+        var token = _jwtService.GenerateToken(userDto, roles);
 
         return new LoginResultDto
         {
