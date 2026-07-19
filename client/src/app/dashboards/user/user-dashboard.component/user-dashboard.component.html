@@ -101,6 +101,24 @@
                             </mat-form-field>
                           }
 
+                          @case ('File') {
+                            <div class="file-field">
+                              <label class="field-label">{{ f.label }}</label>
+                              <div class="file-input-row">
+                                <button mat-stroked-button type="button" (click)="fileInput.click()" [disabled]="fileUploading()[fieldName(f)]">
+                                  <mat-icon>attach_file</mat-icon>
+                                  <span>{{ fileMeta()[fieldName(f)]?.name || 'Choose file' }}</span>
+                                </button>
+                                <input #fileInput hidden type="file" (change)="uploadFile(f, $event)" />
+                                @if (fileUploading()[fieldName(f)]) { <span class="file-status">Uploading…</span> }
+                                @if (fileMeta()[fieldName(f)] && !fileUploading()[fieldName(f)]) {
+                                  <span class="file-status ok">Uploaded</span>
+                                }
+                              </div>
+                              @if (f.helpText) { <span class="help-text">{{ f.helpText }}</span> }
+                            </div>
+                          }
+
                           @case ('Phone') {
                             <mat-form-field appearance="outline" class="form-field small-field">
                               <mat-label>{{ f.label }}</mat-label>

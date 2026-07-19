@@ -17,7 +17,7 @@ import { MatSelectModule } from '@angular/material/select';
   styleUrls: ['./add-field-dialog.component.scss']
 })
 export class AddFieldDialogComponent {
-  types = ['Text','Email','Number','Date','DateTime','Checkbox','Radio','Select','Textarea','Phone','Password'];
+  types = ['Text','Email','Number','Date','DateTime','Checkbox','Radio','Select','Textarea','Phone','Password','File'];
 
   name = signal('');
   label = signal('');

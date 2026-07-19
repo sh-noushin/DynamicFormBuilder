@@ -68,6 +68,8 @@ export class PublicFormComponent {
   submitted = signal(false);
   errorMessage = signal<string | null>(null);
   fieldErrors = signal<Record<string, string[]>>({});
+  fileUploading = signal<Record<string, boolean>>({});
+  fileMeta = signal<Record<string, { token: string; name: string; size: number } | undefined>>({});
   formGroup: FormGroup = this.fb.group({
     submitterName: [''],
     submitterEmail: [''],
@@ -189,5 +191,32 @@ export class PublicFormComponent {
 
   errorsForField(field: PublicField): string[] {
     return this.fieldErrors()[field.name] ?? [];
+  }
+
+  uploadFile(field: PublicField, event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    const name = this.controlName(field);
+
+    this.fileUploading.update(m => ({ ...m, [name]: true }));
+    const data = new FormData();
+    data.append('file', file);
+
+    this.http.post<{ token: string; originalFileName: string; sizeBytes: number }>(
+      `${environment.apiBaseUrl}/api/uploads`,
+      data
+    ).subscribe({
+      next: r => {
+        this.fileUploading.update(m => ({ ...m, [name]: false }));
+        this.fileMeta.update(m => ({ ...m, [name]: { token: r.token, name: r.originalFileName, size: r.sizeBytes } }));
+        this.formGroup.get(name)?.setValue(r.token);
+      },
+      error: () => {
+        this.fileUploading.update(m => ({ ...m, [name]: false }));
+        this.errorMessage.set('File upload failed. Please try a smaller file.');
+        input.value = '';
+      }
+    });
   }
 }

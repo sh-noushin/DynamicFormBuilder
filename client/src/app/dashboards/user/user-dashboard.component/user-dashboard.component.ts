@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
+import { environment } from '../../../../environments/environment';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -72,6 +74,8 @@ export class UserDashboardComponent implements OnInit {
 
   formGroup: FormGroup = new FormGroup({});
   isLoading = signal(false);
+  fileUploading = signal<Record<string, boolean>>({});
+  fileMeta = signal<Record<string, { token: string; name: string; size: number } | undefined>>({});
   private controlNameMap = new WeakMap<FormFieldDto, string>();
   private controlSeq = 0;
 
@@ -80,8 +84,36 @@ export class UserDashboardComponent implements OnInit {
     private fb: FormBuilder,
     private snack: MatSnackBar,
     private router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private http: HttpClient
   ){}
+
+  uploadFile(field: FormFieldDto, event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    const name = this.fieldName(field);
+
+    this.fileUploading.update(m => ({ ...m, [name]: true }));
+    const data = new FormData();
+    data.append('file', file);
+
+    this.http.post<{ token: string; originalFileName: string; sizeBytes: number }>(
+      `${environment.apiBaseUrl}/api/uploads`,
+      data
+    ).subscribe({
+      next: r => {
+        this.fileUploading.update(m => ({ ...m, [name]: false }));
+        this.fileMeta.update(m => ({ ...m, [name]: { token: r.token, name: r.originalFileName, size: r.sizeBytes } }));
+        this.formGroup.get(name)?.setValue(r.token);
+      },
+      error: () => {
+        this.fileUploading.update(m => ({ ...m, [name]: false }));
+        this.snack.open('File upload failed', 'Close', { duration: 3000 });
+        input.value = '';
+      }
+    });
+  }
 
   logout() {
     localStorage.removeItem('auth_token');
