@@ -137,10 +137,19 @@ $dialog-accent: #64b5f6;
     font-weight: 500;
   }
 
+  // Placeholders should only show once the label has floated up (focused or
+  // filled). Rendering the placeholder while the resting label is also
+  // in-position causes the two texts to overlap.
   input.mat-input-element::placeholder,
   .mdc-text-field__input::placeholder {
-    color: #ffffff !important;
-    opacity: 1 !important;
+    color: rgba(255, 255, 255, 0.7);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  .mat-mdc-form-field.mat-focused input.mat-input-element::placeholder,
+  .mat-mdc-form-field.mat-focused .mdc-text-field__input::placeholder {
+    opacity: 1;
   }
 
   .mat-mdc-form-field-subscript-wrapper,

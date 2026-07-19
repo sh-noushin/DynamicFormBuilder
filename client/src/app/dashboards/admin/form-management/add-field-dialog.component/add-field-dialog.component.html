@@ -55,7 +55,7 @@
 
     <mat-form-field appearance="outline" class="full-width span-2">
       <mat-label>Show If (JSON rule)</mat-label>
-      <input matInput [value]="showIfCondition()" (input)="showIfCondition.set($event.target.value)" placeholder='{"field":"otherFieldName","equals":"Yes"}' />
+      <input matInput [value]="showIfCondition()" (input)="showIfCondition.set($event.target.value)" />
       <mat-hint>Optional. Field is hidden unless the rule matches. Example: <code>{{ '{' }}"field":"contactMethod","equals":"Phone"{{ '}' }}</code></mat-hint>
     </mat-form-field>
 
