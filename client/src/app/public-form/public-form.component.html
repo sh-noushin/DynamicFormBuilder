@@ -1,4 +1,14 @@
-<div class="public-form-page" [style.--brand-primary]="form()?.brandColor || null" [style.--brand-primary-hover]="form()?.brandColor || null">
+<div class="public-form-page"
+     [style.--brand-primary]="form()?.brandColor || null"
+     [style.--brand-primary-hover]="form()?.brandColor || null"
+     [style.--mat-sys-primary]="form()?.brandColor || null"
+     [style.--mdc-filled-button-container-color]="form()?.brandColor || null"
+     [style.--mdc-protected-button-container-color]="form()?.brandColor || null"
+     [style.--mdc-outlined-text-field-focus-outline-color]="form()?.brandColor || null"
+     [style.--mdc-outlined-text-field-caret-color]="form()?.brandColor || null"
+     [style.--mdc-checkbox-selected-checkmark-color]="'#ffffff'"
+     [style.--mdc-checkbox-selected-icon-color]="form()?.brandColor || null"
+     [style.--mdc-radio-selected-icon-color]="form()?.brandColor || null">
   <div class="public-form-shell">
     @if (loading()) {
       <div class="state-block">

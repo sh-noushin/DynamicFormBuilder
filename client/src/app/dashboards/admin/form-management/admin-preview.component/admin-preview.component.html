@@ -1,4 +1,13 @@
-<div class="preview-page" [style.--brand-primary]="form()?.['brandColor'] || null" [style.--brand-primary-hover]="form()?.['brandColor'] || null">
+<div class="preview-page"
+     [style.--brand-primary]="form()?.['brandColor'] || null"
+     [style.--brand-primary-hover]="form()?.['brandColor'] || null"
+     [style.--mat-sys-primary]="form()?.['brandColor'] || null"
+     [style.--mdc-filled-button-container-color]="form()?.['brandColor'] || null"
+     [style.--mdc-protected-button-container-color]="form()?.['brandColor'] || null"
+     [style.--mdc-outlined-text-field-focus-outline-color]="form()?.['brandColor'] || null"
+     [style.--mdc-outlined-text-field-caret-color]="form()?.['brandColor'] || null"
+     [style.--mdc-checkbox-selected-icon-color]="form()?.['brandColor'] || null"
+     [style.--mdc-radio-selected-icon-color]="form()?.['brandColor'] || null">
   <div class="preview-shell">
     <div class="preview-banner">
       <mat-icon>visibility</mat-icon>
