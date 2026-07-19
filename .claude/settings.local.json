@@ -5,7 +5,18 @@
       "Bash(npx ng *)",
       "Bash(git stash *)",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(dotnet test *)",
+      "Bash(git -C /c/Users/admin/Nooshin/Projects/GitHubPrjs/DynamicFormBuilder add server/FormBuilder.Models/Exceptions)",
+      "Bash(git -C /c/Users/admin/Nooshin/Projects/GitHubPrjs/DynamicFormBuilder commit -m ' *)",
+      "Bash(git -C /c/Users/admin/Nooshin/Projects/GitHubPrjs/DynamicFormBuilder add server/FormBuilder.Core/Services server/FormBuilder.API/Controllers/UserController.cs)",
+      "Bash(git -C /c/Users/admin/Nooshin/Projects/GitHubPrjs/DynamicFormBuilder add server/FormBuilder.API/Controllers/FormsController.cs)",
+      "Bash(git -C /c/Users/admin/Nooshin/Projects/GitHubPrjs/DynamicFormBuilder add server/FormBuilder.Core server/FormBuilder.Models/Exceptions/InvalidCredentialsException.cs server/FormBuilder.API/Controllers/AuthController.cs server/FormBuilder.API/Extensions/ServiceCollectionExtensions.cs server/FormBuilder.API/Middleware/DomainExceptionHandler.cs)",
+      "Bash(git -C /c/Users/admin/Nooshin/Projects/GitHubPrjs/DynamicFormBuilder add server/FormBuilder.Models/Repositories/IFormSubmissionRepository.cs server/FormBuilder.Infrastructure/Repositories/FormSubmissionRepository.cs server/FormBuilder.Core/Services/FormSubmissionService.cs tests/FormBuilder.Tests/Repositories/FormSubmissionRepositoryTests.cs tests/FormBuilder.Tests/Services/FormSubmissionServiceTests.cs)",
+      "Bash(git -C /c/Users/admin/Nooshin/Projects/GitHubPrjs/DynamicFormBuilder add server/FormBuilder.Core/Options/SeedOptions.cs server/FormBuilder.Infrastructure/Data/DataSeeder.cs server/FormBuilder.API/Program.cs server/FormBuilder.API/appsettings.json server/FormBuilder.API/appsettings.Development.json)",
+      "Bash(git -C /c/Users/admin/Nooshin/Projects/GitHubPrjs/DynamicFormBuilder add server/FormBuilder.Core/Interfaces/IJwtService.cs server/FormBuilder.Core/Services/JwtService.cs server/FormBuilder.Core/Services/AuthService.cs tests/FormBuilder.Tests/Services/JwtServiceTests.cs)",
+      "Bash(git -C /c/Users/admin/Nooshin/Projects/GitHubPrjs/DynamicFormBuilder log --oneline main..HEAD)",
+      "Bash(git -C /c/Users/admin/Nooshin/Projects/GitHubPrjs/DynamicFormBuilder log --oneline -15)"
     ]
   }
 }
