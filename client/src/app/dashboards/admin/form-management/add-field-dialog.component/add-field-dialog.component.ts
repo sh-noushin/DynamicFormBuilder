@@ -10,6 +10,10 @@ import { FormFieldDto } from '../../../../core/services/api-service';
 
 export interface AddFieldDialogData {
   siblingFields?: FormFieldDto[];
+  // When present, the dialog opens in "edit" mode and prefills every input
+  // from this field. Save emits the same payload as add; the caller decides
+  // whether to POST or PUT based on whether it passed an existingField.
+  existingField?: FormFieldDto;
 }
 
 @Component({
@@ -47,6 +51,7 @@ export class AddFieldDialogComponent {
   };
 
   siblingFields: FormFieldDto[];
+  isEditMode = false;
 
   constructor(
     private dialogRef: MatDialogRef<AddFieldDialogComponent>,
@@ -55,8 +60,58 @@ export class AddFieldDialogComponent {
     // File and Signature fields cannot be used as show-if triggers (their
     // values are opaque tokens / base64 blobs, not user-typed answers).
     const excludedTriggerTypes = new Set(['File', 'Signature']);
+    // In edit mode, also exclude the field itself so it cannot depend on itself.
+    const editingId = data?.existingField?.id;
     this.siblingFields = (data?.siblingFields ?? [])
-      .filter(f => f.name && !excludedTriggerTypes.has(String(f.type)));
+      .filter(f => f.name && !excludedTriggerTypes.has(String(f.type)) && f.id !== editingId);
+
+    if (data?.existingField) {
+      this.isEditMode = true;
+      this.hydrateFrom(data.existingField);
+    }
+  }
+
+  private hydrateFrom(f: FormFieldDto): void {
+    this.name.set(String(f.name ?? ''));
+    this.label.set(String(f.label ?? ''));
+    this.type.set(String(f.type ?? 'Text'));
+    this.isRequired.set(!!f.isRequired);
+    this.isVisible.set(f.isVisible !== false);
+    this.isReadOnly.set(!!f.isReadOnly);
+    this.placeholder.set(String(f.placeholder ?? ''));
+    this.helpText.set(String(f.helpText ?? ''));
+    this.defaultValue.set(String(f.defaultValue ?? ''));
+    this.validation.set(String(f.validation ?? ''));
+
+    if (f.options) {
+      try {
+        const parsed = JSON.parse(String(f.options));
+        if (Array.isArray(parsed)) {
+          this.optionItems.set(parsed.map((o: any) => ({
+            label: String(o?.label ?? o?.value ?? ''),
+            value: String(o?.value ?? '')
+          })));
+        }
+      } catch {
+        // Fallback: comma-split (legacy shape).
+        this.optionItems.set(String(f.options).split(',').map(s => s.trim()).filter(Boolean).map(v => ({ label: v, value: v })));
+      }
+    }
+
+    const rawShowIf = (f as any).showIfCondition as string | undefined;
+    if (rawShowIf) {
+      try {
+        const rule = JSON.parse(rawShowIf);
+        if (rule?.field) {
+          this.showIfField.set(String(rule.field));
+          this.showIfEquals.set(rule.equals != null ? String(rule.equals) : '');
+        }
+      } catch { /* ignore invalid legacy rules */ }
+    }
+
+    // A prefilled label/name should not surface as an error before the user touches anything.
+    this.touched.name.set(false);
+    this.touched.label.set(false);
   }
 
   // Options of the currently selected trigger field, if any (Select or Radio).

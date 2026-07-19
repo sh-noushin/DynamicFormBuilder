@@ -43,6 +43,13 @@
           </div>
           <button
             mat-icon-button
+            class="btn-edit"
+            matTooltip="Edit field"
+            (click)="editField(field)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            mat-icon-button
             class="btn-delete"
             matTooltip="Delete field"
             (click)="deleteField(field)">

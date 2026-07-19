@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Client, CreateFormFieldDto, FormFieldDto } from '../../../../core/services/api-service';
+import { Client, CreateFormFieldDto, FormFieldDto, UpdateFormFieldDto } from '../../../../core/services/api-service';
 import { AddFieldDialogComponent } from '../add-field-dialog.component/add-field-dialog.component';
 import { DeleteDialogComponent, DeleteDialogData } from '../../../../shared/delete-dialog.component/delete-dialog.component';
 
@@ -121,6 +121,47 @@ export class ManageFieldsDialogComponent implements OnInit {
         },
         error: () => {
           this.snack.open('Failed to add field', 'Close', { duration: 3000 });
+          this.isSaving.set(false);
+        }
+      });
+    });
+  }
+
+  editField(field: FormFieldDto) {
+    if (this.isSaving() || !field.id) return;
+    const ref = this.dialog.open(AddFieldDialogComponent, {
+      width: '560px',
+      panelClass: 'elevated-dialog-panel',
+      disableClose: true,
+      data: { siblingFields: this.fields(), existingField: field }
+    });
+    ref.afterClosed().subscribe((result?: any) => {
+      if (!result || !field.id) return;
+      const dto = new UpdateFormFieldDto({
+        formVersionId: field.formVersionId,
+        name: result.name,
+        label: result.label,
+        type: result.type,
+        order: field.order ?? 0,
+        isRequired: !!result.isRequired,
+        isVisible: result.isVisible !== false,
+        isReadOnly: !!result.isReadOnly,
+        placeholder: result.placeholder || '',
+        helpText: result.helpText || '',
+        defaultValue: result.defaultValue || '',
+        validation: result.validation || '',
+        options: result.options || '',
+        showIfCondition: result.showIfCondition || undefined
+      });
+      this.isSaving.set(true);
+      this.api.fieldsPUT(this.data.formId, this.data.versionNumber, field.id, dto).subscribe({
+        next: () => {
+          this.snack.open('Field updated', 'Close', { duration: 2000 });
+          this.isSaving.set(false);
+          this.loadFields();
+        },
+        error: () => {
+          this.snack.open('Failed to update field', 'Close', { duration: 3000 });
           this.isSaving.set(false);
         }
       });
