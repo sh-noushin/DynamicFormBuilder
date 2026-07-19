@@ -27,12 +27,6 @@
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Order</mat-label>
-  <input matInput type="number" [value]="order()" (input)="setOrderFromEvent($event)" min="0" />
-      @if (orderError()) { <mat-error>{{ orderError() }}</mat-error> }
-    </mat-form-field>
-
     <div class="checkbox-row span-2">
       <mat-checkbox [checked]="isRequired()" (change)="isRequired.set($any($event).checked)">Required</mat-checkbox>
       <mat-checkbox [checked]="isVisible()" (change)="isVisible.set($any($event).checked)">Visible</mat-checkbox>

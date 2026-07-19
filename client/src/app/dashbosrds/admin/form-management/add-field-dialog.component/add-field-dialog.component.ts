@@ -22,7 +22,6 @@ export class AddFieldDialogComponent {
   name = signal('');
   label = signal('');
   type = signal('Text');
-  order = signal(0);
   isRequired = signal(false);
   isVisible = signal(true);
   isReadOnly = signal(false);
@@ -36,17 +35,10 @@ export class AddFieldDialogComponent {
   touched = {
     name: signal(false),
     label: signal(false),
-    type: signal(false),
-    order: signal(false)
+    type: signal(false)
   };
 
   constructor(private dialogRef: MatDialogRef<AddFieldDialogComponent>) {}
-
-  setOrderFromEvent(ev: Event) {
-    const value = Number((ev.target as HTMLInputElement)?.value ?? 0);
-    this.order.set(Number.isFinite(value) ? value : 0);
-    this.touched.order.set(true);
-  }
 
   nameError = () => {
     if (!this.touched.name()) return null;
@@ -59,11 +51,6 @@ export class AddFieldDialogComponent {
     if (!this.touched.label()) return null;
     if (!this.label().trim()) return 'Label is required';
     if (this.label().length > 100) return 'Max 100 characters';
-    return null;
-  };
-  orderError = () => {
-    if (!this.touched.order()) return null;
-    if (this.order() < 0) return 'Order must be >= 0';
     return null;
   };
 
@@ -113,13 +100,12 @@ export class AddFieldDialogComponent {
   }
 
   get invalid(): boolean {
-    return !!(this.nameError() || this.labelError() || this.orderError() || this.optionsInvalid());
+    return !!(this.nameError() || this.labelError() || this.optionsInvalid());
   }
 
   save() {
     this.touched.name.set(true);
     this.touched.label.set(true);
-    this.touched.order.set(true);
     if (this.invalid) return;
     const optionJson = this.showOptions
       ? JSON.stringify(this.optionItems().map(o => ({ label: o.label.trim(), value: o.value.trim() })))
@@ -128,7 +114,6 @@ export class AddFieldDialogComponent {
       name: this.name(),
       label: this.label(),
       type: this.type(),
-      order: this.order(),
       isRequired: this.isRequired(),
       isVisible: this.isVisible(),
       isReadOnly: this.isReadOnly(),
