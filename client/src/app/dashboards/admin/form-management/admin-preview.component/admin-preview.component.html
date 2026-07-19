@@ -1,0 +1,162 @@
+<div class="preview-page">
+  <div class="preview-shell">
+    <div class="preview-banner">
+      <mat-icon>visibility</mat-icon>
+      <span>Preview mode &mdash; nothing you submit here is saved.</span>
+      <a mat-button [routerLink]="['/admin/forms']">
+        <mat-icon>arrow_back</mat-icon>
+        <span>Back to forms</span>
+      </a>
+    </div>
+
+    @if (loading()) {
+      <div class="state-block">
+        <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
+        <p>Loading preview&hellip;</p>
+      </div>
+    } @else if (errorMessage()) {
+      <mat-card class="state-card">
+        <mat-icon class="state-icon error">error_outline</mat-icon>
+        <h2>Could not preview</h2>
+        <p>{{ errorMessage() }}</p>
+      </mat-card>
+    } @else if (form(); as f) {
+      <mat-card class="form-card">
+        <mat-card-header>
+          <mat-card-title>{{ f.name }}</mat-card-title>
+          @if (f.description) {
+            <mat-card-subtitle>
+              {{ f.description }}
+              @if (version()) { &nbsp;&middot;&nbsp;<span class="version-tag">v{{ version()!.versionNumber }}</span> }
+            </mat-card-subtitle>
+          }
+        </mat-card-header>
+
+        <mat-card-content>
+          <form [formGroup]="formGroup" (ngSubmit)="testSubmit()" novalidate>
+            <div class="fields-grid">
+              @for (field of fields(); track field.id) {
+                @if (isFieldVisible(field)) {
+                  <div class="field-block">
+                    @switch (field.type) {
+                      @case ('Text') {
+                        <mat-form-field appearance="outline" class="full-width">
+                          <mat-label>{{ field.label }}</mat-label>
+                          <input matInput [formControlName]="controlName(field)" [placeholder]="field.placeholder || ''" />
+                          @if (field.helpText) { <mat-hint>{{ field.helpText }}</mat-hint> }
+                        </mat-form-field>
+                      }
+                      @case ('Email') {
+                        <mat-form-field appearance="outline" class="full-width">
+                          <mat-label>{{ field.label }}</mat-label>
+                          <input matInput type="email" [formControlName]="controlName(field)" [placeholder]="field.placeholder || ''" />
+                          @if (field.helpText) { <mat-hint>{{ field.helpText }}</mat-hint> }
+                        </mat-form-field>
+                      }
+                      @case ('Number') {
+                        <mat-form-field appearance="outline" class="full-width">
+                          <mat-label>{{ field.label }}</mat-label>
+                          <input matInput type="number" [formControlName]="controlName(field)" />
+                          @if (field.helpText) { <mat-hint>{{ field.helpText }}</mat-hint> }
+                        </mat-form-field>
+                      }
+                      @case ('Textarea') {
+                        <mat-form-field appearance="outline" class="full-width">
+                          <mat-label>{{ field.label }}</mat-label>
+                          <textarea matInput rows="4" [formControlName]="controlName(field)"></textarea>
+                          @if (field.helpText) { <mat-hint>{{ field.helpText }}</mat-hint> }
+                        </mat-form-field>
+                      }
+                      @case ('Password') {
+                        <mat-form-field appearance="outline" class="full-width">
+                          <mat-label>{{ field.label }}</mat-label>
+                          <input matInput type="password" [formControlName]="controlName(field)" />
+                        </mat-form-field>
+                      }
+                      @case ('Phone') {
+                        <mat-form-field appearance="outline" class="full-width">
+                          <mat-label>{{ field.label }}</mat-label>
+                          <input matInput type="tel" [formControlName]="controlName(field)" />
+                        </mat-form-field>
+                      }
+                      @case ('Date') {
+                        <mat-form-field appearance="outline" class="full-width">
+                          <mat-label>{{ field.label }}</mat-label>
+                          <input matInput type="date" [formControlName]="controlName(field)" />
+                        </mat-form-field>
+                      }
+                      @case ('DateTime') {
+                        <mat-form-field appearance="outline" class="full-width">
+                          <mat-label>{{ field.label }}</mat-label>
+                          <input matInput type="datetime-local" [formControlName]="controlName(field)" />
+                        </mat-form-field>
+                      }
+                      @case ('Select') {
+                        <mat-form-field appearance="outline" class="full-width">
+                          <mat-label>{{ field.label }}</mat-label>
+                          <mat-select [formControlName]="controlName(field)">
+                            @for (opt of getOptions(field); track opt.value) {
+                              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+                      }
+                      @case ('Checkbox') {
+                        <div class="checkbox-block">
+                          <mat-checkbox [formControlName]="controlName(field)">{{ field.label }}</mat-checkbox>
+                          @if (field.helpText) { <span class="help-text">{{ field.helpText }}</span> }
+                        </div>
+                      }
+                      @case ('Radio') {
+                        <div class="radio-block">
+                          <label class="field-label">{{ field.label }}</label>
+                          <mat-radio-group [formControlName]="controlName(field)">
+                            @for (opt of getOptions(field); track opt.value) {
+                              <mat-radio-button [value]="opt.value">{{ opt.label }}</mat-radio-button>
+                            }
+                          </mat-radio-group>
+                        </div>
+                      }
+                      @case ('File') {
+                        <div class="file-field">
+                          <label class="field-label">{{ field.label }}</label>
+                          <div class="file-input-row">
+                            <button mat-stroked-button type="button" (click)="fileInput.click()" [disabled]="fileUploading()[controlName(field)]">
+                              <mat-icon>attach_file</mat-icon>
+                              <span>{{ fileMeta()[controlName(field)]?.name || 'Choose file' }}</span>
+                            </button>
+                            <input #fileInput hidden type="file" (change)="uploadFile(field, $event)" />
+                            @if (fileUploading()[controlName(field)]) { <span class="file-status">Uploading&hellip;</span> }
+                          </div>
+                        </div>
+                      }
+                      @case ('Signature') {
+                        <app-signature-pad [label]="field.label || ''" (valueChange)="onSignatureChange(field, $event)"></app-signature-pad>
+                      }
+                      @case ('Rating') {
+                        <app-rating [label]="field.label || ''" (valueChange)="onRatingChange(field, $event)"></app-rating>
+                      }
+                      @default {
+                        <mat-form-field appearance="outline" class="full-width">
+                          <mat-label>{{ field.label }}</mat-label>
+                          <input matInput [formControlName]="controlName(field)" />
+                        </mat-form-field>
+                      }
+                    }
+                  </div>
+                }
+              }
+            </div>
+
+            <div class="submit-row">
+              <button mat-flat-button color="primary" type="submit">
+                <mat-icon>send</mat-icon>
+                <span>Test submit</span>
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+</div>

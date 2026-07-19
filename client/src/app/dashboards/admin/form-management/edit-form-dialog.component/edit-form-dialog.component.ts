@@ -311,6 +311,13 @@ export class EditFormDialogComponent implements OnInit {
 		});
 	}
 
+	previewVersion(v: FormVersionDto) {
+		if (!this.data.form.id || v.versionNumber == null) return;
+		// Open in a new tab so the admin can keep editing while the preview stays live.
+		const url = `/admin/forms/${this.data.form.id}/preview/${v.versionNumber}`;
+		window.open(url, '_blank');
+	}
+
 	nameError(): string | null {
 		const v = (this.name() ?? '').trim();
 		if (!v) return 'Name is required';

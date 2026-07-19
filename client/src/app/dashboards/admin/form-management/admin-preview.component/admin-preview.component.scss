@@ -1,0 +1,114 @@
+.preview-page {
+  min-height: 100vh;
+  padding: 32px 16px;
+  background: var(--brand-bg-dark, linear-gradient(135deg, #0f172a 0%, #1e293b 100%));
+  display: flex;
+  justify-content: center;
+}
+
+.preview-shell {
+  width: 100%;
+  max-width: 780px;
+}
+
+.preview-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(250, 204, 21, 0.16);
+  border: 1px solid rgba(250, 204, 21, 0.35);
+  color: #fef3c7;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  font-weight: 500;
+
+  a {
+    margin-left: auto;
+    color: #fef3c7 !important;
+  }
+
+  mat-icon {
+    color: #facc15;
+  }
+}
+
+.state-block,
+.state-card {
+  color: #cbd5e1;
+  text-align: center;
+  padding: 48px 16px;
+}
+
+.state-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  &.error { color: #ef4444; }
+}
+
+.form-card {
+  border-radius: 14px;
+  padding: 32px 28px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+
+  mat-card-title {
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--brand-text-strong, #e2e8f0);
+  }
+  mat-card-subtitle {
+    color: var(--brand-text-muted, #94a3b8);
+    margin-top: 4px;
+  }
+  mat-card-header {
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.24);
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  .version-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(99, 102, 241, 0.16);
+    color: #a5b4fc;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+}
+
+.fields-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field-block { display: flex; flex-direction: column; gap: 4px; }
+.full-width { width: 100%; }
+
+.checkbox-block, .radio-block, .file-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 0;
+}
+.radio-block mat-radio-group { display: flex; flex-direction: column; gap: 4px; }
+.field-label { font-weight: 500; color: var(--brand-text, #cbd5e1); }
+.help-text { font-size: 12px; color: var(--brand-text-muted, #94a3b8); }
+
+.file-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.file-status { font-size: 12px; color: var(--brand-text-muted, #94a3b8); }
+
+.submit-row {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+
+  button mat-icon { margin-right: 6px; }
+}
