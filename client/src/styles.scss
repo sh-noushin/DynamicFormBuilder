@@ -13,12 +13,33 @@
 html {
   @include mat.theme((
     color: (
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
+      primary: mat.$violet-palette,
+      tertiary: mat.$azure-palette,
     ),
     typography: Roboto,
     density: 0,
   ));
+}
+
+// Brand palette exposed as CSS custom properties so every component can
+// reference the same tokens instead of hard-coding hex values.
+:root {
+  --brand-primary: #6366f1;
+  --brand-primary-hover: #4f46e5;
+  --brand-primary-soft: rgba(99, 102, 241, 0.14);
+  --brand-accent: #0ea5e9;
+  --brand-danger: #ef4444;
+  --brand-success: #10b981;
+  --brand-warning: #f59e0b;
+
+  --brand-bg-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --brand-surface-dark: rgba(30, 41, 59, 0.55);
+  --brand-surface-dark-hover: rgba(30, 41, 59, 0.75);
+  --brand-border-subtle: rgba(148, 163, 184, 0.24);
+
+  --brand-text-strong: #e2e8f0;
+  --brand-text: #cbd5e1;
+  --brand-text-muted: #94a3b8;
 }
 
 body {
