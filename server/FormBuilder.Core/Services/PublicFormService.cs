@@ -13,17 +13,20 @@ public class PublicFormService : IPublicFormService
     private readonly IFormSubmissionRepository _submissionRepository;
     private readonly IMapper _mapper;
     private readonly IFieldValidator _validator;
+    private readonly ISubmissionNotifier _notifier;
 
     public PublicFormService(
         IFormRepository formRepository,
         IFormSubmissionRepository submissionRepository,
         IMapper mapper,
-        IFieldValidator validator)
+        IFieldValidator validator,
+        ISubmissionNotifier notifier)
     {
         _formRepository = formRepository;
         _submissionRepository = submissionRepository;
         _mapper = mapper;
         _validator = validator;
+        _notifier = notifier;
     }
 
     public async Task<PublicFormDto> GetBySlugAsync(string slug)
@@ -49,7 +52,7 @@ public class PublicFormService : IPublicFormService
         if (submission == null)
             throw new ArgumentNullException(nameof(submission));
 
-        var (_, version) = await ResolvePublishedCurrentVersionAsync(slug);
+        var (form, version) = await ResolvePublishedCurrentVersionAsync(slug);
 
         var validationErrors = await _validator.ValidateAsync(version.Id, submission.FieldValues);
         if (validationErrors != null && validationErrors.Count > 0)
@@ -75,7 +78,9 @@ public class PublicFormService : IPublicFormService
         };
 
         var created = await _submissionRepository.CreateAsync(entity);
-        return _mapper.Map<FormSubmissionDto>(created);
+        var dto = _mapper.Map<FormSubmissionDto>(created);
+        await _notifier.NotifyAsync(form.Name, dto);
+        return dto;
     }
 
     // A missing form, an inactive form, or a form without a published current

@@ -11,12 +11,24 @@ public class FormSubmissionService : IFormSubmissionService
     private readonly IFormSubmissionRepository _repository;
     private readonly IMapper _mapper;
     private readonly IFieldValidator _validator;
+    private readonly ISubmissionNotifier _notifier;
+    private readonly IFormRepository _formRepository;
+    private readonly IFormVersionRepository _versionRepository;
 
-    public FormSubmissionService(IFormSubmissionRepository repository, IMapper mapper, IFieldValidator validator)
+    public FormSubmissionService(
+        IFormSubmissionRepository repository,
+        IMapper mapper,
+        IFieldValidator validator,
+        ISubmissionNotifier notifier,
+        IFormRepository formRepository,
+        IFormVersionRepository versionRepository)
     {
         _repository = repository;
         _mapper = mapper;
         _validator = validator;
+        _notifier = notifier;
+        _formRepository = formRepository;
+        _versionRepository = versionRepository;
     }
 
     public async Task<FormSubmissionDto> CreateSubmissionAsync(CreateFormSubmissionDto submissionDto)
@@ -49,7 +61,18 @@ public class FormSubmissionService : IFormSubmissionService
         entity.SubmitterName ??= submissionDto.SubmitterName;
         entity.SubmitterEmail ??= submissionDto.SubmitterEmail;
         var created = await _repository.CreateAsync(entity);
-        return _mapper.Map<FormSubmissionDto>(created);
+        var dto = _mapper.Map<FormSubmissionDto>(created);
+        await NotifyAsync(created.FormVersionId, dto);
+        return dto;
+    }
+
+    private async Task NotifyAsync(Guid formVersionId, FormSubmissionDto dto)
+    {
+        var version = await _versionRepository.GetVersionByIdAsync(formVersionId);
+        if (version == null) return;
+        var form = await _formRepository.GetByIdAsync(version.FormId);
+        var name = form?.Name ?? "(unknown form)";
+        await _notifier.NotifyAsync(name, dto);
     }
 
     public async Task<FormSubmissionDto> GetSubmissionByIdAsync(Guid id)
