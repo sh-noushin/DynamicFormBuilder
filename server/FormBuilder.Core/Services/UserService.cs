@@ -185,32 +185,6 @@ public class UserService : IUserService
         return true;
     }
 
-    public async Task ChangePasswordAsync(string userId, ChangePasswordDto changePasswordDto)
-    {
-        if (string.IsNullOrWhiteSpace(userId))
-            throw new ArgumentException("User ID cannot be null or empty.", nameof(userId));
-        if (changePasswordDto == null)
-            throw new ArgumentNullException(nameof(changePasswordDto), "Change password data cannot be null.");
-
-        var user = await _userManager.FindByIdAsync(userId);
-        if (user == null)
-            throw new UserNotFoundException(userId);
-
-        var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.CurrentPassword, changePasswordDto.NewPassword);
-        if (result.Succeeded)
-            return;
-
-        if (result.Errors.Any(error =>
-            string.Equals(error.Code, nameof(IdentityErrorDescriber.PasswordMismatch), StringComparison.OrdinalIgnoreCase) ||
-            error.Description.Contains("incorrect", StringComparison.OrdinalIgnoreCase)))
-        {
-            throw new InvalidCurrentPasswordException();
-        }
-
-        var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-        throw new PasswordChangeFailedException(errors);
-    }
-
     private async Task AssignRoleAsync(User user, string roleName)
     {
         if (!await _roleManager.RoleExistsAsync(roleName))

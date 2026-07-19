@@ -57,6 +57,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFieldRule, AllowedValuesRule>();
         services.AddScoped<IFieldValidator, FieldValidator>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IPasswordService, PasswordService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IJwtService, JwtService>();
         return services;

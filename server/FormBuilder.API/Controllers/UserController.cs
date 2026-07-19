@@ -12,10 +12,12 @@ namespace FormBuilder.API.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly IPasswordService _passwordService;
 
-    public UserController(IUserService userService)
+    public UserController(IUserService userService, IPasswordService passwordService)
     {
         _userService = userService;
+        _passwordService = passwordService;
     }
 
     [HttpPost("register")]
@@ -89,7 +91,7 @@ public class UserController : ControllerBase
             return Unauthorized(new { Message = "Unable to resolve the current user." });
         }
 
-        await _userService.ChangePasswordAsync(userId, changePasswordDto);
+        await _passwordService.ChangePasswordAsync(userId, changePasswordDto);
         return Ok(new { Message = "Password changed successfully." });
     }
 }
