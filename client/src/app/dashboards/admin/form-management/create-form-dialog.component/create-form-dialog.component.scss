@@ -39,6 +39,51 @@
   margin-bottom: 8px;
 }
 
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 4px 0;
+}
+
+.brand-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--dialog-text, #cbd5e1);
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: var(--dialog-icon, #9cd2ff);
+  }
+}
+
+.brand-input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 44px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+
+  &::-webkit-color-swatch-wrapper { padding: 2px; }
+  &::-webkit-color-swatch { border: none; border-radius: 6px; }
+}
+
+.brand-hex {
+  font-family: monospace;
+  font-size: 13px;
+  min-width: 70px;
+}
+
+.brand-reset { margin-left: 4px; }
+
 :host { color: var(--dialog-text-strong); }
 
 

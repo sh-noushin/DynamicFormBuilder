@@ -76,11 +76,12 @@ export class FormsListComponent implements OnInit {
       disableClose: true
     });
 
-    dialogRef.afterClosed().subscribe((result?: { name: string; description?: string }) => {
+    dialogRef.afterClosed().subscribe((result?: { name: string; description?: string; brandColor?: string }) => {
       if (!result) return;
       const payload: CreateFormDto = new CreateFormDto({
         name: result.name,
         description: result.description ?? '',
+        brandColor: result.brandColor || undefined,
       });
       this.isLoading.set(true);
       this.apiClient.formsPOST(payload).subscribe({

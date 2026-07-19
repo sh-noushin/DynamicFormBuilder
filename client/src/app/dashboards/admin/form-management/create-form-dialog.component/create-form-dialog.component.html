@@ -16,6 +16,21 @@
       <mat-label>Description</mat-label>
       <textarea matInput [value]="description()" (input)="setDescriptionFromEvent($event); touched.description.set(true)" placeholder="Description" rows="3"></textarea>
     </mat-form-field>
+
+    <div class="brand-row">
+      <label class="brand-label">
+        <mat-icon>palette</mat-icon>
+        <span>Brand color</span>
+      </label>
+      <input type="color" class="brand-input" [value]="brandColor() || '#6366f1'" (input)="brandColor.set($any($event.target).value)" />
+      <span class="brand-hex" [style.color]="brandColor() || '#94a3b8'">{{ brandColor() || 'Default' }}</span>
+      @if (brandColor()) {
+        <button mat-button type="button" class="brand-reset" (click)="clearBrandColor()">
+          <mat-icon>refresh</mat-icon>
+          <span>Reset</span>
+        </button>
+      }
+    </div>
   </div>
 </mat-dialog-content>
 

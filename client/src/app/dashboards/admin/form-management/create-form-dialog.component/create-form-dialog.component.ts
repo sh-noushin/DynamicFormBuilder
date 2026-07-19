@@ -31,6 +31,7 @@ export class CreateFormDialogComponent {
   isSubmitting = signal(false);
   name = signal('');
   description = signal('');
+  brandColor = signal('');
   touched = {
     name: signal(false),
     description: signal(false)
@@ -61,10 +62,13 @@ export class CreateFormDialogComponent {
     this.isSubmitting.set(true);
     const result = {
       name: this.name(),
-      description: this.description()
+      description: this.description(),
+      brandColor: this.brandColor().trim() || undefined
     };
     this.dialogRef.close(result);
   }
+
+  clearBrandColor() { this.brandColor.set(''); }
 
   cancel() {
     this.dialogRef.close(null);
