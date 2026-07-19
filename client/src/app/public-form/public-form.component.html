@@ -85,6 +85,10 @@
                         @if (field.helpText) { <span class="help-text">{{ field.helpText }}</span> }
                       </div>
                     }
+                    @case ('Signature') {
+                      <app-signature-pad [label]="field.label" (valueChange)="onSignatureChange(field, $event)"></app-signature-pad>
+                      @if (field.helpText) { <span class="help-text">{{ field.helpText }}</span> }
+                    }
                     @case ('Phone') {
                       <mat-form-field appearance="outline" class="full-width">
                         <mat-label>{{ field.label }}</mat-label>

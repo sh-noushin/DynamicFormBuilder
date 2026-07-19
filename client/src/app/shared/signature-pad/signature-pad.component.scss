@@ -1,0 +1,47 @@
+.signature-pad {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.pad-label {
+  font-weight: 500;
+  color: var(--brand-text, #334155);
+}
+
+.pad-frame {
+  position: relative;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 10px;
+  background: #ffffff;
+  overflow: hidden;
+  padding: 4px;
+  max-width: 100%;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: none;
+  cursor: crosshair;
+  border-radius: 6px;
+}
+
+.pad-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+
+  button {
+    background: rgba(255, 255, 255, 0.9);
+  }
+}
+
+.pad-hint {
+  font-size: 12px;
+  color: var(--brand-text-muted, #94a3b8);
+}

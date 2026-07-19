@@ -23,6 +23,7 @@ import { Client, CreateFormSubmissionDto, FormDto, FormFieldDto, FormSubmissionD
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../../../shared/layout/header.component/header.component';
 import { DeleteDialogComponent } from '../../../shared/delete-dialog.component/delete-dialog.component';
+import { SignaturePadComponent } from '../../../shared/signature-pad/signature-pad.component';
 
 @Component({
   selector: 'app-user-dashboard',
@@ -46,7 +47,8 @@ import { DeleteDialogComponent } from '../../../shared/delete-dialog.component/d
     MatSnackBarModule,
     ReactiveFormsModule,
     MatDialogModule,
-    HeaderComponent
+    HeaderComponent,
+    SignaturePadComponent
   ],
   templateUrl: './user-dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -87,6 +89,10 @@ export class UserDashboardComponent implements OnInit {
     private dialog: MatDialog,
     private http: HttpClient
   ){}
+
+  onSignatureChange(field: FormFieldDto, dataUrl: string | null) {
+    this.formGroup.get(this.fieldName(field))?.setValue(dataUrl ?? '');
+  }
 
   uploadFile(field: FormFieldDto, event: Event) {
     const input = event.target as HTMLInputElement;

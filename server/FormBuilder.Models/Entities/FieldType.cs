@@ -13,5 +13,6 @@ public enum FieldType
     Textarea,
     Phone,
     Password,
-    File
+    File,
+    Signature
 }

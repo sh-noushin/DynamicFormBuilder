@@ -12,6 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { SignaturePadComponent } from '../shared/signature-pad/signature-pad.component';
 import { environment } from '../../environments/environment';
 
 interface PublicField {
@@ -54,6 +55,7 @@ interface PublicForm {
     MatCardModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    SignaturePadComponent,
   ],
   templateUrl: './public-form.component.html',
   styleUrl: './public-form.component.scss',
@@ -212,6 +214,10 @@ export class PublicFormComponent {
     if (!target) return true;
     const value = this.formGroup.get(this.controlName(target))?.value;
     return String(value ?? '') === String(rule.equals ?? '');
+  }
+
+  onSignatureChange(field: PublicField, dataUrl: string | null) {
+    this.formGroup.get(this.controlName(field))?.setValue(dataUrl ?? '');
   }
 
   uploadFile(field: PublicField, event: Event) {

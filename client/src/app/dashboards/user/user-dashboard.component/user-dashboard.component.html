@@ -120,6 +120,11 @@
                             </div>
                           }
 
+                          @case ('Signature') {
+                            <app-signature-pad [label]="f.label || ''" (valueChange)="onSignatureChange(f, $event)"></app-signature-pad>
+                            @if (f.helpText) { <span class="help-text">{{ f.helpText }}</span> }
+                          }
+
                           @case ('Phone') {
                             <mat-form-field appearance="outline" class="form-field small-field">
                               <mat-label>{{ f.label }}</mat-label>
