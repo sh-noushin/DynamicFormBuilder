@@ -43,19 +43,7 @@ public class FormFieldRepository : IFormFieldRepository
         if (existingField == null)
             return null;
 
-        existingField.Name = field.Name;
-        existingField.Label = field.Label;
-        existingField.Type = field.Type;
-        existingField.IsRequired = field.IsRequired;
-        existingField.Validation = field.Validation;
-        existingField.DefaultValue = field.DefaultValue;
-        existingField.Options = field.Options;
-        existingField.Placeholder = field.Placeholder;
-        existingField.HelpText = field.HelpText;
-        existingField.Order = field.Order;
-        existingField.IsVisible = field.IsVisible;
-        existingField.IsReadOnly = field.IsReadOnly;
-
+        ApplyChanges(existingField, field);
         await _context.SaveChangesAsync();
         return existingField;
     }
@@ -89,22 +77,27 @@ public class FormFieldRepository : IFormFieldRepository
 
             if (existingField != null)
             {
-                existingField.Name = field.Name;
-                existingField.Label = field.Label;
-                existingField.Type = field.Type;
-                existingField.IsRequired = field.IsRequired;
-                existingField.Validation = field.Validation;
-                existingField.DefaultValue = field.DefaultValue;
-                existingField.Options = field.Options;
-                existingField.Placeholder = field.Placeholder;
-                existingField.HelpText = field.HelpText;
-                existingField.Order = field.Order;
-                existingField.IsVisible = field.IsVisible;
-                existingField.IsReadOnly = field.IsReadOnly;
+                ApplyChanges(existingField, field);
             }
         }
 
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    private static void ApplyChanges(FormVersionField target, FormVersionField source)
+    {
+        target.Name = source.Name;
+        target.Label = source.Label;
+        target.Type = source.Type;
+        target.IsRequired = source.IsRequired;
+        target.Validation = source.Validation;
+        target.DefaultValue = source.DefaultValue;
+        target.Options = source.Options;
+        target.Placeholder = source.Placeholder;
+        target.HelpText = source.HelpText;
+        target.Order = source.Order;
+        target.IsVisible = source.IsVisible;
+        target.IsReadOnly = source.IsReadOnly;
     }
 }
