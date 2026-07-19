@@ -1,4 +1,5 @@
-﻿using FormBuilder.Core.DTOs;
+﻿using FormBuilder.Core.Constants;
+using FormBuilder.Core.DTOs;
 using FormBuilder.Core.Interfaces;
 using FormBuilder.Models.Entities;
 using FormBuilder.Models.Exceptions;
@@ -24,7 +25,7 @@ public class FormSubmissionsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin,User")]
+    [Authorize(Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(FormSubmissionDto), 201)]
     [ProducesResponseType(typeof(void), 400)]
@@ -69,7 +70,7 @@ public class FormSubmissionsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin,User")]
+    [Authorize(Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(FormSubmissionDto), 200)]
     [ProducesResponseType(typeof(void), 404)]
@@ -85,7 +86,7 @@ public class FormSubmissionsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = "Admin,User")]
+    [Authorize(Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(FormSubmissionDto), 200)]
     [ProducesResponseType(typeof(void), 404)]
@@ -122,7 +123,7 @@ public class FormSubmissionsController : ControllerBase
     }
 
     [HttpGet("form-version/{formVersionId}")]
-    [Authorize(Roles = "Admin,User")]
+    [Authorize(Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<FormSubmissionDto>), 200)]
     public async Task<ActionResult<IEnumerable<FormSubmissionDto>>> GetSubmissionsByFormVersion(Guid formVersionId)
@@ -132,7 +133,7 @@ public class FormSubmissionsController : ControllerBase
     }
 
     [HttpGet("form/{formId}")]
-    [Authorize(Roles = "Admin,User")]
+    [Authorize(Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<FormSubmissionDto>), 200)]
     public async Task<ActionResult<IEnumerable<FormSubmissionDto>>> GetSubmissionsByForm(Guid formId)
@@ -142,7 +143,7 @@ public class FormSubmissionsController : ControllerBase
     }
 
     [HttpGet("form-version/{formVersionId}/count")]
-    [Authorize(Roles = "Admin,User")]
+    [Authorize(Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(int), 200)]
     public async Task<ActionResult<int>> GetSubmissionCountByFormVersion(Guid formVersionId)
@@ -152,7 +153,7 @@ public class FormSubmissionsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin,User")]
+    [Authorize(Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(void), 204)]
     [ProducesResponseType(typeof(void), 404)]

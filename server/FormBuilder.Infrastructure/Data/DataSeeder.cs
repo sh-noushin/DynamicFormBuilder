@@ -1,4 +1,5 @@
-﻿using FormBuilder.Models.Entities;
+﻿using FormBuilder.Core.Constants;
+using FormBuilder.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -61,16 +62,14 @@ public static class DataSeeder
 
     private static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
     {
-        // Create Admin role
-        if (!await roleManager.RoleExistsAsync("Admin"))
+        if (!await roleManager.RoleExistsAsync(Roles.Admin))
         {
-            await roleManager.CreateAsync(new IdentityRole("Admin"));
+            await roleManager.CreateAsync(new IdentityRole(Roles.Admin));
         }
 
-        // Create User role
-        if (!await roleManager.RoleExistsAsync("User"))
+        if (!await roleManager.RoleExistsAsync(Roles.User))
         {
-            await roleManager.CreateAsync(new IdentityRole("User"));
+            await roleManager.CreateAsync(new IdentityRole(Roles.User));
         }
     }
 
@@ -88,7 +87,7 @@ public static class DataSeeder
             var result = await userManager.CreateAsync(adminUser, "123456");
             if (result.Succeeded)
             {
-                await userManager.AddToRoleAsync(adminUser, "Admin");
+                await userManager.AddToRoleAsync(adminUser, Roles.Admin);
             }
         }
 
@@ -104,7 +103,7 @@ public static class DataSeeder
             var result = await userManager.CreateAsync(regularUser, "123456");
             if (result.Succeeded)
             {
-                await userManager.AddToRoleAsync(regularUser, "User");
+                await userManager.AddToRoleAsync(regularUser, Roles.User);
             }
         }
     }

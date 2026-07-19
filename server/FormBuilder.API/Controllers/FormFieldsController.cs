@@ -1,4 +1,5 @@
-﻿using FormBuilder.Core.DTOs;
+﻿using FormBuilder.Core.Constants;
+using FormBuilder.Core.DTOs;
 using FormBuilder.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,7 @@ public class FormFieldsController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,User")] 
+    [Authorize(Roles = Roles.AdminOrUser)] 
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<FormFieldDto>), 200)]
     [ProducesResponseType(typeof(void), 404)]
@@ -39,7 +40,7 @@ public class FormFieldsController : ControllerBase
     }
 
     [HttpGet("{fieldId}")]
-    [Authorize(Roles = "Admin,User")] 
+    [Authorize(Roles = Roles.AdminOrUser)] 
     [ProducesResponseType(typeof(FormFieldDto), 200)]
     [ProducesResponseType(typeof(void), 404)]
     public async Task<ActionResult<FormFieldDto>> GetFormField(Guid formId, int versionNumber, Guid fieldId)
@@ -60,7 +61,7 @@ public class FormFieldsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")] 
+    [Authorize(Roles = Roles.Admin)] 
     [Produces("application/json")]
     [ProducesResponseType(typeof(FormFieldDto), 201)]
     [ProducesResponseType(typeof(void), 404)]
@@ -78,7 +79,7 @@ public class FormFieldsController : ControllerBase
     }
 
     [HttpPut("{fieldId}")]
-    [Authorize(Roles = "Admin")] 
+    [Authorize(Roles = Roles.Admin)] 
     [Produces("application/json")]
     [ProducesResponseType(typeof(FormFieldDto), 200)]
     [ProducesResponseType(typeof(void), 404)]
@@ -106,7 +107,7 @@ public class FormFieldsController : ControllerBase
     }
 
     [HttpDelete("{fieldId}")]
-    [Authorize(Roles = "Admin")] 
+    [Authorize(Roles = Roles.Admin)] 
     [Produces("application/json")]
     [ProducesResponseType(typeof(void), 204)]
     [ProducesResponseType(typeof(void), 404)]
@@ -134,7 +135,7 @@ public class FormFieldsController : ControllerBase
     }
 
     [HttpPost("reorder")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(void), 204)]
     [ProducesResponseType(typeof(void), 400)]

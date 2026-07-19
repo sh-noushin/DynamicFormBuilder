@@ -1,4 +1,5 @@
-﻿using FormBuilder.Core.DTOs;
+﻿using FormBuilder.Core.Constants;
+using FormBuilder.Core.DTOs;
 using FormBuilder.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +21,7 @@ public class FormVersionsController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,User")] 
+    [Authorize(Roles = Roles.AdminOrUser)] 
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<FormVersionDto>), 200)]
     [ProducesResponseType(typeof(void), 404)]
@@ -38,7 +39,7 @@ public class FormVersionsController : ControllerBase
     }
 
     [HttpGet("{versionNumber}")]
-    [Authorize(Roles = "Admin,User")] 
+    [Authorize(Roles = Roles.AdminOrUser)] 
     [ProducesResponseType(typeof(FormVersionDto), 200)]
     [ProducesResponseType(typeof(void), 404)]
     public async Task<ActionResult<FormVersionDto>> GetFormVersion(Guid formId, int versionNumber)
@@ -53,7 +54,7 @@ public class FormVersionsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")] 
+    [Authorize(Roles = Roles.Admin)] 
     [Produces("application/json")]
     [ProducesResponseType(typeof(FormVersionDto), 201)]
     public async Task<ActionResult<FormVersionDto>> CreateFormVersion(Guid formId, CreateFormVersionDto createVersionDto)
@@ -64,7 +65,7 @@ public class FormVersionsController : ControllerBase
     }
 
     [HttpPut("{versionNumber}")]
-    [Authorize(Roles = "Admin")] 
+    [Authorize(Roles = Roles.Admin)] 
     [Produces("application/json")]
     [ProducesResponseType(typeof(FormVersionDto), 200)]
     [ProducesResponseType(typeof(void), 404)]
@@ -81,7 +82,7 @@ public class FormVersionsController : ControllerBase
     }
 
     [HttpDelete("{versionNumber}")]
-    [Authorize(Roles = "Admin")] 
+    [Authorize(Roles = Roles.Admin)] 
     [Produces("application/json")]
     [ProducesResponseType(typeof(void), 204)]
     [ProducesResponseType(typeof(void), 404)]
@@ -97,7 +98,7 @@ public class FormVersionsController : ControllerBase
     }
 
     [HttpPost("{versionNumber}/publish")]
-    [Authorize(Roles = "Admin")] 
+    [Authorize(Roles = Roles.Admin)] 
     [Produces("application/json")]
     [ProducesResponseType(typeof(void), 204)]
     [ProducesResponseType(typeof(void), 404)]
@@ -113,7 +114,7 @@ public class FormVersionsController : ControllerBase
     }
 
     [HttpPost("{versionNumber}/set-current")]
-    [Authorize(Roles = "Admin")] 
+    [Authorize(Roles = Roles.Admin)] 
     [Produces("application/json")]
     [ProducesResponseType(typeof(void), 204)]
     [ProducesResponseType(typeof(void), 404)]

@@ -1,3 +1,4 @@
+using FormBuilder.Core.Constants;
 using FormBuilder.Core.DTOs;
 using FormBuilder.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -28,7 +29,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<UserDto>), 200)]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
@@ -38,7 +39,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(UserDto), 200)]
     [ProducesResponseType(typeof(void), 400)]
@@ -50,7 +51,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(UserDto), 200)]
     [ProducesResponseType(typeof(void), 400)]
@@ -62,7 +63,7 @@ public class UserController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(void), 204)]
     [ProducesResponseType(typeof(void), 400)]
