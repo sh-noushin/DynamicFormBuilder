@@ -1,5 +1,5 @@
 
-import { Component, Inject, signal } from '@angular/core';
+import { Component, Inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,6 +18,7 @@ export type CreateVersionDialogData = { nextVersionNumber?: number };
   standalone: true,
   imports: [MatDialogModule, MatFormFieldModule, MatInputModule, MatIconModule, MatButtonModule, MatSelectModule, MatTableModule, MatSlideToggleModule, MatTooltipModule],
   templateUrl: './create-version-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./create-version-dialog.component.scss']
 })
 export class CreateVersionDialogComponent {

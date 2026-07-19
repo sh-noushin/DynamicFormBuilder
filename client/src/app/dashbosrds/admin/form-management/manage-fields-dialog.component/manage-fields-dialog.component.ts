@@ -1,5 +1,5 @@
 
-import { Component, Inject, OnInit, signal } from '@angular/core';
+import { Component, Inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -31,6 +31,7 @@ export type ManageFieldsDialogData = {
     MatSnackBarModule
 ],
   templateUrl: './manage-fields-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./manage-fields-dialog.component.scss']
 })
 export class ManageFieldsDialogComponent implements OnInit {

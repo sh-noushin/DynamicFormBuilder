@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -28,6 +28,7 @@ import { DeleteDialogComponent, DeleteDialogData } from '../../../../shared/dele
     MatSnackBarModule
   ],
   templateUrl: './forms-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./forms-list.component.scss']
 })
 export class FormsListComponent implements OnInit {

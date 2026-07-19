@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -23,6 +23,7 @@ import { DeleteDialogComponent, DeleteDialogData } from '../../../../shared/dele
     MatDialogModule
   ],
   templateUrl: './users-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./users-list.component.scss']
 })
 export class UsersListComponent implements OnInit {

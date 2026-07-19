@@ -1,5 +1,5 @@
 
-import { Component, signal, Inject } from '@angular/core';
+import { Component, signal, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -18,6 +18,7 @@ export type EditVersionDialogData = { description: string, formId?: string, vers
   standalone: true,
   imports: [MatDialogModule, MatFormFieldModule, MatInputModule, MatIconModule, MatButtonModule, MatSelectModule, MatTableModule, MatTooltipModule],
   templateUrl: './edit-version-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./edit-version-dialog.component.scss']
 })
 export class EditVersionDialogComponent {

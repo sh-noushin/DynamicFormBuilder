@@ -1,4 +1,4 @@
-import { Component, Inject, signal } from '@angular/core';
+import { Component, Inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Client, RegisterUserDto, UpdateUserDto, UserDto, UserRole } from '../../../../core/services/api-service';
 
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -27,6 +27,7 @@ export interface UserDialogData {
     MatIconModule
 ],
   templateUrl: './user-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./user-dialog.component.scss']
 })
 export class UserDialogComponent {

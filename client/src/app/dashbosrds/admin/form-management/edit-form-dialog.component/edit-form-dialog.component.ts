@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, signal } from '@angular/core';
+import { Component, Inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Client, FormDto, UpdateFormDto, FormVersionDto, CreateFormVersionDto, UpdateFormVersionDto, CreateFormFieldDto } from '../../../../core/services/api-service';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -41,6 +41,7 @@ export type EditFormDialogData = {
 		MatSnackBarModule
 	],
 	templateUrl: './edit-form-dialog.component.html',
+	changeDetection: ChangeDetectionStrategy.Eager,
 	styleUrls: ['./edit-form-dialog.component.scss']
 })
 export class EditFormDialogComponent implements OnInit {

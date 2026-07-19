@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormFieldDto, FormSubmissionDto } from '../../../core/services/api-service';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
@@ -39,6 +39,7 @@ interface SubmissionFieldWithKey {
     MatRadioModule
   ],
   templateUrl: './submission-edit-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./submission-edit-dialog.component.scss']
 })
 export class SubmissionEditDialogComponent implements OnInit {
