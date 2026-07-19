@@ -37,18 +37,15 @@ export class UsersListComponent implements OnInit {
   constructor(private apiClient: Client, private dialog: MatDialog) {}
 
   ngOnInit() {
-    console.log('UsersListComponent initialized');
     this.loadUsers();
   }
 
   loadUsers() {
-    console.log('Loading users...');
     this.isLoading.set(true);
     this.error.set('');
     
     this.apiClient.userAll().subscribe({
       next: (users) => {
-        console.log('Users loaded:', users);
         this.users.set(users);
         this.isLoading.set(false);
       },

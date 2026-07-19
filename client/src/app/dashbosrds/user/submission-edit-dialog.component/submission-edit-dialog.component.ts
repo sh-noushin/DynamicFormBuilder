@@ -66,11 +66,9 @@ export class SubmissionEditDialogComponent implements OnInit {
       .map(field => {
         const key = this.computeFieldKey(field);
         if (!key) {
-          console.warn('[SubmissionEditDialog] skipping field without key', field);
           return null;
         }
         if (usedKeys.has(key)) {
-          console.warn('[SubmissionEditDialog] duplicate key, skipping field', key, field);
           return null;
         }
         usedKeys.add(key);
@@ -160,7 +158,6 @@ export class SubmissionEditDialogComponent implements OnInit {
       for (const item of this.fieldsWithKey) {
         const ctrl = this.form.get(item.key);
         // eslint-disable-next-line no-console
-        console.debug('[SubmissionEditDialog.buildForm] key=', item.key, 'validation=', item.field.validation, 'valid=', !!ctrl?.valid, 'value=', ctrl?.value);
       }
     } catch {}
   }

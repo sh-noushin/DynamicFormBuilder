@@ -82,7 +82,6 @@ export class HeaderComponent {
   private handlePasswordChange(payload: ChangePasswordPayload) {
     this.api.changePassword(payload).subscribe({
       next: (result) => {
-        console.info('Password changed successfully', result);
         // TODO: Show success feedback to user
       },
       error: (err) => {

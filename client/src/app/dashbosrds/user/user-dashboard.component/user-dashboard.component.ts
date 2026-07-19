@@ -198,7 +198,6 @@ export class UserDashboardComponent implements OnInit {
       for (const f of flds) {
         const ctrl = this.formGroup.get(this.fieldName(f));
         // eslint-disable-next-line no-console
-        console.debug('[UserDashboard.buildForm] field=', this.fieldName(f), 'validation=', f.validation, 'valid=', !!ctrl?.valid, 'value=', ctrl?.value);
       }
     } catch {}
   }
@@ -491,7 +490,6 @@ export class UserDashboardComponent implements OnInit {
         const visible = this.normalizeVisibleFields(fields);
         this.submissionFields.set(visible);
         this.rebuildSubmissionFieldMaps(visible);
-        console.log('[UserDashboard] submissionFields loaded', visible.length);
       },
       error: err => {
         console.error('Failed to load fields', err);
@@ -567,7 +565,6 @@ export class UserDashboardComponent implements OnInit {
 
 
   openSubmissionEditDialog(submission: FormSubmissionDto) {
-    console.log('[UserDashboard] openSubmissionEditDialog click', submission);
 
     if (!submission.id) {
       this.snack.open('Selected submission is missing an identifier', 'Close', { duration: 3000 });
@@ -585,19 +582,16 @@ export class UserDashboardComponent implements OnInit {
     const fields = this.submissionFields();
 
     if (!fields.length) {
-      console.warn('[UserDashboard] submissionFields are empty when clicking edit');
       this.snack.open('Please wait until fields are loaded for this version', 'Close', { duration: 3000 });
       return;
     }
 
     this.rebuildSubmissionFieldMaps(fields);
 
-    console.log('[UserDashboard] opening submission edit dialog with fields', fields.length);
     this.launchSubmissionEditDialog(submission, fields);
   }
 
   private launchSubmissionEditDialog(submission: FormSubmissionDto, fields: FormFieldDto[]): void {
-    console.log('[UserDashboard] launchSubmissionEditDialog: opening dialog');
 
     const dialogRef = this.dialog.open(SubmissionEditDialogComponent, {
       width: 'min(1100px, 95vw)',
@@ -609,19 +603,11 @@ export class UserDashboardComponent implements OnInit {
     });
 
     dialogRef.afterOpened().subscribe(() => {
-      const container = document.querySelector('mat-dialog-container');
-      console.log('[UserDashboard] submission dialog opened, container present?', !!container);
-      if (container) {
-        console.log(
-          '[UserDashboard] submission dialog container rect',
-          (container as HTMLElement).getBoundingClientRect()
-        );
-      }
+      // no-op subscription retained for lifecycle hook parity
     });
 
     dialogRef.afterClosed().subscribe((result?: { fieldValues: { [key: string]: string } }) => {
       if (!result) {
-        console.log('[UserDashboard] submission dialog closed without result');
         return;
       }
 

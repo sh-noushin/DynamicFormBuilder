@@ -65,7 +65,6 @@ export class FormsListComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('FormsListComponent initialized');
     this.loadForms();
   }
 
@@ -99,14 +98,11 @@ export class FormsListComponent implements OnInit {
   }
 
   loadForms() {
-    console.log('Loading forms...');
-    console.log('Token in localStorage:', localStorage.getItem('auth_token'));
     this.isLoading.set(true);
     this.error.set('');
     
     this.apiClient.formsAll().subscribe({
       next: (forms) => {
-        console.log('Forms loaded:', forms);
         this.forms.set(forms);
         this.isLoading.set(false);
       },
