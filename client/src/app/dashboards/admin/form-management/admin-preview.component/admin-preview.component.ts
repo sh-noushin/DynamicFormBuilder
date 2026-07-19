@@ -74,15 +74,19 @@ export class AdminPreviewComponent {
       return;
     }
 
-    // If the admin passed brandColor via query string (from the Edit form
-    // dialog's Preview button), use it instead of the DB value so the admin
-    // sees the color they are currently choosing without having to save first.
-    const overrideColor = this.route.snapshot.queryParamMap.get('brandColor');
+    // The Edit form dialog's Preview button always includes ?brandColor=... so
+    // the admin can see the color they're currently choosing before hitting
+    // Save. Param presence (even with an empty value) means "override the DB
+    // value"; empty value means "no brand color - render the default". If the
+    // admin navigates directly to the preview URL with no query string we fall
+    // back to whatever the DB has.
+    const hasOverride = this.route.snapshot.queryParamMap.has('brandColor');
+    const overrideColor = this.route.snapshot.queryParamMap.get('brandColor') ?? '';
 
     this.api.formsGET(id).subscribe({
       next: form => {
-        if (overrideColor) {
-          (form as any).brandColor = overrideColor;
+        if (hasOverride) {
+          (form as any).brandColor = overrideColor || null;
         }
         this.form.set(form);
         const match = (form.versions ?? []).find(v => v.versionNumber === vn) ?? null;
