@@ -2457,6 +2457,7 @@ export class CreateFormFieldDto implements ICreateFormFieldDto {
     options?: string | undefined;
     placeholder?: string | undefined;
     helpText?: string | undefined;
+    showIfCondition?: string | undefined;
     order?: any;
     isVisible?: boolean;
     isReadOnly?: boolean;
@@ -2488,6 +2489,7 @@ export class CreateFormFieldDto implements ICreateFormFieldDto {
             this.options = _data["options"];
             this.placeholder = _data["placeholder"];
             this.helpText = _data["helpText"];
+            this.showIfCondition = _data["showIfCondition"];
             this.order = _data["order"];
             this.isVisible = _data["isVisible"];
             this.isReadOnly = _data["isReadOnly"];
@@ -2517,6 +2519,7 @@ export class CreateFormFieldDto implements ICreateFormFieldDto {
         data["options"] = this.options;
         data["placeholder"] = this.placeholder;
         data["helpText"] = this.helpText;
+        data["showIfCondition"] = this.showIfCondition;
         data["order"] = this.order;
         data["isVisible"] = this.isVisible;
         data["isReadOnly"] = this.isReadOnly;
@@ -2535,6 +2538,7 @@ export interface ICreateFormFieldDto {
     options?: string | undefined;
     placeholder?: string | undefined;
     helpText?: string | undefined;
+    showIfCondition?: string | undefined;
     order?: any;
     isVisible?: boolean;
     isReadOnly?: boolean;
@@ -2774,6 +2778,7 @@ export class FormFieldDto implements IFormFieldDto {
     options?: string | undefined;
     placeholder?: string | undefined;
     helpText?: string | undefined;
+    showIfCondition?: string | undefined;
     order?: any;
     isVisible?: boolean;
     isReadOnly?: boolean;
@@ -2806,6 +2811,7 @@ export class FormFieldDto implements IFormFieldDto {
             this.options = _data["options"];
             this.placeholder = _data["placeholder"];
             this.helpText = _data["helpText"];
+            this.showIfCondition = _data["showIfCondition"];
             this.order = _data["order"];
             this.isVisible = _data["isVisible"];
             this.isReadOnly = _data["isReadOnly"];
@@ -2836,6 +2842,7 @@ export class FormFieldDto implements IFormFieldDto {
         data["options"] = this.options;
         data["placeholder"] = this.placeholder;
         data["helpText"] = this.helpText;
+        data["showIfCondition"] = this.showIfCondition;
         data["order"] = this.order;
         data["isVisible"] = this.isVisible;
         data["isReadOnly"] = this.isReadOnly;
@@ -2855,6 +2862,7 @@ export interface IFormFieldDto {
     options?: string | undefined;
     placeholder?: string | undefined;
     helpText?: string | undefined;
+    showIfCondition?: string | undefined;
     order?: any;
     isVisible?: boolean;
     isReadOnly?: boolean;
@@ -3337,6 +3345,7 @@ export class UpdateFormFieldDto implements IUpdateFormFieldDto {
     options?: string | undefined;
     placeholder?: string | undefined;
     helpText?: string | undefined;
+    showIfCondition?: string | undefined;
     order?: any;
     isVisible?: boolean;
     isReadOnly?: boolean;
@@ -3368,6 +3377,7 @@ export class UpdateFormFieldDto implements IUpdateFormFieldDto {
             this.options = _data["options"];
             this.placeholder = _data["placeholder"];
             this.helpText = _data["helpText"];
+            this.showIfCondition = _data["showIfCondition"];
             this.order = _data["order"];
             this.isVisible = _data["isVisible"];
             this.isReadOnly = _data["isReadOnly"];
@@ -3397,6 +3407,7 @@ export class UpdateFormFieldDto implements IUpdateFormFieldDto {
         data["options"] = this.options;
         data["placeholder"] = this.placeholder;
         data["helpText"] = this.helpText;
+        data["showIfCondition"] = this.showIfCondition;
         data["order"] = this.order;
         data["isVisible"] = this.isVisible;
         data["isReadOnly"] = this.isReadOnly;
@@ -3415,6 +3426,7 @@ export interface IUpdateFormFieldDto {
     options?: string | undefined;
     placeholder?: string | undefined;
     helpText?: string | undefined;
+    showIfCondition?: string | undefined;
     order?: any;
     isVisible?: boolean;
     isReadOnly?: boolean;

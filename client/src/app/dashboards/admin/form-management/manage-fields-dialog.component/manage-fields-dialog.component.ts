@@ -108,7 +108,8 @@ export class ManageFieldsDialogComponent implements OnInit {
         helpText: result.helpText || '',
         defaultValue: result.defaultValue || '',
         validation: result.validation || '',
-        options: result.options || ''
+        options: result.options || '',
+        showIfCondition: result.showIfCondition || undefined
       });
       this.isSaving.set(true);
       this.api.fieldsPOST(this.data.formId, this.data.versionNumber, dto).subscribe({

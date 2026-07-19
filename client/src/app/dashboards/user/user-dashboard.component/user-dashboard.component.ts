@@ -313,6 +313,7 @@ export class UserDashboardComponent implements OnInit {
 
     const values: { [k: string]: string } = {};
     for (const f of this.fields()) {
+      if (!this.isFieldVisible(f)) continue;
       const key = this.fieldName(f);
       const val = this.formGroup.get(key)?.value;
       values[key] = (val === null || val === undefined) ? '' : String(val);
@@ -402,6 +403,24 @@ export class UserDashboardComponent implements OnInit {
 
   getOptions(f: FormFieldDto): Array<{ label: string; value: string }> {
     return this.optionsCache.get(f) ?? [];
+  }
+
+  // Evaluates a field's showIfCondition against the current form values.
+  // Format: {"field":"otherFieldName","equals":"value"}. Missing/invalid rule = visible.
+  isFieldVisible(f: FormFieldDto): boolean {
+    const raw = (f as any).showIfCondition as string | undefined;
+    if (!raw) return true;
+    let rule: { field?: string; equals?: unknown } | null = null;
+    try {
+      rule = JSON.parse(raw);
+    } catch {
+      return true;
+    }
+    if (!rule?.field) return true;
+    const target = this.fields().find(x => x.name === rule!.field);
+    if (!target) return true;
+    const value = this.formGroup.get(this.fieldName(target))?.value;
+    return String(value ?? '') === String(rule.equals ?? '');
   }
 
   

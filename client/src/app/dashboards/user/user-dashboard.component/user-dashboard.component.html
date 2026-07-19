@@ -48,6 +48,7 @@
               @if (fields().length) {
                 <form [formGroup]="formGroup" class="dynamic-form">
                   @for (f of fields(); track fieldName(f)) {
+                    @if (isFieldVisible(f)) {
                     <div class="field-row">
                       <div class="field-with-icon">
                         @switch (f.type) {
@@ -207,6 +208,7 @@
                         </mat-icon>
                       }
                     </div>
+                    }
                   }
 
                   <div class="actions">

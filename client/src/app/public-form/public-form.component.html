@@ -30,6 +30,7 @@
           <form [formGroup]="formGroup" (ngSubmit)="submit()" novalidate>
             <div class="fields-grid">
               @for (field of f.fields; track field.id) {
+                @if (isFieldVisible(field)) {
                 <div class="field-block">
                   @switch (field.type) {
                     @case ('Text') {
@@ -150,6 +151,7 @@
                     </div>
                   }
                 </div>
+                }
               }
             </div>
 

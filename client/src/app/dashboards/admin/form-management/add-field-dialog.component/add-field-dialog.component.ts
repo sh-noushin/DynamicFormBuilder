@@ -29,6 +29,7 @@ export class AddFieldDialogComponent {
   helpText = signal('');
   defaultValue = signal('');
   validation = signal('');
+  showIfCondition = signal('');
 
   optionItems = signal<Array<{label: string; value: string}>>([]);
 
@@ -121,6 +122,7 @@ export class AddFieldDialogComponent {
       helpText: this.helpText(),
       defaultValue: this.defaultValue(),
       validation: this.validation(),
+      showIfCondition: this.showIfCondition().trim() || undefined,
       options: optionJson
     };
     this.dialogRef.close(value);

@@ -25,6 +25,7 @@ interface PublicField {
   defaultValue?: string;
   options?: string;
   validation?: string;
+  showIfCondition?: string;
 }
 
 interface PublicForm {
@@ -160,6 +161,7 @@ export class PublicFormComponent {
     const raw = this.formGroup.getRawValue() as Record<string, unknown>;
     const fieldValues: Record<string, string | null> = {};
     for (const field of form.fields) {
+      if (!this.isFieldVisible(field)) continue;
       const value = raw[this.controlName(field)];
       fieldValues[field.name] = value === undefined || value === null ? null : String(value);
     }
@@ -191,6 +193,25 @@ export class PublicFormComponent {
 
   errorsForField(field: PublicField): string[] {
     return this.fieldErrors()[field.name] ?? [];
+  }
+
+  // Evaluates a field's showIfCondition against the current form values.
+  // Format: {"field":"otherFieldName","equals":"value"}. Missing/invalid rule = visible.
+  isFieldVisible(field: PublicField): boolean {
+    if (!field.showIfCondition) return true;
+    let rule: { field?: string; equals?: unknown } | null = null;
+    try {
+      rule = JSON.parse(field.showIfCondition);
+    } catch {
+      return true;
+    }
+    if (!rule?.field) return true;
+    const form = this.form();
+    if (!form) return true;
+    const target = form.fields.find(f => f.name === rule!.field);
+    if (!target) return true;
+    const value = this.formGroup.get(this.controlName(target))?.value;
+    return String(value ?? '') === String(rule.equals ?? '');
   }
 
   uploadFile(field: PublicField, event: Event) {
