@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using FormBuilder.Core.Common;
 using FormBuilder.Core.DTOs;
 using FormBuilder.Core.Interfaces;
 using FormBuilder.Models.Entities;
@@ -51,7 +52,7 @@ public class UserService : IUserService
             Id = user.Id,
             Username = user.UserName!,
             Email = user.Email!,
-            Roles = ConvertStringRolesToEnumRoles(roles),
+            Roles = RoleMapper.ToEnumRoles(roles),
             CreatedAt = DateTime.UtcNow
         };
     }
@@ -68,7 +69,7 @@ public class UserService : IUserService
                 Id = user.Id,
                 Username = user.UserName!,
                 Email = user.Email!,
-                Roles = ConvertStringRolesToEnumRoles(roles),
+                Roles = RoleMapper.ToEnumRoles(roles),
                 CreatedAt = DateTime.UtcNow
             });
         }
@@ -89,7 +90,7 @@ public class UserService : IUserService
             Id = user.Id,
             Username = user.UserName!,
             Email = user.Email!,
-            Roles = ConvertStringRolesToEnumRoles(roles),
+            Roles = RoleMapper.ToEnumRoles(roles),
             CreatedAt = DateTime.UtcNow
         };
     }
@@ -141,7 +142,7 @@ public class UserService : IUserService
             Id = user.Id,
             Username = user.UserName!,
             Email = user.Email!,
-            Roles = ConvertStringRolesToEnumRoles(roles),
+            Roles = RoleMapper.ToEnumRoles(roles),
             CreatedAt = DateTime.UtcNow
         };
     }
@@ -203,14 +204,4 @@ public class UserService : IUserService
             throw new InvalidUserRoleException($"Failed to assign role '{roleName}' to user");
     }
 
-    private static List<UserRole> ConvertStringRolesToEnumRoles(IList<string> stringRoles)
-    {
-        var enumRoles = new List<UserRole>();
-        foreach (var role in stringRoles)
-        {
-            if (Enum.TryParse<UserRole>(role, out var enumRole))
-                enumRoles.Add(enumRole);
-        }
-        return enumRoles;
-    }
 }
