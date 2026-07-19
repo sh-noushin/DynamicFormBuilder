@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, signal, Inject } from '@angular/core';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,7 +16,7 @@ export type EditVersionDialogData = { description: string, formId?: string, vers
 @Component({
   selector: 'app-edit-version-dialog',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatIconModule, MatButtonModule, MatSelectModule, MatTableModule, MatTooltipModule],
+  imports: [MatDialogModule, MatFormFieldModule, MatInputModule, MatIconModule, MatButtonModule, MatSelectModule, MatTableModule, MatTooltipModule],
   templateUrl: './edit-version-dialog.component.html',
   styleUrls: ['./edit-version-dialog.component.scss']
 })

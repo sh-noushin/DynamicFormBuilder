@@ -1,6 +1,6 @@
 import { Component, Inject, signal } from '@angular/core';
 import { Client, RegisterUserDto, UpdateUserDto, UserDto, UserRole } from '../../../../core/services/api-service';
-import { CommonModule } from '@angular/common';
+
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -19,14 +19,13 @@ export interface UserDialogData {
   selector: 'app-user-dialog',
   standalone: true,
   imports: [
-    CommonModule,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatIconModule,
-  ],
+    MatIconModule
+],
   templateUrl: './user-dialog.component.html',
   styleUrls: ['./user-dialog.component.scss']
 })

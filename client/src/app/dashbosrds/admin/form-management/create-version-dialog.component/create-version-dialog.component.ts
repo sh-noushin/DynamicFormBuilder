@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -16,17 +16,7 @@ export type CreateVersionDialogData = { nextVersionNumber?: number };
 @Component({
   selector: 'app-create-version-dialog',
   standalone: true,
-  imports: 
-  [ CommonModule, 
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatButtonModule,
-    MatSelectModule,
-    MatTableModule,
-    MatSlideToggleModule,
-    MatTooltipModule],
+  imports: [MatDialogModule, MatFormFieldModule, MatInputModule, MatIconModule, MatButtonModule, MatSelectModule, MatTableModule, MatSlideToggleModule, MatTooltipModule],
   templateUrl: './create-version-dialog.component.html',
   styleUrls: ['./create-version-dialog.component.scss']
 })

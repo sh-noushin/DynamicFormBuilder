@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -21,7 +21,6 @@ export type ManageFieldsDialogData = {
   selector: 'app-manage-fields-dialog',
   standalone: true,
   imports: [
-    CommonModule,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
@@ -30,7 +29,7 @@ export type ManageFieldsDialogData = {
     MatTableModule,
     MatTooltipModule,
     MatSnackBarModule
-  ],
+],
   templateUrl: './manage-fields-dialog.component.html',
   styleUrls: ['./manage-fields-dialog.component.scss']
 })

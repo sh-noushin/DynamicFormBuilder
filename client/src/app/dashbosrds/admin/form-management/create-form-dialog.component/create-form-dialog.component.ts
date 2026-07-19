@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -16,14 +16,13 @@ export type CreateFormDialogData = {
   selector: 'app-create-form-dialog',
   standalone: true,
   imports: [
-    CommonModule,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
     MatButtonModule,
     MatProgressSpinnerModule
-  ],
+],
   templateUrl: './create-form-dialog.component.html',
   styleUrls: ['./create-form-dialog.component.scss']
 })

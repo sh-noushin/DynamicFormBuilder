@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, signal } from '@angular/core';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -14,7 +14,6 @@ import { HeaderComponent } from '../../shared/layout/header.component/header.com
   selector: 'app-admin-dashboard',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     MatSidenavModule,
     MatListModule,
@@ -23,7 +22,7 @@ import { HeaderComponent } from '../../shared/layout/header.component/header.com
     MatButtonModule,
     MatTabsModule,
     HeaderComponent
-  ],
+],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss']
 })
