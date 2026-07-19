@@ -12,5 +12,6 @@ public enum FieldType
     Select,
     Textarea,
     Phone,
-    Password
+    Password,
+    File
 }

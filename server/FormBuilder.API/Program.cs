@@ -46,6 +46,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddFormBuilderRepositories();
 builder.Services.AddFormBuilderServices();
 
+// Add file-upload options
+builder.Services.Configure<FormBuilder.Core.Options.FileUploadOptions>(
+    builder.Configuration.GetSection(FormBuilder.Core.Options.FileUploadOptions.SectionName));
+
 // Add global exception handling
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 builder.Services.AddProblemDetails();

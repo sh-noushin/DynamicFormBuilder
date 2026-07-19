@@ -420,3 +420,6 @@ FodyWeavers.xsd
 # SQLite write-ahead log files (transient, per-run)
 *.db-shm
 *.db-wal
+
+# User-uploaded files
+server/FormBuilder.API/uploads/
