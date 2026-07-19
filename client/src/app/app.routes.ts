@@ -12,6 +12,10 @@ export const routes: Routes = [
     component: LoginComponent
   },
   {
+    path: 'f/:slug',
+    loadComponent: () => import('./public-form/public-form.component').then(m => m.PublicFormComponent)
+  },
+  {
     path: 'admin',
     loadComponent: () => import('./dashbosrds/admin/admin-dashboard.component').then(m => m.AdminDashboardComponent),
     canActivate: [AuthGuard, RoleGuard],
