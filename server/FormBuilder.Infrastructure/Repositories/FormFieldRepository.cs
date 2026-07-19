@@ -96,6 +96,7 @@ public class FormFieldRepository : IFormFieldRepository
         target.Options = source.Options;
         target.Placeholder = source.Placeholder;
         target.HelpText = source.HelpText;
+        target.ShowIfCondition = source.ShowIfCondition;
         target.Order = source.Order;
         target.IsVisible = source.IsVisible;
         target.IsReadOnly = source.IsReadOnly;

@@ -26,6 +26,9 @@ public class CreateFormFieldDto
     [StringLength(500)]
     public string? HelpText { get; set; }
 
+    [StringLength(500)]
+    public string? ShowIfCondition { get; set; }
+
     public int Order { get; set; }
     public bool IsVisible { get; set; } = true;
     public bool IsReadOnly { get; set; } = false;

@@ -59,6 +59,7 @@ public class FormBuilderDbContext : IdentityDbContext<User>
             entity.Property(e => e.Options).HasMaxLength(2000);
             entity.Property(e => e.Placeholder).HasMaxLength(200);
             entity.Property(e => e.HelpText).HasMaxLength(500);
+            entity.Property(e => e.ShowIfCondition).HasMaxLength(500);
         });
 
         modelBuilder.Entity<FormSubmission>(entity =>
