@@ -36,8 +36,30 @@ export class FormsListComponent implements OnInit {
   displayedColumns = ['name', 'description', 'createdAt', 'isActive', 'actions'];
   isLoading = signal<boolean>(false);
   error = signal<string>('');
+  copiedSlug = signal<string | null>(null);
 
   constructor(private apiClient: Client, private dialog: MatDialog, private snack: MatSnackBar) {}
+
+  canShare(form: FormDto): boolean {
+    if (!form.slug || !form.isActive) return false;
+    return (form.versions ?? []).some(v => v.isCurrentVersion && v.isPublished);
+  }
+
+  copyShareLink(form: FormDto) {
+    if (!this.canShare(form) || !form.slug) return;
+    const url = `${window.location.origin}/f/${form.slug}`;
+    const done = () => {
+      this.copiedSlug.set(form.slug!);
+      this.snack.open('Public link copied', 'Close', { duration: 2500 });
+      setTimeout(() => this.copiedSlug.set(null), 2500);
+    };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url).then(done, () => this.snack.open('Copy failed: ' + url, 'Close', { duration: 5000 }));
+    } else {
+      done();
+      prompt('Copy this link:', url);
+    }
+  }
 
   ngOnInit() {
     console.log('FormsListComponent initialized');

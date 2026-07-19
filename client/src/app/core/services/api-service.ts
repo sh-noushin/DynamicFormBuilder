@@ -2678,6 +2678,7 @@ export class FormDto implements IFormDto {
     id?: string;
     name?: string;
     description?: string | undefined;
+    slug?: string;
     createdAt?: Date;
     updatedAt?: Date;
     isActive?: boolean;
@@ -2704,6 +2705,7 @@ export class FormDto implements IFormDto {
             this.id = _data["id"];
             this.name = _data["name"];
             this.description = _data["description"];
+            this.slug = _data["slug"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : undefined as any;
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : undefined as any;
             this.isActive = _data["isActive"];
@@ -2732,6 +2734,7 @@ export class FormDto implements IFormDto {
         data["id"] = this.id;
         data["name"] = this.name;
         data["description"] = this.description;
+        data["slug"] = this.slug;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : undefined as any;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : undefined as any;
         data["isActive"] = this.isActive;
@@ -2749,6 +2752,7 @@ export interface IFormDto {
     id?: string;
     name?: string;
     description?: string | undefined;
+    slug?: string;
     createdAt?: Date;
     updatedAt?: Date;
     isActive?: boolean;
