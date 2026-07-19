@@ -1,0 +1,23 @@
+<div class="rating">
+  @if (label) {
+    <label class="rating-label">{{ label }}</label>
+  }
+  <div class="stars" (mouseleave)="onLeave()">
+    @for (star of stars; track star) {
+      <button
+        type="button"
+        class="star"
+        [class.filled]="filled(star)"
+        [attr.aria-label]="star + ' stars'"
+        (click)="select(star)"
+        (mouseenter)="onEnter(star)">
+        <mat-icon>{{ filled(star) ? 'star' : 'star_border' }}</mat-icon>
+      </button>
+    }
+    @if (value != null) {
+      <span class="rating-value">{{ value }} / {{ max }}</span>
+    } @else {
+      <span class="rating-hint">Tap a star to rate</span>
+    }
+  </div>
+</div>

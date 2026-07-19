@@ -24,6 +24,7 @@ import { Router } from '@angular/router';
 import { HeaderComponent } from '../../../shared/layout/header.component/header.component';
 import { DeleteDialogComponent } from '../../../shared/delete-dialog.component/delete-dialog.component';
 import { SignaturePadComponent } from '../../../shared/signature-pad/signature-pad.component';
+import { RatingComponent } from '../../../shared/rating/rating.component';
 
 @Component({
   selector: 'app-user-dashboard',
@@ -48,7 +49,8 @@ import { SignaturePadComponent } from '../../../shared/signature-pad/signature-p
     ReactiveFormsModule,
     MatDialogModule,
     HeaderComponent,
-    SignaturePadComponent
+    SignaturePadComponent,
+    RatingComponent
   ],
   templateUrl: './user-dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -92,6 +94,10 @@ export class UserDashboardComponent implements OnInit {
 
   onSignatureChange(field: FormFieldDto, dataUrl: string | null) {
     this.formGroup.get(this.fieldName(field))?.setValue(dataUrl ?? '');
+  }
+
+  onRatingChange(field: FormFieldDto, value: number | null) {
+    this.formGroup.get(this.fieldName(field))?.setValue(value != null ? String(value) : '');
   }
 
   uploadFile(field: FormFieldDto, event: Event) {

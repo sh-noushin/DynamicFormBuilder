@@ -13,6 +13,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SignaturePadComponent } from '../shared/signature-pad/signature-pad.component';
+import { RatingComponent } from '../shared/rating/rating.component';
 import { environment } from '../../environments/environment';
 
 interface PublicField {
@@ -56,6 +57,7 @@ interface PublicForm {
     MatIconModule,
     MatProgressSpinnerModule,
     SignaturePadComponent,
+    RatingComponent,
   ],
   templateUrl: './public-form.component.html',
   styleUrl: './public-form.component.scss',
@@ -218,6 +220,10 @@ export class PublicFormComponent {
 
   onSignatureChange(field: PublicField, dataUrl: string | null) {
     this.formGroup.get(this.controlName(field))?.setValue(dataUrl ?? '');
+  }
+
+  onRatingChange(field: PublicField, value: number | null) {
+    this.formGroup.get(this.controlName(field))?.setValue(value != null ? String(value) : '');
   }
 
   uploadFile(field: PublicField, event: Event) {

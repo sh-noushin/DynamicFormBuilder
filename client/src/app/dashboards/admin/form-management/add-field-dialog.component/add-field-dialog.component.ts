@@ -21,7 +21,7 @@ export interface AddFieldDialogData {
   styleUrls: ['./add-field-dialog.component.scss']
 })
 export class AddFieldDialogComponent {
-  types = ['Text','Email','Number','Date','DateTime','Checkbox','Radio','Select','Textarea','Phone','Password','File','Signature'];
+  types = ['Text','Email','Number','Date','DateTime','Checkbox','Radio','Select','Textarea','Phone','Password','File','Signature','Rating'];
 
   name = signal('');
   label = signal('');

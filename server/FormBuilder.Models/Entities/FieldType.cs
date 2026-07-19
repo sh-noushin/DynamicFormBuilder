@@ -14,5 +14,6 @@ public enum FieldType
     Phone,
     Password,
     File,
-    Signature
+    Signature,
+    Rating
 }

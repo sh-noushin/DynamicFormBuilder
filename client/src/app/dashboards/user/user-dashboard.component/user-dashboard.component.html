@@ -125,6 +125,11 @@
                             @if (f.helpText) { <span class="help-text">{{ f.helpText }}</span> }
                           }
 
+                          @case ('Rating') {
+                            <app-rating [label]="f.label || ''" (valueChange)="onRatingChange(f, $event)"></app-rating>
+                            @if (f.helpText) { <span class="help-text">{{ f.helpText }}</span> }
+                          }
+
                           @case ('Phone') {
                             <mat-form-field appearance="outline" class="form-field small-field">
                               <mat-label>{{ f.label }}</mat-label>
