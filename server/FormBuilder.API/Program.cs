@@ -1,4 +1,5 @@
 using FormBuilder.API.Extensions;
+using FormBuilder.API.Middleware;
 using Scalar.AspNetCore;
 using Microsoft.AspNetCore.OpenApi;
 
@@ -15,7 +16,7 @@ builder.Services.AddControllers()
             new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 
-// Add OpenAPI for Scalar – force OpenAPI 3.0
+// Add OpenAPI for Scalar ï¿½ force OpenAPI 3.0
 builder.Services.AddOpenApi(options =>
 {
     options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_0;
@@ -42,7 +43,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddFormBuilderRepositories();
 builder.Services.AddFormBuilderServices();
 
+// Add global exception handling
+builder.Services.AddExceptionHandler<DomainExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
