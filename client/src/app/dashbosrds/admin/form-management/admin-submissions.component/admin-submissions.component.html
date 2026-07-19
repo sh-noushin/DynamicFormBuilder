@@ -1,0 +1,75 @@
+<mat-card class="submissions-card">
+  <mat-card-header>
+    <div class="header-row">
+      <div class="titles">
+        <a routerLink="/admin/forms" class="back-link">
+          <mat-icon>arrow_back</mat-icon>
+          <span>Back to forms</span>
+        </a>
+        <mat-card-title>
+          {{ form()?.name || 'Submissions' }}
+        </mat-card-title>
+        <mat-card-subtitle>{{ submissions().length }} submissions</mat-card-subtitle>
+      </div>
+      <div class="actions">
+        <button
+          mat-flat-button
+          color="primary"
+          (click)="downloadCsv()"
+          [disabled]="downloading() || submissions().length === 0">
+          <mat-icon>download</mat-icon>
+          @if (downloading()) { <span>Preparing&hellip;</span> } @else { <span>Download CSV</span> }
+        </button>
+      </div>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+    @if (loading()) {
+      <div class="state-block">
+        <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+        <p>Loading submissions&hellip;</p>
+      </div>
+    } @else if (errorMessage()) {
+      <div class="state-block error">
+        <mat-icon>error_outline</mat-icon>
+        <p>{{ errorMessage() }}</p>
+      </div>
+    } @else if (submissions().length === 0) {
+      <div class="state-block">
+        <mat-icon class="empty-icon">inbox</mat-icon>
+        <h3>No submissions yet</h3>
+        <p>Once someone submits your form, their responses appear here.</p>
+      </div>
+    } @else {
+      <div class="table-scroll">
+        <table mat-table [dataSource]="submissions()">
+          <ng-container matColumnDef="submittedAt">
+            <th mat-header-cell *matHeaderCellDef>Submitted</th>
+            <td mat-cell *matCellDef="let s">{{ s.submittedAt | date:'medium' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="submitterName">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let s">{{ s.submitterName || '—' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="submitterEmail">
+            <th mat-header-cell *matHeaderCellDef>Email</th>
+            <td mat-cell *matCellDef="let s">{{ s.submitterEmail || '—' }}</td>
+          </ng-container>
+
+          @for (col of fieldColumns(); track col) {
+            <ng-container [matColumnDef]="col">
+              <th mat-header-cell *matHeaderCellDef>{{ col }}</th>
+              <td mat-cell *matCellDef="let s" class="value-cell">{{ valueFor(s, col) || '—' }}</td>
+            </ng-container>
+          }
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+        </table>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -37,6 +38,8 @@ export class FormsListComponent implements OnInit {
   isLoading = signal<boolean>(false);
   error = signal<string>('');
   copiedSlug = signal<string | null>(null);
+
+  private router = inject(Router);
 
   constructor(private apiClient: Client, private dialog: MatDialog, private snack: MatSnackBar) {}
 
@@ -162,6 +165,7 @@ export class FormsListComponent implements OnInit {
   }
 
   viewSubmissions(form: FormDto) {
-    console.log('View submissions for:', form);
+    if (!form.id) return;
+    this.router.navigate(['/admin/forms', form.id, 'submissions']);
   }
 }

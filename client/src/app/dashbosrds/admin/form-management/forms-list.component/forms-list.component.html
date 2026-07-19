@@ -63,6 +63,14 @@
             <div class="action-buttons">
               <button
                 mat-icon-button
+                (click)="viewSubmissions(form)"
+                matTooltip="View submissions"
+                class="btn-view">
+                <mat-icon>list_alt</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
                 (click)="copyShareLink(form)"
                 [matTooltip]="canShare(form) ? 'Copy public link' : 'Publish a version to share'"
                 [disabled]="!canShare(form)"
