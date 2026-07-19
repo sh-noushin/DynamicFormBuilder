@@ -17,7 +17,7 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
-    loadComponent: () => import('./dashbosrds/admin/admin-dashboard.component').then(m => m.AdminDashboardComponent),
+    loadComponent: () => import('./dashboards/admin/admin-dashboard.component').then(m => m.AdminDashboardComponent),
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: [UserRole.Admin] },
     children: [
@@ -28,15 +28,15 @@ export const routes: Routes = [
       },
       {
         path: 'forms',
-        loadComponent: () => import('./dashbosrds/admin/form-management/forms-list.component/forms-list.component').then(m => m.FormsListComponent)
+        loadComponent: () => import('./dashboards/admin/form-management/forms-list.component/forms-list.component').then(m => m.FormsListComponent)
       },
       {
         path: 'forms/:id/submissions',
-        loadComponent: () => import('./dashbosrds/admin/form-management/admin-submissions.component/admin-submissions.component').then(m => m.AdminSubmissionsComponent)
+        loadComponent: () => import('./dashboards/admin/form-management/admin-submissions.component/admin-submissions.component').then(m => m.AdminSubmissionsComponent)
       },
       {
         path: 'users',
-        loadComponent: () => import('./dashbosrds/admin/user-management/users-list.component/users-list.component').then(m => m.UsersListComponent)
+        loadComponent: () => import('./dashboards/admin/user-management/users-list.component/users-list.component').then(m => m.UsersListComponent)
       }
     ]
   },
@@ -44,7 +44,7 @@ export const routes: Routes = [
     path: 'user',
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: [UserRole.User] },
-    loadComponent: () => import('./dashbosrds/user/user-dashboard.component/user-dashboard.component').then(m => m.UserDashboardComponent)
+    loadComponent: () => import('./dashboards/user/user-dashboard.component/user-dashboard.component').then(m => m.UserDashboardComponent)
   },
   {
     path: '',
