@@ -1,12 +1,12 @@
-
 import { Component, Inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Client, CreateFormFieldDto, FormFieldDto } from '../../../../core/services/api-service';
 import { AddFieldDialogComponent } from '../add-field-dialog.component/add-field-dialog.component';
@@ -21,23 +21,25 @@ export type ManageFieldsDialogData = {
   selector: 'app-manage-fields-dialog',
   standalone: true,
   imports: [
+    CommonModule,
+    CdkDropList,
+    CdkDrag,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
     MatButtonModule,
-    MatTableModule,
     MatTooltipModule,
     MatSnackBarModule
-],
+  ],
   templateUrl: './manage-fields-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./manage-fields-dialog.component.scss']
 })
 export class ManageFieldsDialogComponent implements OnInit {
   fields = signal<FormFieldDto[]>([]);
-  displayedColumns = ['name','label','type','isRequired','order','actions'];
   isSaving = signal(false);
+  reordering = signal(false);
 
   constructor(
     private api: Client,
@@ -53,9 +55,33 @@ export class ManageFieldsDialogComponent implements OnInit {
 
   loadFields() {
     this.api.fieldsAll(this.data.formId, this.data.versionNumber).subscribe({
-      next: f => this.fields.set(f),
-      error: err => {
-        this.snack.open('Failed to load fields', 'Close', { duration: 2500 });
+      next: fields => {
+        const sorted = [...fields].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        this.fields.set(sorted);
+      },
+      error: () => this.snack.open('Failed to load fields', 'Close', { duration: 2500 })
+    });
+  }
+
+  onDrop(event: CdkDragDrop<FormFieldDto[]>) {
+    if (event.previousIndex === event.currentIndex) return;
+    const list = [...this.fields()];
+    moveItemInArray(list, event.previousIndex, event.currentIndex);
+    this.fields.set(list);
+    this.persistOrder(list);
+  }
+
+  private persistOrder(list: FormFieldDto[]) {
+    const ids = list.map(f => f.id!).filter(Boolean);
+    this.reordering.set(true);
+    this.api.reorder(this.data.formId, this.data.versionNumber, ids).subscribe({
+      next: () => {
+        this.reordering.set(false);
+      },
+      error: () => {
+        this.reordering.set(false);
+        this.snack.open('Failed to save new order', 'Close', { duration: 3000 });
+        this.loadFields();
       }
     });
   }
@@ -69,14 +95,12 @@ export class ManageFieldsDialogComponent implements OnInit {
     });
     ref.afterClosed().subscribe((result?: any) => {
       if (!result) return;
-      const nextOrder = this.fields().length
-        ? Math.max(...this.fields().map(f => f.order ?? 0)) + 1
-        : 0;
+      const nextOrder = this.fields().length + 1;
       const dto = new CreateFormFieldDto({
         name: result.name,
         label: result.label,
         type: result.type,
-        order: result.order ?? nextOrder,
+        order: nextOrder,
         isRequired: !!result.isRequired,
         isVisible: result.isVisible !== false,
         isReadOnly: !!result.isReadOnly,
@@ -88,13 +112,12 @@ export class ManageFieldsDialogComponent implements OnInit {
       });
       this.isSaving.set(true);
       this.api.fieldsPOST(this.data.formId, this.data.versionNumber, dto).subscribe({
-        next: _ => {
+        next: () => {
           this.snack.open('Field added', 'Close', { duration: 2000 });
           this.isSaving.set(false);
           this.loadFields();
         },
-        error: err => {
-          console.error('Failed to add field', err);
+        error: () => {
           this.snack.open('Failed to add field', 'Close', { duration: 3000 });
           this.isSaving.set(false);
         }
@@ -102,28 +125,22 @@ export class ManageFieldsDialogComponent implements OnInit {
     });
   }
 
- 
   deleteField(field: FormFieldDto) {
     const dialogRef = this.dialog.open(DeleteDialogComponent, {
-      data: {
-        itemType: 'field',
-        itemName: field.label
-      } as DeleteDialogData,
+      data: { itemType: 'field', itemName: field.label } as DeleteDialogData,
       width: '400px',
       panelClass: 'elevated-dialog-panel',
       disableClose: true
     });
 
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-      if (!confirmed) return;
-      this.api.fieldsDELETE(this.data.formId, this.data.versionNumber, field.id!).subscribe({
-        next: _ => {
+      if (!confirmed || !field.id) return;
+      this.api.fieldsDELETE(this.data.formId, this.data.versionNumber, field.id).subscribe({
+        next: () => {
           this.snack.open('Field deleted', 'Close', { duration: 2000 });
           this.loadFields();
         },
-        error: err => {
-          this.snack.open('Failed to delete field', 'Close', { duration: 3000 });
-        }
+        error: () => this.snack.open('Failed to delete field', 'Close', { duration: 3000 })
       });
     });
   }
