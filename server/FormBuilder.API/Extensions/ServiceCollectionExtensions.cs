@@ -50,6 +50,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFormVersionService, FormVersionService>();
         services.AddScoped<IFormFieldService, FormFieldService>();
         services.AddScoped<IFormSubmissionService, FormSubmissionService>();
+        services.AddScoped<IPublicFormService, PublicFormService>();
         services.AddScoped<IFieldRule, RequiredRule>();
         services.AddScoped<IFieldRule, PatternRule>();
         services.AddScoped<IFieldRule, LengthRule>();

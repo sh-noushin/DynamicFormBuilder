@@ -33,6 +33,14 @@ public class FormRepository : IFormRepository
             .FirstOrDefaultAsync(f => f.Id == id);
     }
 
+    public async Task<Form?> GetBySlugAsync(string slug)
+    {
+        return await _context.Forms
+            .Include(f => f.Versions.OrderBy(v => v.VersionNumber))
+                .ThenInclude(v => v.Fields.OrderBy(field => field.Order))
+            .FirstOrDefaultAsync(f => f.Slug == slug);
+    }
+
     public async Task<Form> CreateAsync(Form form)
     {
         _context.Forms.Add(form);
