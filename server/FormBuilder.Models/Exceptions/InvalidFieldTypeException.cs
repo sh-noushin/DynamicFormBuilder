@@ -1,6 +1,6 @@
 ﻿namespace FormBuilder.Models.Exceptions;
 
-public class InvalidFieldTypeException : Exception
+public class InvalidFieldTypeException : InvalidValueException
 {
     public InvalidFieldTypeException() : base("Invalid field type specified.")
     {

@@ -1,6 +1,6 @@
 ﻿namespace FormBuilder.Models.Exceptions;
 
-public class UserCreationFailedException : Exception
+public class UserCreationFailedException : IdentityOperationFailedException
 {
     public UserCreationFailedException() : base("Failed to create user.")
     {
