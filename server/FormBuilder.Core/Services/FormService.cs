@@ -1,4 +1,5 @@
 using AutoMapper;
+using FormBuilder.Core.Common;
 using FormBuilder.Core.DTOs;
 using FormBuilder.Core.Interfaces;
 using FormBuilder.Models.Exceptions;
@@ -43,6 +44,7 @@ public class FormService : IFormService
         var entity = _mapper.Map<FormBuilder.Models.Entities.Form>(formDto);
         entity.CreatedAt = DateTime.UtcNow;
         entity.UpdatedAt = DateTime.UtcNow;
+        entity.Slug = SlugGenerator.Generate();
         foreach (var version in entity.Versions)
         {
             version.CreatedAt = DateTime.UtcNow;

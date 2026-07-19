@@ -110,6 +110,7 @@ public static class DataSeeder
         {
             Name = "Contact Form",
             Description = "A comprehensive contact form for customer inquiries",
+            Slug = FormBuilder.Core.Common.SlugGenerator.Generate(),
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             IsActive = true,
@@ -218,6 +219,7 @@ public static class DataSeeder
         {
             Name = "Customer Satisfaction Survey",
             Description = "Help us improve our services with your feedback",
+            Slug = FormBuilder.Core.Common.SlugGenerator.Generate(),
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             IsActive = true,
@@ -299,6 +301,7 @@ public static class DataSeeder
         {
             Name = "Event Registration",
             Description = "Register for our upcoming events",
+            Slug = FormBuilder.Core.Common.SlugGenerator.Generate(),
             CreatedAt = DateTime.UtcNow.AddDays(-30),
             UpdatedAt = DateTime.UtcNow,
             IsActive = true,
