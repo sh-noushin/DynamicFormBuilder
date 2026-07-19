@@ -74,8 +74,16 @@ export class AdminPreviewComponent {
       return;
     }
 
+    // If the admin passed brandColor via query string (from the Edit form
+    // dialog's Preview button), use it instead of the DB value so the admin
+    // sees the color they are currently choosing without having to save first.
+    const overrideColor = this.route.snapshot.queryParamMap.get('brandColor');
+
     this.api.formsGET(id).subscribe({
       next: form => {
+        if (overrideColor) {
+          (form as any).brandColor = overrideColor;
+        }
         this.form.set(form);
         const match = (form.versions ?? []).find(v => v.versionNumber === vn) ?? null;
         this.version.set(match);

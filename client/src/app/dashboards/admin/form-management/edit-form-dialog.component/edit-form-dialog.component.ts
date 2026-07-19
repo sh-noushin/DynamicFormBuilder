@@ -319,7 +319,15 @@ export class EditFormDialogComponent implements OnInit {
 	previewVersion(v: FormVersionDto) {
 		if (!this.data.form.id || v.versionNumber == null) return;
 		// Open in a new tab so the admin can keep editing while the preview stays live.
-		const url = `/admin/forms/${this.data.form.id}/preview/${v.versionNumber}`;
+		// Pass the current (possibly unsaved) brand color through the query string so
+		// the preview reflects what the admin is currently choosing, not the last
+		// value persisted to the DB. If the admin hits Cancel back in the dialog,
+		// nothing was saved.
+		const params = new URLSearchParams();
+		const color = this.brandColor().trim();
+		if (color) params.set('brandColor', color);
+		const qs = params.toString() ? `?${params.toString()}` : '';
+		const url = `/admin/forms/${this.data.form.id}/preview/${v.versionNumber}${qs}`;
 		window.open(url, '_blank');
 	}
 
