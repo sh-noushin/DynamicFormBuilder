@@ -34,6 +34,8 @@ export class CreateFormDialogComponent {
   brandColor = signal('');
   accessPassword = signal('');
   showPassword = signal<boolean>(false);
+  thankYouMessage = signal('');
+  redirectUrl = signal('');
   touched = {
     name: signal(false),
     description: signal(false)
@@ -55,7 +57,28 @@ export class CreateFormDialogComponent {
   };
 
   get invalid(): boolean {
-    return !!this.nameError();
+    return !!this.nameError() || !!this.redirectUrlError();
+  }
+
+  redirectUrlError(): string | null {
+    const v = this.redirectUrl().trim();
+    if (!v) return null;
+    try {
+      const u = new URL(v);
+      if (u.protocol !== 'http:' && u.protocol !== 'https:') return 'URL must start with http:// or https://';
+      return null;
+    } catch {
+      return 'Enter a full URL (including https://)';
+    }
+  }
+
+  setThankYouMessageFromEvent(ev: Event) {
+    const val = (ev.target as HTMLTextAreaElement)?.value ?? '';
+    this.thankYouMessage.set(val);
+  }
+  setRedirectUrlFromEvent(ev: Event) {
+    const val = (ev.target as HTMLInputElement)?.value ?? '';
+    this.redirectUrl.set(val);
   }
 
   submit() {
@@ -66,7 +89,9 @@ export class CreateFormDialogComponent {
       name: this.name(),
       description: this.description(),
       brandColor: this.brandColor().trim() || undefined,
-      accessPassword: this.accessPassword().trim() || undefined
+      accessPassword: this.accessPassword().trim() || undefined,
+      thankYouMessage: this.thankYouMessage().trim() || undefined,
+      redirectUrl: this.redirectUrl().trim() || undefined
     };
     this.dialogRef.close(result);
   }

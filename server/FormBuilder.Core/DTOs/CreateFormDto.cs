@@ -16,5 +16,11 @@ public class CreateFormDto
     [StringLength(200)]
     public string? AccessPassword { get; set; }
 
+    [StringLength(2000)]
+    public string? ThankYouMessage { get; set; }
+
+    [StringLength(500)]
+    public string? RedirectUrl { get; set; }
+
     public List<CreateFormFieldDto> Fields { get; set; } = new List<CreateFormFieldDto>();
 }

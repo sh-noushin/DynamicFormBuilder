@@ -59,6 +59,8 @@ public class FormRepository : IFormRepository
         existingForm.Description = form.Description;
         existingForm.BrandColor = form.BrandColor;
         existingForm.AccessPassword = form.AccessPassword;
+        existingForm.ThankYouMessage = form.ThankYouMessage;
+        existingForm.RedirectUrl = form.RedirectUrl;
         existingForm.IsActive = form.IsActive;
 
         await _context.SaveChangesAsync();

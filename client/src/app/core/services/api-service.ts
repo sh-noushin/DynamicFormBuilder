@@ -2387,6 +2387,8 @@ export class CreateFormDto implements ICreateFormDto {
     description?: string;
     brandColor?: string | undefined;
     accessPassword?: string | undefined;
+    thankYouMessage?: string | undefined;
+    redirectUrl?: string | undefined;
     fields?: CreateFormFieldDto[];
 
     [key: string]: any;
@@ -2410,6 +2412,8 @@ export class CreateFormDto implements ICreateFormDto {
             this.description = _data["description"];
             this.brandColor = _data["brandColor"];
             this.accessPassword = _data["accessPassword"];
+            this.thankYouMessage = _data["thankYouMessage"];
+            this.redirectUrl = _data["redirectUrl"];
             if (Array.isArray(_data["fields"])) {
                 this.fields = [] as any;
                 for (let item of _data["fields"])
@@ -2435,6 +2439,8 @@ export class CreateFormDto implements ICreateFormDto {
         data["description"] = this.description;
         data["brandColor"] = this.brandColor;
         data["accessPassword"] = this.accessPassword;
+        data["thankYouMessage"] = this.thankYouMessage;
+        data["redirectUrl"] = this.redirectUrl;
         if (Array.isArray(this.fields)) {
             data["fields"] = [];
             for (let item of this.fields)
@@ -2691,6 +2697,8 @@ export class FormDto implements IFormDto {
     slug?: string;
     brandColor?: string | undefined;
     accessPassword?: string | undefined;
+    thankYouMessage?: string | undefined;
+    redirectUrl?: string | undefined;
     createdAt?: Date;
     updatedAt?: Date;
     isActive?: boolean;
@@ -2720,6 +2728,8 @@ export class FormDto implements IFormDto {
             this.slug = _data["slug"];
             this.brandColor = _data["brandColor"];
             this.accessPassword = _data["accessPassword"];
+            this.thankYouMessage = _data["thankYouMessage"];
+            this.redirectUrl = _data["redirectUrl"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : undefined as any;
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : undefined as any;
             this.isActive = _data["isActive"];
@@ -2751,6 +2761,8 @@ export class FormDto implements IFormDto {
         data["slug"] = this.slug;
         data["brandColor"] = this.brandColor;
         data["accessPassword"] = this.accessPassword;
+        data["thankYouMessage"] = this.thankYouMessage;
+        data["redirectUrl"] = this.redirectUrl;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : undefined as any;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : undefined as any;
         data["isActive"] = this.isActive;
@@ -3295,6 +3307,8 @@ export class UpdateFormDto implements IUpdateFormDto {
     description?: string | undefined;
     brandColor?: string | undefined;
     accessPassword?: string | undefined;
+    thankYouMessage?: string | undefined;
+    redirectUrl?: string | undefined;
     isActive?: boolean;
 
     [key: string]: any;
@@ -3318,6 +3332,8 @@ export class UpdateFormDto implements IUpdateFormDto {
             this.description = _data["description"];
             this.brandColor = _data["brandColor"];
             this.accessPassword = _data["accessPassword"];
+            this.thankYouMessage = _data["thankYouMessage"];
+            this.redirectUrl = _data["redirectUrl"];
             this.isActive = _data["isActive"];
         }
     }
@@ -3339,6 +3355,8 @@ export class UpdateFormDto implements IUpdateFormDto {
         data["description"] = this.description;
         data["brandColor"] = this.brandColor;
         data["accessPassword"] = this.accessPassword;
+        data["thankYouMessage"] = this.thankYouMessage;
+        data["redirectUrl"] = this.redirectUrl;
         data["isActive"] = this.isActive;
         return data;
     }

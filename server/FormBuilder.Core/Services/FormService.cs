@@ -41,6 +41,7 @@ public class FormService : IFormService
         if (formDto == null)
             throw new ArgumentNullException(nameof(formDto), "Form cannot be null.");
 
+        ValidateRedirectUrl(formDto.RedirectUrl);
         var entity = _mapper.Map<FormBuilder.Models.Entities.Form>(formDto);
         entity.CreatedAt = DateTime.UtcNow;
         entity.UpdatedAt = DateTime.UtcNow;
@@ -61,6 +62,7 @@ public class FormService : IFormService
         if (formDto == null)
             throw new ArgumentNullException(nameof(formDto), "Form cannot be null.");
 
+        ValidateRedirectUrl(formDto.RedirectUrl);
         var entity = _mapper.Map<FormBuilder.Models.Entities.Form>(formDto);
         entity.UpdatedAt = DateTime.UtcNow;
         var updatedForm = await _formRepository.UpdateAsync(id, entity);
@@ -143,6 +145,19 @@ public class FormService : IFormService
 
         var created = await _formRepository.CreateAsync(clone);
         return _mapper.Map<FormDto>(created);
+    }
+
+    // Only accept absolute http/https redirects. Blocks javascript:, data:,
+    // file:, and relative URLs that would otherwise let the admin construct
+    // an open-redirect or client-side XSS trap on the public form page.
+    private static void ValidateRedirectUrl(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return;
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) ||
+            (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+        {
+            throw new InvalidRedirectUrlException(url);
+        }
     }
 
     private async Task<bool> SetFormActiveStateAsync(Guid id, bool isActive)

@@ -16,5 +16,11 @@ public class UpdateFormDto
     [StringLength(200)]
     public string? AccessPassword { get; set; }
 
+    [StringLength(2000)]
+    public string? ThankYouMessage { get; set; }
+
+    [StringLength(500)]
+    public string? RedirectUrl { get; set; }
+
     public bool IsActive { get; set; } = true;
 }

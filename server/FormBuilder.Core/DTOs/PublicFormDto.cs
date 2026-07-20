@@ -11,6 +11,8 @@ public class PublicFormDto
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string? BrandColor { get; set; }
+    public string? ThankYouMessage { get; set; }
+    public string? RedirectUrl { get; set; }
     // True when the form has an AccessPassword and the caller has not yet
     // supplied it. When true, Fields is empty and FormVersionId is Guid.Empty.
     public bool RequiresPassword { get; set; }

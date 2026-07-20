@@ -12,6 +12,12 @@ public class Form
     // Optional password required to view + submit the public /f/:slug form.
     // Null means anyone with the link can submit.
     public string? AccessPassword { get; set; }
+    // Custom message shown on the public form after a successful submission.
+    // If RedirectUrl is set, this is ignored.
+    public string? ThankYouMessage { get; set; }
+    // External URL to redirect to after a successful submission. Must be
+    // absolute and use http/https - validated in the service layer.
+    public string? RedirectUrl { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public bool IsActive { get; set; } = true;

@@ -51,6 +51,8 @@ export class EditFormDialogComponent implements OnInit {
 	brandColor = signal<string>('');
 	accessPassword = signal<string>('');
 	showPassword = signal<boolean>(false);
+	thankYouMessage = signal<string>('');
+	redirectUrl = signal<string>('');
 
 	nameTouched = signal<boolean>(false);
 	isSaving = signal(false);
@@ -70,6 +72,28 @@ export class EditFormDialogComponent implements OnInit {
 			this.isActive.set(!!src.isActive);
 			this.brandColor.set((src as any).brandColor ?? '');
 			this.accessPassword.set((src as any).accessPassword ?? '');
+			this.thankYouMessage.set((src as any).thankYouMessage ?? '');
+			this.redirectUrl.set((src as any).redirectUrl ?? '');
+		}
+
+		setThankYouMessageFromEvent(ev: Event) {
+			const val = (ev.target as HTMLTextAreaElement)?.value ?? '';
+			this.thankYouMessage.set(val);
+		}
+		setRedirectUrlFromEvent(ev: Event) {
+			const val = (ev.target as HTMLInputElement)?.value ?? '';
+			this.redirectUrl.set(val);
+		}
+		redirectUrlError(): string | null {
+			const v = this.redirectUrl().trim();
+			if (!v) return null;
+			try {
+				const u = new URL(v);
+				if (u.protocol !== 'http:' && u.protocol !== 'https:') return 'URL must start with http:// or https://';
+				return null;
+			} catch {
+				return 'Enter a full URL (including https://)';
+			}
 		}
 
 		clearBrandColor() { this.brandColor.set(''); }
@@ -104,6 +128,8 @@ export class EditFormDialogComponent implements OnInit {
 			isActive: this.isActive(),
 			brandColor: this.brandColor().trim() || undefined,
 			accessPassword: this.accessPassword().trim() || undefined,
+			thankYouMessage: this.thankYouMessage().trim() || undefined,
+			redirectUrl: this.redirectUrl().trim() || undefined,
 		});
 		this.api.formsPUT(this.data.form.id, payload).subscribe({
 			next: updated => {
@@ -346,7 +372,7 @@ export class EditFormDialogComponent implements OnInit {
 	}
 
 	invalid(): boolean {
-		return this.nameError() != null;
+		return this.nameError() != null || this.redirectUrlError() != null;
 	}
 
 	setNameFromEvent(ev: Event) {

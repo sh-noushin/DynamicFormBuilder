@@ -35,6 +35,8 @@ interface PublicForm {
   name: string;
   description?: string;
   brandColor?: string;
+  thankYouMessage?: string;
+  redirectUrl?: string;
   requiresPassword?: boolean;
   formVersionId: string;
   versionNumber: number;
@@ -296,6 +298,12 @@ export class PublicFormComponent {
       .subscribe({
         next: () => {
           this.submitting.set(false);
+          const target = form.redirectUrl?.trim();
+          if (target && this.isSafeRedirect(target)) {
+            // External redirect - full-page navigation, not Angular router.
+            window.location.assign(target);
+            return;
+          }
           this.submitted.set(true);
         },
         error: (err) => {
@@ -318,6 +326,17 @@ export class PublicFormComponent {
 
   errorsForField(field: PublicField): string[] {
     return this.fieldErrors()[field.name] ?? [];
+  }
+
+  // Belt-and-braces client check even though the server also validates.
+  // Only allow absolute http/https targets - blocks javascript:, data:, etc.
+  private isSafeRedirect(url: string): boolean {
+    try {
+      const u = new URL(url);
+      return u.protocol === 'http:' || u.protocol === 'https:';
+    } catch {
+      return false;
+    }
   }
 
   // Evaluates a field's showIfCondition against the current form values.

@@ -24,8 +24,13 @@
     } @else if (submitted()) {
       <mat-card class="state-card">
         <mat-icon class="state-icon success">check_circle</mat-icon>
-        <h2>Thanks for your response!</h2>
-        <p>Your submission has been recorded.</p>
+        @if (form()?.thankYouMessage) {
+          <h2>Thanks for your response!</h2>
+          <p>{{ form()?.thankYouMessage }}</p>
+        } @else {
+          <h2>Thanks for your response!</h2>
+          <p>Your submission has been recorded.</p>
+        }
       </mat-card>
     } @else if (passwordRequired() && form(); as f) {
       <mat-card class="form-card password-gate-card">
