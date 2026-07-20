@@ -10,6 +10,13 @@
   }
   <button mat-icon-button
           type="button"
+          matTooltip="Print"
+          (click)="print()"
+          aria-label="Print response">
+    <mat-icon>print</mat-icon>
+  </button>
+  <button mat-icon-button
+          type="button"
           matTooltip="Previous submission"
           [disabled]="!hasPrev()"
           (click)="prev()"

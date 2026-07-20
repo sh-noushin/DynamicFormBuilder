@@ -233,4 +233,99 @@ export class SubmissionDetailDialogComponent {
     // without a full refetch.
     this.dialogRef.close({ updatedIds: Array.from(this.updatedIds) });
   }
+
+  // Renders a stripped-down HTML document in a new window and triggers the
+  // browser's print flow. We use a popup rather than @media print on the
+  // current document so we don't have to fight MatDialog / Material Angular
+  // theming, and so admin-only bits (notes, tags, nav arrows) can't leak
+  // into the printed page.
+  print(): void {
+    const s = this.submission();
+    if (!s) return;
+
+    const submittedAt = s.submittedAt
+      ? new Date(s.submittedAt as any).toLocaleString()
+      : '';
+    const name = String(s.submitterName ?? '');
+    const email = String(s.submitterEmail ?? '');
+    const rows = this.rows();
+
+    const answersHtml = rows.map(row => {
+      const value = row.raw
+        ? this.printValueHtml(row.type, row.raw)
+        : '<span class="muted">&mdash;</span>';
+      return `<div class="answer">
+        <div class="answer-label">${this.escapeHtml(row.label)}</div>
+        <div class="answer-value">${value}</div>
+      </div>`;
+    }).join('');
+
+    const style = `
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 720px; margin: 24px auto; padding: 0 16px; color: #0f172a; }
+      h1 { font-size: 20px; margin: 0 0 4px; }
+      .meta { color: #64748b; font-size: 13px; margin-bottom: 20px; }
+      .meta strong { color: #334155; font-weight: 600; }
+      .answer { display: grid; grid-template-columns: 180px 1fr; gap: 12px; padding: 10px 0; border-top: 1px solid #e5e7eb; page-break-inside: avoid; }
+      .answer:first-of-type { border-top: none; }
+      .answer-label { font-weight: 600; color: #334155; font-size: 13px; }
+      .answer-value { font-size: 14px; word-break: break-word; white-space: pre-wrap; }
+      .answer-value img { max-width: 320px; max-height: 120px; border: 1px solid #e5e7eb; border-radius: 4px; display: block; }
+      .muted { color: #94a3b8; }
+      .print-actions { margin: 16px 0; }
+      @media print { .print-actions { display: none; } body { margin: 0; } }
+    `;
+
+    const doc = `<!doctype html><html><head><meta charset="utf-8">
+      <title>Submission ${this.escapeHtml(submittedAt)}</title>
+      <style>${style}</style></head>
+      <body>
+        <div class="print-actions">
+          <button onclick="window.print()">Print</button>
+          <button onclick="window.close()">Close</button>
+        </div>
+        <h1>Submission detail</h1>
+        <div class="meta">
+          <strong>Submitted:</strong> ${this.escapeHtml(submittedAt)}
+          ${name ? `<br/><strong>Name:</strong> ${this.escapeHtml(name)}` : ''}
+          ${email ? `<br/><strong>Email:</strong> ${this.escapeHtml(email)}` : ''}
+        </div>
+        ${answersHtml}
+        <script>window.addEventListener('load', () => setTimeout(() => window.print(), 100));</script>
+      </body></html>`;
+
+    const win = window.open('', '_blank', 'width=900,height=1000');
+    if (!win) {
+      this.snack.open('Please allow popups to print this response', 'Close', { duration: 3000 });
+      return;
+    }
+    win.document.open();
+    win.document.write(doc);
+    win.document.close();
+  }
+
+  private printValueHtml(type: string, raw: string): string {
+    switch (type) {
+      case 'Signature':
+        // raw is a data: URL from the signature pad; safe to embed as-is.
+        return `<img src="${this.escapeAttr(raw)}" alt="Signature" />`;
+      case 'File':
+        return this.escapeHtml(this.fileOriginalName(raw));
+      case 'Rating': {
+        const n = Math.max(0, Math.min(5, parseInt(raw, 10) || 0));
+        return `${n} / 5`;
+      }
+      case 'Checkbox':
+        return raw === 'true' ? 'Yes' : 'No';
+      default:
+        return this.escapeHtml(raw);
+    }
+  }
+
+  private escapeHtml(s: string): string {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  private escapeAttr(s: string): string {
+    return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+  }
 }
