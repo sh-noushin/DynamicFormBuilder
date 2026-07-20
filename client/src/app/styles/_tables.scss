@@ -1,5 +1,7 @@
 @use 'variables' as *;
-@use 'sass:color';
+
+// Shared table styling — light mode. Every table across the app (forms
+// list, users list, submissions, versions) inherits from .table-base.
 
 .table-base {
   width: 100%;
@@ -7,29 +9,31 @@
   border-collapse: collapse;
   font-size: $font-size-base;
 
-  background-color: #0f172a;
-  color: #e2e8f0;
+  background-color: #ffffff;
+  color: #0f172a;
 
   &.mat-mdc-table {
-    background-color: #0f172a;
-    color: #e2e8f0;
+    background-color: #ffffff;
+    color: #0f172a;
   }
 
   thead,
   &.mat-mdc-table .mat-mdc-header-row {
-    background-color: #020617;
+    background-color: #f8fafc;
   }
 
   th,
   &.mat-mdc-table .mat-mdc-header-cell {
     font-weight: 600;
-    font-size: $font-size-base;
-    padding: $space-4;
+    font-size: 0.8125rem;
+    padding: $space-3 $space-4;
     text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
 
-    color: #cbd5e1;
-    background-color: #020617;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+    color: #64748b;
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
   }
 
   td,
@@ -37,24 +41,14 @@
     padding: $space-4;
     vertical-align: middle;
 
-    color: #e2e8f0;
+    color: #0f172a;
     background-color: transparent;
-    border-bottom: 1px solid rgba(30, 41, 59, 0.9);
-  }
-
-  tbody tr:nth-child(odd),
-  &.mat-mdc-table .mat-mdc-row:nth-child(odd) {
-    background-color: #0f172a;
-  }
-
-  tbody tr:nth-child(even),
-  &.mat-mdc-table .mat-mdc-row:nth-child(even) {
-    background-color: #020617;
+    border-bottom: 1px solid #f1f5f9;
   }
 
   tbody tr:hover,
   &.mat-mdc-table .mat-mdc-row:hover {
-    background-color: rgba(59, 130, 246, 0.18);
+    background-color: #f8fafc;
   }
 }
 
@@ -79,12 +73,14 @@
 
 .header-cell {
   font-weight: 600;
-  color: #e2e8f0;
-  font-size: $font-size-base;
+  color: #64748b;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .cell {
-  color: #e2e8f0;
+  color: #0f172a;
 }
 
 .actions-cell {

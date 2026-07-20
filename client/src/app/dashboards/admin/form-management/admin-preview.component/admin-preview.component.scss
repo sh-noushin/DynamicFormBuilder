@@ -1,7 +1,9 @@
 .preview-page {
   min-height: 100vh;
   padding: 32px 16px;
-  background: var(--brand-bg-dark, linear-gradient(135deg, #0f172a 0%, #1e293b 100%));
+  // Match the actual public form (which renders on a light gradient
+  // canvas) so admin preview is a truthful preview instead of a demo.
+  background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
   display: flex;
   justify-content: center;
 }
@@ -16,26 +18,26 @@
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  background: rgba(250, 204, 21, 0.16);
-  border: 1px solid rgba(250, 204, 21, 0.35);
-  color: #fef3c7;
-  border-radius: 10px;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  color: #92400e;
+  border-radius: 8px;
   margin-bottom: 16px;
   font-weight: 500;
 
   a {
     margin-left: auto;
-    color: #fef3c7 !important;
+    color: #92400e !important;
   }
 
   mat-icon {
-    color: #facc15;
+    color: #d97706;
   }
 }
 
 .state-block,
 .state-card {
-  color: #cbd5e1;
+  color: #64748b;
   text-align: center;
   padding: 48px 16px;
 }
@@ -48,22 +50,24 @@
 }
 
 .form-card {
-  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
   padding: 32px 28px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
 
   mat-card-title {
-    font-size: 26px;
+    font-size: 22px;
     font-weight: 600;
-    color: var(--brand-text-strong, #e2e8f0);
+    color: #0f172a;
   }
   mat-card-subtitle {
-    color: var(--brand-text-muted, #94a3b8);
+    color: #64748b;
     margin-top: 4px;
   }
   mat-card-header {
     padding-bottom: 16px;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.24);
+    border-bottom: 1px solid #e5e7eb;
     margin-bottom: 20px;
     display: block;
   }
@@ -71,8 +75,8 @@
   .version-tag {
     display: inline-block;
     padding: 2px 8px;
-    background: rgba(99, 102, 241, 0.16);
-    color: #a5b4fc;
+    background: rgba(99, 102, 241, 0.10);
+    color: #4f46e5;
     border-radius: 999px;
     font-size: 12px;
     font-weight: 600;
@@ -95,15 +99,15 @@
   padding: 8px 0;
 }
 .radio-block mat-radio-group { display: flex; flex-direction: column; gap: 4px; }
-.field-label { font-weight: 500; color: var(--brand-text, #cbd5e1); }
-.help-text { font-size: 12px; color: var(--brand-text-muted, #94a3b8); }
+.field-label { font-weight: 500; color: #334155; }
+.help-text { font-size: 12px; color: #64748b; }
 
 .file-input-row {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-.file-status { font-size: 12px; color: var(--brand-text-muted, #94a3b8); }
+.file-status { font-size: 12px; color: #64748b; }
 
 .submit-row {
   margin-top: 24px;
@@ -120,7 +124,7 @@
 .page-progress {
   position: relative;
   height: 6px;
-  background: rgba(148, 163, 184, 0.2);
+  background: #e5e7eb;
   border-radius: 999px;
   overflow: hidden;
 }
@@ -138,7 +142,7 @@
   align-items: baseline;
   gap: 12px;
   margin-top: 8px;
-  color: #94a3b8;
+  color: #64748b;
 
   .page-count {
     font-size: 12px;
@@ -148,6 +152,6 @@
   }
   .page-heading {
     font-weight: 600;
-    color: #e2e8f0;
+    color: #0f172a;
   }
 }
