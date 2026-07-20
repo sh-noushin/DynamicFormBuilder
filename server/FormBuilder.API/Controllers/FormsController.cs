@@ -8,6 +8,9 @@ namespace FormBuilder.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+// Class-level Bearer default (via [Authorize]). Individual GET endpoints
+// opt in to the ApiKey scheme by overriding AuthenticationSchemes; write
+// endpoints stay Bearer-only by construction.
 [Authorize]
 public class FormsController : ControllerBase
 {
@@ -21,7 +24,7 @@ public class FormsController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = Roles.AdminOrUser)]
+    [Authorize(AuthenticationSchemes = "Bearer,ApiKey", Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<FormDto>), 200)]
     public async Task<IActionResult> GetAllForms()
@@ -31,7 +34,7 @@ public class FormsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = Roles.AdminOrUser)]
+    [Authorize(AuthenticationSchemes = "Bearer,ApiKey", Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(FormDto), 200)]
     [ProducesResponseType(typeof(void), 404)]
@@ -42,7 +45,7 @@ public class FormsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(AuthenticationSchemes = "Bearer", Roles = Roles.Admin)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(FormDto), 201)]
     public async Task<IActionResult> CreateForm(CreateFormDto createFormDto)
@@ -52,7 +55,7 @@ public class FormsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(AuthenticationSchemes = "Bearer", Roles = Roles.Admin)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(FormDto), 200)]
     [ProducesResponseType(typeof(void), 404)]
@@ -63,7 +66,7 @@ public class FormsController : ControllerBase
     }
 
     [HttpGet("{id}/analytics")]
-    [Authorize(Roles = Roles.AdminOrUser)]
+    [Authorize(AuthenticationSchemes = "Bearer,ApiKey", Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(FormAnalyticsDto), 200)]
     [ProducesResponseType(typeof(void), 404)]
@@ -74,7 +77,7 @@ public class FormsController : ControllerBase
     }
 
     [HttpPost("{id}/duplicate")]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(AuthenticationSchemes = "Bearer", Roles = Roles.Admin)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(FormDto), 201)]
     [ProducesResponseType(typeof(void), 404)]

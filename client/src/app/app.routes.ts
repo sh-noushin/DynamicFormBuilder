@@ -49,6 +49,10 @@ export const routes: Routes = [
       {
         path: 'users',
         loadComponent: () => import('./dashboards/admin/user-management/users-list.component/users-list.component').then(m => m.UsersListComponent)
+      },
+      {
+        path: 'api-keys',
+        loadComponent: () => import('./dashboards/admin/api-keys/api-keys.component').then(m => m.ApiKeysComponent)
       }
     ]
   },

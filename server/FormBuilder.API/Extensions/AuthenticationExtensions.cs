@@ -1,3 +1,4 @@
+using FormBuilder.API.Auth;
 using FormBuilder.Core.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -40,7 +41,11 @@ public static class AuthenticationExtensions
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
                 ClockSkew = TimeSpan.Zero
             };
-        });
+        })
+        // Second auth scheme registered alongside JWT. Individual endpoints
+        // opt in via [Authorize(AuthenticationSchemes = "Bearer,ApiKey")].
+        .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(
+            ApiKeyAuthenticationHandler.SchemeName, _ => { });
         return services;
     }
 }

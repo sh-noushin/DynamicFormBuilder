@@ -13,6 +13,10 @@ namespace FormBuilder.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+// Class-level Bearer default. Individual GET endpoints opt in to the
+// ApiKey scheme via a per-method [Authorize(AuthenticationSchemes = ...)]
+// so writes stay Bearer-only by construction (safer than trying to
+// exclude ApiKey per write endpoint).
 [Authorize]
 public class FormSubmissionsController : ControllerBase
 {
@@ -73,7 +77,7 @@ public class FormSubmissionsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = Roles.AdminOrUser)]
+    [Authorize(AuthenticationSchemes = "Bearer,ApiKey", Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(FormSubmissionDto), 200)]
     [ProducesResponseType(typeof(void), 404)]
@@ -126,7 +130,7 @@ public class FormSubmissionsController : ControllerBase
     }
 
     [HttpGet("form-version/{formVersionId}")]
-    [Authorize(Roles = Roles.AdminOrUser)]
+    [Authorize(AuthenticationSchemes = "Bearer,ApiKey", Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<FormSubmissionDto>), 200)]
     public async Task<ActionResult<IEnumerable<FormSubmissionDto>>> GetSubmissionsByFormVersion(Guid formVersionId)
@@ -136,7 +140,7 @@ public class FormSubmissionsController : ControllerBase
     }
 
     [HttpGet("form/{formId}")]
-    [Authorize(Roles = Roles.AdminOrUser)]
+    [Authorize(AuthenticationSchemes = "Bearer,ApiKey", Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<FormSubmissionDto>), 200)]
     public async Task<ActionResult<IEnumerable<FormSubmissionDto>>> GetSubmissionsByForm(Guid formId)
@@ -146,7 +150,7 @@ public class FormSubmissionsController : ControllerBase
     }
 
     [HttpGet("form/{formId}/export.csv")]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(AuthenticationSchemes = "Bearer,ApiKey", Roles = Roles.Admin)]
     [Produces("text/csv")]
     [ProducesResponseType(200)]
     [ProducesResponseType(typeof(void), 404)]
@@ -182,7 +186,7 @@ public class FormSubmissionsController : ControllerBase
     }
 
     [HttpGet("form-version/{formVersionId}/count")]
-    [Authorize(Roles = Roles.AdminOrUser)]
+    [Authorize(AuthenticationSchemes = "Bearer,ApiKey", Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(int), 200)]
     public async Task<ActionResult<int>> GetSubmissionCountByFormVersion(Guid formVersionId)

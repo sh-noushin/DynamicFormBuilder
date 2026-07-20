@@ -16,6 +16,7 @@ public class FormBuilderDbContext : IdentityDbContext<User>
     public DbSet<FormSubmission> FormSubmissions { get; set; }
     public DbSet<FormSubmissionValue> FormSubmissionValues { get; set; }
     public DbSet<FormSubmissionDraft> FormSubmissionDrafts { get; set; }
+    public DbSet<ApiKey> ApiKeys { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -109,6 +110,18 @@ public class FormBuilderDbContext : IdentityDbContext<User>
                   .WithMany()
                   .HasForeignKey(e => e.FormId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ApiKey>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            // KeyHash is a fixed-length SHA-256 hex string; the unique index
+            // is what makes lookup on incoming requests cheap.
+            entity.HasIndex(e => e.KeyHash).IsUnique();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.KeyPrefix).IsRequired().HasMaxLength(16);
+            entity.Property(e => e.KeyHash).IsRequired().HasMaxLength(128);
+            entity.Property(e => e.CreatedAt).IsRequired();
         });
     }
 }
