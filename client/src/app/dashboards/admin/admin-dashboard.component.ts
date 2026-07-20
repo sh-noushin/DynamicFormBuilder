@@ -28,8 +28,10 @@ import { HeaderComponent } from '../../shared/layout/header.component/header.com
   styleUrls: ['./admin-dashboard.component.scss']
 })
 export class AdminDashboardComponent {
-  selectedMenuItem = signal<string>('forms');
+  selectedMenuItem = signal<string>('overview');
   selectedIndex = signal<number>(0);
+
+  private tabs = ['overview', 'forms', 'users'] as const;
 
   constructor(private router: Router) {
     this.syncTabWithRoute(this.router.url);
@@ -46,7 +48,7 @@ export class AdminDashboardComponent {
 
   onTabChange(index: number) {
     this.selectedIndex.set(index);
-    const target = index === 0 ? 'forms' : 'users';
+    const target = this.tabs[index] ?? 'overview';
     if (this.selectedMenuItem() !== target) {
       this.selectMenuItem(target);
     }
@@ -55,9 +57,12 @@ export class AdminDashboardComponent {
   private syncTabWithRoute(url: string) {
     if (url.includes('/admin/users')) {
       this.selectedMenuItem.set('users');
+      this.selectedIndex.set(2);
+    } else if (url.includes('/admin/forms')) {
+      this.selectedMenuItem.set('forms');
       this.selectedIndex.set(1);
     } else {
-      this.selectedMenuItem.set('forms');
+      this.selectedMenuItem.set('overview');
       this.selectedIndex.set(0);
     }
   }

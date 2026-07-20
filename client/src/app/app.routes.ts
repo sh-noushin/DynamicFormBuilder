@@ -23,8 +23,12 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'forms',
+        redirectTo: 'overview',
         pathMatch: 'full'
+      },
+      {
+        path: 'overview',
+        loadComponent: () => import('./dashboards/admin/admin-overview.component/admin-overview.component').then(m => m.AdminOverviewComponent)
       },
       {
         path: 'forms',

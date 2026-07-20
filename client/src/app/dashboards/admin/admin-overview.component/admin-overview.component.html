@@ -1,0 +1,107 @@
+<div class="overview-page">
+  @if (loading()) {
+    <div class="state-block">
+      <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
+      <p>Loading overview&hellip;</p>
+    </div>
+  } @else {
+    <div class="stats-grid">
+      <mat-card class="stat-card">
+        <div class="stat-icon-wrap"><mat-icon>description</mat-icon></div>
+        <div class="stat-body">
+          <div class="stat-value">{{ totalForms() }}</div>
+          <div class="stat-label">Total forms</div>
+        </div>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <div class="stat-icon-wrap accent"><mat-icon>bolt</mat-icon></div>
+        <div class="stat-body">
+          <div class="stat-value">{{ activeForms() }}</div>
+          <div class="stat-label">Active forms</div>
+        </div>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <div class="stat-icon-wrap success"><mat-icon>inbox</mat-icon></div>
+        <div class="stat-body">
+          <div class="stat-value">{{ totalSubmissions() }}</div>
+          <div class="stat-label">Total submissions</div>
+        </div>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <div class="stat-icon-wrap warn"><mat-icon>trending_up</mat-icon></div>
+        <div class="stat-body">
+          <div class="stat-value">{{ submissionsLast7Days() }}</div>
+          <div class="stat-label">Last 7 days</div>
+        </div>
+      </mat-card>
+    </div>
+
+    <div class="two-col">
+      <mat-card class="panel">
+        <mat-card-header>
+          <mat-card-title>Recent submissions</mat-card-title>
+          <mat-card-subtitle>Most recent 5 across all forms</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          @if (recentSubmissions().length === 0) {
+            <div class="panel-empty">
+              <mat-icon>inbox</mat-icon>
+              <p>No submissions yet. Publish a form and share the public link to start collecting responses.</p>
+            </div>
+          } @else {
+            <ul class="recent-list">
+              @for (item of recentSubmissions(); track $index) {
+                <li class="recent-item" (click)="viewSubmissions(item.formId)">
+                  <div class="recent-primary">
+                    <span class="recent-form">{{ item.formName }}</span>
+                    <span class="recent-time">{{ item.submittedAt | date:'MMM d, h:mm a' }}</span>
+                  </div>
+                  <div class="recent-secondary">
+                    {{ item.submitterName || item.submitterEmail || 'Anonymous' }}
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="panel">
+        <mat-card-header>
+          <mat-card-title>Top forms</mat-card-title>
+          <mat-card-subtitle>Most-submitted forms</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          @if (topForms().length === 0) {
+            <div class="panel-empty">
+              <mat-icon>equalizer</mat-icon>
+              <p>Once your forms start collecting submissions, the leaders will appear here.</p>
+            </div>
+          } @else {
+            <ul class="top-list">
+              @for (t of topForms(); track t.form.id) {
+                <li class="top-item" (click)="viewSubmissions(t.form.id)">
+                  <div class="top-primary">
+                    <mat-icon class="top-icon">description</mat-icon>
+                    <span class="top-name">{{ t.form.name }}</span>
+                  </div>
+                  <span class="top-count">{{ t.count }}</span>
+                </li>
+              }
+            </ul>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="quick-actions">
+      <button mat-flat-button color="primary" [routerLink]="['/admin/forms']">
+        <mat-icon>list_alt</mat-icon>
+        <span>All forms</span>
+      </button>
+    </div>
+  }
+</div>
