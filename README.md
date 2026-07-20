@@ -203,13 +203,16 @@ swap-out — lives in [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## License
 
-TBD. Add a `LICENSE` file before shipping this publicly.
+[MIT](LICENSE) — do whatever you want with it, just keep the copyright
+notice.
 
 ## Contributing
 
-Contributions welcome. Please:
+Contributions welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup,
+CI expectations, and the PR checklist. All participants are expected to
+follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
-1. Open an issue first for anything larger than a one-line fix
-2. Run `dotnet test server/FormBuilder.slnx` locally — CI blocks
-   regressions
-3. Keep frontend changes buildable via `npx ng build` from `client/`
+## Reporting security issues
+
+Please do **not** open a public GitHub issue for a vulnerability. See
+[SECURITY.md](SECURITY.md) for the responsible-disclosure process.
