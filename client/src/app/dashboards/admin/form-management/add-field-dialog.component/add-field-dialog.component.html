@@ -48,12 +48,14 @@
       <input matInput [value]="defaultValue()" (input)="defaultValue.set($event.target.value)" />
     </mat-form-field>
 
-    @if (!showFileConstraints) {
+    @if (!hasTypedConstraints) {
       <mat-form-field appearance="outline" class="full-width span-2">
         <mat-label>Validation</mat-label>
         <input matInput [value]="validation()" (input)="validation.set($event.target.value)" />
       </mat-form-field>
-    } @else {
+    }
+
+    @if (showFileConstraints) {
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Max file size (MB)</mat-label>
         <input matInput type="number" min="1" max="1024" step="1"
@@ -70,6 +72,72 @@
                (input)="fileAllowedExts.set($any($event.target).value)"
                placeholder="pdf, png, jpg" />
         <mat-hint>Comma-separated, leave blank to allow any type.</mat-hint>
+      </mat-form-field>
+    }
+
+    @if (showTextConstraints) {
+      <mat-form-field appearance="outline" class="full-width span-2">
+        <mat-label>Pattern (regex)</mat-label>
+        <input matInput
+               [value]="patternRegex()"
+               (input)="patternRegex.set($any($event.target).value)"
+               placeholder="^[a-zA-Z ]+$" />
+        @if (patternError()) { <mat-error>{{ patternError() }}</mat-error> }
+        <mat-hint>JavaScript regex without slashes. Leave blank for no pattern check.</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width span-2">
+        <mat-label>Pattern error message</mat-label>
+        <input matInput
+               [value]="patternMessage()"
+               (input)="patternMessage.set($any($event.target).value)"
+               placeholder="e.g. Letters and spaces only" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Min length</mat-label>
+        <input matInput type="number" min="0" step="1"
+               [value]="minLength()"
+               (input)="minLength.set($any($event.target).value)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Max length</mat-label>
+        <input matInput type="number" min="0" step="1"
+               [value]="maxLength()"
+               (input)="maxLength.set($any($event.target).value)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width span-2">
+        <mat-label>Length error message</mat-label>
+        <input matInput
+               [value]="lengthMessage()"
+               (input)="lengthMessage.set($any($event.target).value)"
+               placeholder="e.g. Between 3 and 20 characters" />
+      </mat-form-field>
+    }
+
+    @if (showNumberConstraints) {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Minimum</mat-label>
+        <input matInput type="number"
+               [value]="minimum()"
+               (input)="minimum.set($any($event.target).value)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Maximum</mat-label>
+        <input matInput type="number"
+               [value]="maximum()"
+               (input)="maximum.set($any($event.target).value)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width span-2">
+        <mat-label>Range error message</mat-label>
+        <input matInput
+               [value]="rangeMessage()"
+               (input)="rangeMessage.set($any($event.target).value)"
+               placeholder="e.g. Enter a number between 1 and 100" />
       </mat-form-field>
     }
 

@@ -42,6 +42,18 @@ export class AddFieldDialogComponent {
   fileMaxSizeMb = signal<string>('');
   fileAllowedExts = signal<string>('');
 
+  // Typed validation inputs for text-like and Number fields. Written into the
+  // same Validation JSON alongside file constraints, so downstream backend
+  // rules pick them up without any wire-format changes.
+  patternRegex = signal<string>('');
+  patternMessage = signal<string>('');
+  minLength = signal<string>('');
+  maxLength = signal<string>('');
+  lengthMessage = signal<string>('');
+  minimum = signal<string>('');
+  maximum = signal<string>('');
+  rangeMessage = signal<string>('');
+
   // Show If builder state - selected trigger field name + expected value.
   showIfField = signal<string>('');
   showIfEquals = signal<string>('');
@@ -87,9 +99,10 @@ export class AddFieldDialogComponent {
     this.defaultValue.set(String(f.defaultValue ?? ''));
     this.validation.set(String(f.validation ?? ''));
 
-    // Pull file-specific constraints out of the Validation JSON when editing a
-    // File field so the typed inputs reflect what is currently stored.
-    if (String(f.type) === 'File' && f.validation) {
+    // Parse the Validation JSON once and route the recognised keys into their
+    // typed signals. File constraints live alongside pattern/length/range keys
+    // in the same blob; the type-specific UI only exposes the relevant subset.
+    if (f.validation) {
       try {
         const parsed = JSON.parse(String(f.validation));
         if (parsed && typeof parsed === 'object') {
@@ -99,6 +112,14 @@ export class AddFieldDialogComponent {
           if (Array.isArray(parsed.allowedFileExtensions)) {
             this.fileAllowedExts.set(parsed.allowedFileExtensions.join(', '));
           }
+          if (typeof parsed.pattern === 'string') this.patternRegex.set(parsed.pattern);
+          if (typeof parsed.patternMessage === 'string') this.patternMessage.set(parsed.patternMessage);
+          if (typeof parsed.minLength === 'number') this.minLength.set(String(parsed.minLength));
+          if (typeof parsed.maxLength === 'number') this.maxLength.set(String(parsed.maxLength));
+          if (typeof parsed.lengthMessage === 'string') this.lengthMessage.set(parsed.lengthMessage);
+          if (typeof parsed.minimum === 'number') this.minimum.set(String(parsed.minimum));
+          if (typeof parsed.maximum === 'number') this.maximum.set(String(parsed.maximum));
+          if (typeof parsed.rangeMessage === 'string') this.rangeMessage.set(parsed.rangeMessage);
         }
       } catch { /* leave typed fields blank on malformed JSON */ }
     }
@@ -178,6 +199,39 @@ export class AddFieldDialogComponent {
     return this.type() === 'File';
   }
 
+  // Types where a regex/length rule makes sense. Deliberately excludes File
+  // (has its own constraints), Signature/Rating/Checkbox/Radio/Select/Date/
+  // DateTime/PageBreak/Number (all validated differently or not by regex).
+  get showTextConstraints(): boolean {
+    const t = this.type();
+    return t === 'Text' || t === 'Email' || t === 'Textarea' || t === 'Password' || t === 'Phone';
+  }
+
+  get showNumberConstraints(): boolean {
+    return this.type() === 'Number';
+  }
+
+  patternError(): string | null {
+    const v = this.patternRegex().trim();
+    if (!v) return null;
+    try { new RegExp(v); return null; } catch { return 'Invalid regex'; }
+  }
+
+  private posIntOrNull(raw: string): number | null {
+    const s = raw.trim();
+    if (!s) return null;
+    const n = Number(s);
+    if (!Number.isInteger(n) || n < 0) return null;
+    return n;
+  }
+
+  private numberOrNull(raw: string): number | null {
+    const s = raw.trim();
+    if (!s) return null;
+    const n = Number(s);
+    return Number.isFinite(n) ? n : null;
+  }
+
   fileMaxSizeError(): string | null {
     const v = this.fileMaxSizeMb().trim();
     if (!v) return null;
@@ -186,22 +240,50 @@ export class AddFieldDialogComponent {
     return null;
   }
 
-  // Serializes the typed File constraints into the Validation JSON blob.
-  // Empty inputs = no constraint, no key. Called from save().
-  private buildFileValidationJson(): string {
-    const maxRaw = this.fileMaxSizeMb().trim();
-    const extsRaw = this.fileAllowedExts().trim();
+  // Serializes the typed constraints into the Validation JSON blob. Emits
+  // only the keys relevant to the current field type so a File field never
+  // ships a stray "pattern", and a Text field never ships "maxFileSizeMb".
+  private buildValidationJson(): string {
     const payload: Record<string, unknown> = {};
-    if (maxRaw) {
-      const n = Number(maxRaw);
-      if (Number.isInteger(n) && n > 0) payload['maxFileSizeMb'] = n;
+
+    if (this.showFileConstraints) {
+      const maxRaw = this.fileMaxSizeMb().trim();
+      if (maxRaw) {
+        const n = Number(maxRaw);
+        if (Number.isInteger(n) && n > 0) payload['maxFileSizeMb'] = n;
+      }
+      const extsRaw = this.fileAllowedExts().trim();
+      if (extsRaw) {
+        const list = extsRaw.split(',')
+          .map(s => s.trim().replace(/^\./, '').toLowerCase())
+          .filter(Boolean);
+        if (list.length > 0) payload['allowedFileExtensions'] = list;
+      }
     }
-    if (extsRaw) {
-      const list = extsRaw.split(',')
-        .map(s => s.trim().replace(/^\./, '').toLowerCase())
-        .filter(Boolean);
-      if (list.length > 0) payload['allowedFileExtensions'] = list;
+
+    if (this.showTextConstraints) {
+      const pat = this.patternRegex().trim();
+      if (pat) payload['pattern'] = pat;
+      const patMsg = this.patternMessage().trim();
+      if (patMsg) payload['patternMessage'] = patMsg;
+
+      const min = this.posIntOrNull(this.minLength());
+      if (min != null) payload['minLength'] = min;
+      const max = this.posIntOrNull(this.maxLength());
+      if (max != null) payload['maxLength'] = max;
+      const lenMsg = this.lengthMessage().trim();
+      if (lenMsg) payload['lengthMessage'] = lenMsg;
     }
+
+    if (this.showNumberConstraints) {
+      const mn = this.numberOrNull(this.minimum());
+      if (mn != null) payload['minimum'] = mn;
+      const mx = this.numberOrNull(this.maximum());
+      if (mx != null) payload['maximum'] = mx;
+      const rMsg = this.rangeMessage().trim();
+      if (rMsg) payload['rangeMessage'] = rMsg;
+    }
+
     return Object.keys(payload).length ? JSON.stringify(payload) : '';
   }
 
@@ -253,7 +335,13 @@ export class AddFieldDialogComponent {
   }
 
   get invalid(): boolean {
-    return !!(this.nameError() || this.labelError() || this.optionsInvalid() || this.fileMaxSizeError());
+    return !!(this.nameError() || this.labelError() || this.optionsInvalid() || this.fileMaxSizeError() || this.patternError());
+  }
+
+  // True when a field type has any typed constraints (File, text-like, or
+  // Number). Only those field types replace the raw Validation textbox.
+  get hasTypedConstraints(): boolean {
+    return this.showFileConstraints || this.showTextConstraints || this.showNumberConstraints;
   }
 
   private buildShowIfJson(): string | undefined {
@@ -272,10 +360,11 @@ export class AddFieldDialogComponent {
     const optionJson = this.showOptions
       ? JSON.stringify(this.optionItems().map(o => ({ label: o.label.trim(), value: o.value.trim() })))
       : '';
-    // For File fields, the typed constraint inputs take precedence over the
-    // raw Validation textbox; other field types keep the raw JSON as-is.
-    const validationOut = this.showFileConstraints
-      ? this.buildFileValidationJson()
+    // For any field type with typed constraints (File, text-like, Number),
+    // the typed inputs are the source of truth and produce the Validation
+    // JSON. Other types keep the raw JSON textbox as-is.
+    const validationOut = this.hasTypedConstraints
+      ? this.buildValidationJson()
       : this.validation();
     const value = {
       name: this.name(),

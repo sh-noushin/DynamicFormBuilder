@@ -15,11 +15,18 @@ public sealed class PatternRule : IFieldRule
 
         var pattern = patternEl.GetString()!;
 
+        // Optional admin-supplied override, e.g. "Digits only" instead of the
+        // generic default. Blank / missing / non-string values fall through.
+        var customMessage = root.TryGetProperty("patternMessage", out var msgEl)
+                            && msgEl.ValueKind == JsonValueKind.String
+            ? msgEl.GetString()
+            : null;
+
         try
         {
             return Regex.IsMatch(context.RawValue!, pattern)
                 ? Array.Empty<string>()
-                : new[] { "Value does not match the required pattern." };
+                : new[] { !string.IsNullOrWhiteSpace(customMessage) ? customMessage! : "Value does not match the required pattern." };
         }
         catch
         {

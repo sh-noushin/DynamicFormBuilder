@@ -11,19 +11,24 @@ public sealed class LengthRule : IFieldRule
             yield break;
 
         var value = context.RawValue!;
+        var customMessage = root.TryGetProperty("lengthMessage", out var msgEl)
+                            && msgEl.ValueKind == JsonValueKind.String
+                            && !string.IsNullOrWhiteSpace(msgEl.GetString())
+            ? msgEl.GetString()
+            : null;
 
         if (root.TryGetProperty("minLength", out var minEl) && minEl.ValueKind == JsonValueKind.Number)
         {
             var min = minEl.GetInt32();
             if (value.Length < min)
-                yield return $"Minimum length is {min}.";
+                yield return customMessage ?? $"Minimum length is {min}.";
         }
 
         if (root.TryGetProperty("maxLength", out var maxEl) && maxEl.ValueKind == JsonValueKind.Number)
         {
             var max = maxEl.GetInt32();
             if (value.Length > max)
-                yield return $"Maximum length is {max}.";
+                yield return customMessage ?? $"Maximum length is {max}.";
         }
     }
 }
