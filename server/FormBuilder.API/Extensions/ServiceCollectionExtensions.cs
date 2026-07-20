@@ -52,6 +52,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFormSubmissionService, FormSubmissionService>();
         services.AddScoped<IPublicFormService, PublicFormService>();
         services.AddScoped<IFormAnalyticsService, FormAnalyticsService>();
+        services.AddHttpClient(FormBuilder.Infrastructure.Services.HttpWebhookSender.HttpClientName, client =>
+        {
+            // 10s cap keeps a slow receiver from tying up the submit path.
+            client.Timeout = TimeSpan.FromSeconds(10);
+        });
+        services.AddScoped<IWebhookSender, FormBuilder.Infrastructure.Services.HttpWebhookSender>();
         services.AddScoped<IEmailSender, FormBuilder.Infrastructure.Services.SmtpEmailSender>();
         services.AddScoped<ISubmissionNotifier, SubmissionNotifier>();
         services.AddScoped<IFieldRule, RequiredRule>();

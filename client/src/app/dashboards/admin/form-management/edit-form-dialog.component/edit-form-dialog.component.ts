@@ -55,6 +55,9 @@ export class EditFormDialogComponent implements OnInit {
 	redirectUrl = signal<string>('');
 	maxSubmissions = signal<string>('');
 	closesAtInput = signal<string>('');
+	webhookUrl = signal<string>('');
+	webhookSecret = signal<string>('');
+	showWebhookSecret = signal<boolean>(false);
 
 	nameTouched = signal<boolean>(false);
 	isSaving = signal(false);
@@ -79,6 +82,29 @@ export class EditFormDialogComponent implements OnInit {
 			const cap = (src as any).maxSubmissions;
 			this.maxSubmissions.set(cap == null ? '' : String(cap));
 			this.closesAtInput.set(this.dateToLocalInput((src as any).closesAt));
+			this.webhookUrl.set((src as any).webhookUrl ?? '');
+			this.webhookSecret.set((src as any).webhookSecret ?? '');
+		}
+
+		setWebhookUrlFromEvent(ev: Event) {
+			const val = (ev.target as HTMLInputElement)?.value ?? '';
+			this.webhookUrl.set(val);
+		}
+		setWebhookSecretFromEvent(ev: Event) {
+			const val = (ev.target as HTMLInputElement)?.value ?? '';
+			this.webhookSecret.set(val);
+		}
+		clearWebhookSecret() { this.webhookSecret.set(''); }
+		webhookUrlError(): string | null {
+			const v = this.webhookUrl().trim();
+			if (!v) return null;
+			try {
+				const u = new URL(v);
+				if (u.protocol !== 'http:' && u.protocol !== 'https:') return 'URL must start with http:// or https://';
+				return null;
+			} catch {
+				return 'Enter a full URL (including https://)';
+			}
 		}
 
 		// datetime-local <input> values are naive local wall-clock strings like
@@ -167,6 +193,8 @@ export class EditFormDialogComponent implements OnInit {
 			redirectUrl: this.redirectUrl().trim() || undefined,
 			maxSubmissions: this.maxSubmissions().trim() ? Number(this.maxSubmissions()) : undefined,
 			closesAt: this.closesAtInput() ? new Date(this.closesAtInput()) : undefined,
+			webhookUrl: this.webhookUrl().trim() || undefined,
+			webhookSecret: this.webhookSecret().trim() || undefined,
 		});
 		this.api.formsPUT(this.data.form.id, payload).subscribe({
 			next: updated => {
@@ -409,7 +437,10 @@ export class EditFormDialogComponent implements OnInit {
 	}
 
 	invalid(): boolean {
-		return this.nameError() != null || this.redirectUrlError() != null || this.maxSubmissionsError() != null;
+		return this.nameError() != null
+			|| this.redirectUrlError() != null
+			|| this.maxSubmissionsError() != null
+			|| this.webhookUrlError() != null;
 	}
 
 	setNameFromEvent(ev: Event) {

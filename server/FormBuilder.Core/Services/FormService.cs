@@ -42,6 +42,7 @@ public class FormService : IFormService
             throw new ArgumentNullException(nameof(formDto), "Form cannot be null.");
 
         ValidateRedirectUrl(formDto.RedirectUrl);
+        ValidateWebhookUrl(formDto.WebhookUrl);
         var entity = _mapper.Map<FormBuilder.Models.Entities.Form>(formDto);
         entity.CreatedAt = DateTime.UtcNow;
         entity.UpdatedAt = DateTime.UtcNow;
@@ -63,6 +64,7 @@ public class FormService : IFormService
             throw new ArgumentNullException(nameof(formDto), "Form cannot be null.");
 
         ValidateRedirectUrl(formDto.RedirectUrl);
+        ValidateWebhookUrl(formDto.WebhookUrl);
         var entity = _mapper.Map<FormBuilder.Models.Entities.Form>(formDto);
         entity.UpdatedAt = DateTime.UtcNow;
         var updatedForm = await _formRepository.UpdateAsync(id, entity);
@@ -157,6 +159,18 @@ public class FormService : IFormService
             (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
         {
             throw new InvalidRedirectUrlException(url);
+        }
+    }
+
+    // Same http/https-only rule as ValidateRedirectUrl but throws a distinct
+    // exception so the API layer/UI can attribute the error to the right field.
+    private static void ValidateWebhookUrl(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return;
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) ||
+            (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+        {
+            throw new InvalidWebhookUrlException(url);
         }
     }
 

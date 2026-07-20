@@ -94,6 +94,37 @@
       }
       <mat-hint>Uses your local time zone. After this moment the form stops accepting responses.</mat-hint>
     </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Webhook URL (optional)</mat-label>
+      <input matInput type="url"
+             [value]="webhookUrl()"
+             (input)="setWebhookUrlFromEvent($event)"
+             placeholder="https://example.com/webhooks/forms" />
+      @if (webhookUrlError()) { <mat-error>{{ webhookUrlError() }}</mat-error> }
+      <mat-hint>Each successful submission is POSTed as JSON to this URL.</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Webhook signing secret (optional)</mat-label>
+      <input matInput
+             [type]="showWebhookSecret() ? 'text' : 'password'"
+             [value]="webhookSecret()"
+             (input)="setWebhookSecretFromEvent($event)"
+             placeholder="Any random string"
+             autocomplete="off" />
+      <button mat-icon-button matSuffix type="button"
+              (click)="showWebhookSecret.set(!showWebhookSecret())"
+              [attr.aria-label]="showWebhookSecret() ? 'Hide secret' : 'Show secret'">
+        <mat-icon>{{ showWebhookSecret() ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
+      @if (webhookSecret()) {
+        <button mat-icon-button matSuffix type="button" (click)="clearWebhookSecret()" aria-label="Clear secret">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+      <mat-hint>When set, the payload is signed as HMAC-SHA256 in the X-Webhook-Signature header (sha256=hex).</mat-hint>
+    </mat-form-field>
   </div>
 </mat-dialog-content>
 

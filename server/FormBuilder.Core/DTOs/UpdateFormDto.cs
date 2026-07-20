@@ -27,5 +27,11 @@ public class UpdateFormDto
 
     public DateTime? ClosesAt { get; set; }
 
+    [StringLength(500)]
+    public string? WebhookUrl { get; set; }
+
+    [StringLength(128)]
+    public string? WebhookSecret { get; set; }
+
     public bool IsActive { get; set; } = true;
 }

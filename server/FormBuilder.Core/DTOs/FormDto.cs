@@ -12,6 +12,8 @@ public class FormDto
     public string? RedirectUrl { get; set; }
     public int? MaxSubmissions { get; set; }
     public DateTime? ClosesAt { get; set; }
+    public string? WebhookUrl { get; set; }
+    public string? WebhookSecret { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public bool IsActive { get; set; } = true;

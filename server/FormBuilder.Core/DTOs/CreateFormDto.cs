@@ -27,5 +27,11 @@ public class CreateFormDto
 
     public DateTime? ClosesAt { get; set; }
 
+    [StringLength(500)]
+    public string? WebhookUrl { get; set; }
+
+    [StringLength(128)]
+    public string? WebhookSecret { get; set; }
+
     public List<CreateFormFieldDto> Fields { get; set; } = new List<CreateFormFieldDto>();
 }

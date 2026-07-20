@@ -38,6 +38,9 @@ export class CreateFormDialogComponent {
   redirectUrl = signal('');
   maxSubmissions = signal('');
   closesAtInput = signal('');
+  webhookUrl = signal('');
+  webhookSecret = signal('');
+  showWebhookSecret = signal<boolean>(false);
   touched = {
     name: signal(false),
     description: signal(false)
@@ -59,8 +62,33 @@ export class CreateFormDialogComponent {
   };
 
   get invalid(): boolean {
-    return !!this.nameError() || !!this.redirectUrlError() || !!this.maxSubmissionsError();
+    return !!this.nameError()
+      || !!this.redirectUrlError()
+      || !!this.maxSubmissionsError()
+      || !!this.webhookUrlError();
   }
+
+  webhookUrlError(): string | null {
+    const v = this.webhookUrl().trim();
+    if (!v) return null;
+    try {
+      const u = new URL(v);
+      if (u.protocol !== 'http:' && u.protocol !== 'https:') return 'URL must start with http:// or https://';
+      return null;
+    } catch {
+      return 'Enter a full URL (including https://)';
+    }
+  }
+
+  setWebhookUrlFromEvent(ev: Event) {
+    const val = (ev.target as HTMLInputElement)?.value ?? '';
+    this.webhookUrl.set(val);
+  }
+  setWebhookSecretFromEvent(ev: Event) {
+    const val = (ev.target as HTMLInputElement)?.value ?? '';
+    this.webhookSecret.set(val);
+  }
+  clearWebhookSecret() { this.webhookSecret.set(''); }
 
   maxSubmissionsError(): string | null {
     const v = this.maxSubmissions().trim();
@@ -113,7 +141,9 @@ export class CreateFormDialogComponent {
       thankYouMessage: this.thankYouMessage().trim() || undefined,
       redirectUrl: this.redirectUrl().trim() || undefined,
       maxSubmissions: this.maxSubmissions().trim() ? Number(this.maxSubmissions()) : undefined,
-      closesAt: this.closesAtInput() ? new Date(this.closesAtInput()) : undefined
+      closesAt: this.closesAtInput() ? new Date(this.closesAtInput()) : undefined,
+      webhookUrl: this.webhookUrl().trim() || undefined,
+      webhookSecret: this.webhookSecret().trim() || undefined
     };
     this.dialogRef.close(result);
   }

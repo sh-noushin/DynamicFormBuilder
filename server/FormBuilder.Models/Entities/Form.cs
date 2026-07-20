@@ -23,6 +23,12 @@ public class Form
     // UTC moment after which the form stops accepting responses. Null means
     // no scheduled close.
     public DateTime? ClosesAt { get; set; }
+    // Absolute http/https URL that receives a POST after each successful
+    // submission. Validated by FormService.
+    public string? WebhookUrl { get; set; }
+    // Shared secret used to compute an HMAC-SHA256 signature over the
+    // webhook body, sent as X-Webhook-Signature. Null means unsigned.
+    public string? WebhookSecret { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public bool IsActive { get; set; } = true;
