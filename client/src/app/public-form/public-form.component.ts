@@ -102,6 +102,12 @@ export class PublicFormComponent {
 
   slug = computed(() => this.route.snapshot.paramMap.get('slug') ?? '');
 
+  // Query-string prefill snapshot captured once at load. Query keys are matched
+  // against field names (case-sensitive) so admins can share URLs like
+  // /f/my-form?email=x&plan=pro. Also honors ?name= and ?email= for the
+  // top-level submitter details.
+  private prefill = new Map<string, string>();
+
   // Split the ordered field list into pages at every PageBreak marker.
   // The PageBreak itself is not rendered as an input; its label becomes the
   // heading for the page AFTER the break (page[i+1]).
@@ -139,7 +145,23 @@ export class PublicFormComponent {
   });
 
   constructor() {
+    this.capturePrefill();
     this.load();
+  }
+
+  private capturePrefill(): void {
+    const params = this.route.snapshot.queryParamMap;
+    for (const key of params.keys) {
+      const value = params.get(key);
+      if (value != null) this.prefill.set(key, value);
+    }
+    // Also seed the top-level submitter controls when the URL provides them.
+    // Accept both "name"/"email" and "submitterName"/"submitterEmail" so
+    // shareable links can use either shape.
+    const name = this.prefill.get('submitterName') ?? this.prefill.get('name');
+    const email = this.prefill.get('submitterEmail') ?? this.prefill.get('email');
+    if (name != null) this.formGroup.get('submitterName')?.setValue(name);
+    if (email != null) this.formGroup.get('submitterEmail')?.setValue(email);
   }
 
   private load(): void {
@@ -221,6 +243,24 @@ export class PublicFormComponent {
   }
 
   private initialValueFor(field: PublicField): unknown {
+    // URL prefill wins over defaultValue when the query key matches the field
+    // name. Skip field types where an arbitrary string can't be a meaningful
+    // initial value (uploads, signatures, page-break markers).
+    const supplied = this.prefill.get(field.name);
+    if (supplied !== undefined && field.type !== 'File' && field.type !== 'Signature' && field.type !== 'PageBreak') {
+      if (field.type === 'Checkbox') {
+        const truthy = /^(true|1|yes|on)$/i.test(supplied.trim());
+        return truthy;
+      }
+      // For Radio/Select, only accept if the value matches an allowed option
+      // so a rogue query param can't stuff garbage into a controlled input.
+      if (field.type === 'Radio' || field.type === 'Select') {
+        const opts = this.getOptions(field).map(o => o.value);
+        if (!opts.includes(supplied)) return field.defaultValue ?? '';
+      }
+      return supplied;
+    }
+
     if (field.type === 'Checkbox') return false;
     return field.defaultValue ?? '';
   }
