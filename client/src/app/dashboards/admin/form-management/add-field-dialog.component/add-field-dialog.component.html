@@ -192,6 +192,17 @@
       } @else {
         <div class="show-if-hint">Leave "Field" set to <em>Always show</em> if this field should never be hidden.</div>
       }
+
+      @if (isPageBreak && showIfField()) {
+        <mat-form-field appearance="outline" class="show-if-value">
+          <mat-label>Skip to page</mat-label>
+          <input matInput type="number" min="1" step="1"
+                 [value]="showIfGoToPage()"
+                 (input)="showIfGoToPage.set($any($event.target).value)"
+                 placeholder="e.g. 3" />
+          <mat-hint>When the rule above matches, jump to this page (1-indexed) instead of the next one. Leave blank for no skip.</mat-hint>
+        </mat-form-field>
+      }
     </div>
 
     @if (showOptions) {

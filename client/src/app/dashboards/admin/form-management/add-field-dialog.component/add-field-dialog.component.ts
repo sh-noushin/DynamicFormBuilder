@@ -57,6 +57,10 @@ export class AddFieldDialogComponent {
   // Show If builder state - selected trigger field name + expected value.
   showIfField = signal<string>('');
   showIfEquals = signal<string>('');
+  // Skip-logic target page for PageBreak fields. 1-indexed to match how the
+  // admin sees pages; the client public form clamps + zero-indexes it. Blank
+  // means "no skip - walk to the next page normally".
+  showIfGoToPage = signal<string>('');
 
   optionItems = signal<Array<{label: string; value: string}>>([]);
 
@@ -146,6 +150,9 @@ export class AddFieldDialogComponent {
         if (rule?.field) {
           this.showIfField.set(String(rule.field));
           this.showIfEquals.set(rule.equals != null ? String(rule.equals) : '');
+        }
+        if (typeof rule?.goToPage === 'number') {
+          this.showIfGoToPage.set(String(rule.goToPage));
         }
       } catch { /* ignore invalid legacy rules */ }
     }
@@ -350,7 +357,19 @@ export class AddFieldDialogComponent {
     const equals = this.showIfEquals();
     // Allow an empty string equals ("show when field is blank" is a rare but
     // legitimate rule); only skip if the user did not pick a trigger.
-    return JSON.stringify({ field, equals });
+    const payload: Record<string, unknown> = { field, equals };
+    // Skip-logic target page is only meaningful on PageBreak fields; the
+    // client evaluates it on Next-click to jump forward instead of walking
+    // to the next page.
+    if (this.type() === 'PageBreak') {
+      const n = Number(this.showIfGoToPage().trim());
+      if (Number.isInteger(n) && n >= 1) payload['goToPage'] = n;
+    }
+    return JSON.stringify(payload);
+  }
+
+  get isPageBreak(): boolean {
+    return this.type() === 'PageBreak';
   }
 
   save() {

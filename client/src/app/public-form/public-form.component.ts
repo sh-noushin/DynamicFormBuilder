@@ -157,6 +157,14 @@ export class PublicFormComponent {
     return headings;
   });
 
+  // Ordered list of PageBreak fields, one per page transition. pageBreaks[i]
+  // is the break that sits between page i and page i+1 (so the last page
+  // never has one). Skip-logic rules live in each break's showIfCondition
+  // JSON via an optional goToPage key.
+  pageBreaks = computed<PublicField[]>(() => {
+    return (this.form()?.fields ?? []).filter(f => f.type === 'PageBreak');
+  });
+
   currentPageFields = computed<PublicField[]>(() => this.pages()[this.currentPage()] ?? []);
   totalPages = computed(() => this.pages().length);
   isLastPage = computed(() => this.currentPage() >= this.totalPages() - 1);
@@ -462,9 +470,35 @@ export class PublicFormComponent {
     }
     this.errorMessage.set(null);
     if (!this.isLastPage()) {
-      this.currentPage.update(p => p + 1);
+      const target = this.resolveSkipTarget(this.currentPage());
+      this.currentPage.set(target);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  }
+
+  // Consults the PageBreak between page `from` and page `from+1`. If the
+  // break carries a valid skip rule that matches current form values, we
+  // jump to the target page (clamped to the last page); otherwise we walk
+  // one page forward as usual.
+  private resolveSkipTarget(from: number): number {
+    const fallback = Math.min(from + 1, this.totalPages() - 1);
+    const breaks = this.pageBreaks();
+    const pb = breaks[from];
+    if (!pb?.showIfCondition) return fallback;
+
+    let rule: { field?: string; equals?: unknown; goToPage?: number } | null = null;
+    try { rule = JSON.parse(pb.showIfCondition); } catch { return fallback; }
+    if (!rule || typeof rule.goToPage !== 'number' || !rule.field) return fallback;
+
+    const target = this.form()?.fields.find(f => f.name === rule!.field);
+    if (!target) return fallback;
+    const value = this.formGroup.get(this.controlName(target))?.value;
+    if (String(value ?? '') !== String(rule.equals ?? '')) return fallback;
+
+    // goToPage is admin-supplied 1-indexed; convert and clamp so an out-of-
+    // range value can't jump the visitor off the form.
+    const zeroBased = Math.max(0, Math.min(this.totalPages() - 1, Math.floor(rule.goToPage) - 1));
+    return zeroBased > from ? zeroBased : fallback;
   }
 
   previousPage(): void {
