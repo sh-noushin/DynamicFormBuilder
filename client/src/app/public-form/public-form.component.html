@@ -101,42 +101,42 @@
                   @switch (field.type) {
                     @case ('Text') {
                       <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>{{ pipeText(field.label) }}</mat-label>
+                        <mat-label [innerHTML]="renderRich(field.label)"></mat-label>
                         <input matInput [formControlName]="controlName(field)" [placeholder]="pipeText(field.placeholder) || ''" />
-                        @if (field.helpText) { <mat-hint>{{ pipeText(field.helpText) }}</mat-hint> }
+                        @if (field.helpText) { <mat-hint [innerHTML]="renderRich(field.helpText)"></mat-hint> }
                       </mat-form-field>
                     }
                     @case ('Email') {
                       <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>{{ pipeText(field.label) }}</mat-label>
+                        <mat-label [innerHTML]="renderRich(field.label)"></mat-label>
                         <input matInput type="email" [formControlName]="controlName(field)" [placeholder]="pipeText(field.placeholder) || ''" />
-                        @if (field.helpText) { <mat-hint>{{ pipeText(field.helpText) }}</mat-hint> }
+                        @if (field.helpText) { <mat-hint [innerHTML]="renderRich(field.helpText)"></mat-hint> }
                       </mat-form-field>
                     }
                     @case ('Number') {
                       <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>{{ pipeText(field.label) }}</mat-label>
+                        <mat-label [innerHTML]="renderRich(field.label)"></mat-label>
                         <input matInput type="number" [formControlName]="controlName(field)" [placeholder]="pipeText(field.placeholder) || ''" />
-                        @if (field.helpText) { <mat-hint>{{ pipeText(field.helpText) }}</mat-hint> }
+                        @if (field.helpText) { <mat-hint [innerHTML]="renderRich(field.helpText)"></mat-hint> }
                       </mat-form-field>
                     }
                     @case ('Textarea') {
                       <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>{{ pipeText(field.label) }}</mat-label>
+                        <mat-label [innerHTML]="renderRich(field.label)"></mat-label>
                         <textarea matInput rows="4" [formControlName]="controlName(field)" [placeholder]="pipeText(field.placeholder) || ''"></textarea>
-                        @if (field.helpText) { <mat-hint>{{ pipeText(field.helpText) }}</mat-hint> }
+                        @if (field.helpText) { <mat-hint [innerHTML]="renderRich(field.helpText)"></mat-hint> }
                       </mat-form-field>
                     }
                     @case ('Password') {
                       <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>{{ pipeText(field.label) }}</mat-label>
+                        <mat-label [innerHTML]="renderRich(field.label)"></mat-label>
                         <input matInput type="password" [formControlName]="controlName(field)" [placeholder]="pipeText(field.placeholder) || ''" />
-                        @if (field.helpText) { <mat-hint>{{ pipeText(field.helpText) }}</mat-hint> }
+                        @if (field.helpText) { <mat-hint [innerHTML]="renderRich(field.helpText)"></mat-hint> }
                       </mat-form-field>
                     }
                     @case ('File') {
                       <div class="file-field">
-                        <label class="field-label">{{ pipeText(field.label) }}</label>
+                        <label class="field-label" [innerHTML]="renderRich(field.label)"></label>
                         <div class="file-input-row">
                           <button mat-stroked-button type="button" (click)="fileInput.click()" [disabled]="fileUploading()[controlName(field)]">
                             <mat-icon>attach_file</mat-icon>
@@ -148,71 +148,71 @@
                             <span class="file-status ok">Uploaded</span>
                           }
                         </div>
-                        @if (field.helpText) { <span class="help-text">{{ pipeText(field.helpText) }}</span> }
+                        @if (field.helpText) { <span class="help-text" [innerHTML]="renderRich(field.helpText)"></span> }
                       </div>
                     }
                     @case ('Signature') {
                       <app-signature-pad [label]="field.label" (valueChange)="onSignatureChange(field, $event)"></app-signature-pad>
-                      @if (field.helpText) { <span class="help-text">{{ pipeText(field.helpText) }}</span> }
+                      @if (field.helpText) { <span class="help-text" [innerHTML]="renderRich(field.helpText)"></span> }
                     }
                     @case ('Rating') {
                       <app-rating [label]="field.label" (valueChange)="onRatingChange(field, $event)"></app-rating>
-                      @if (field.helpText) { <span class="help-text">{{ pipeText(field.helpText) }}</span> }
+                      @if (field.helpText) { <span class="help-text" [innerHTML]="renderRich(field.helpText)"></span> }
                     }
                     @case ('Phone') {
                       <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>{{ pipeText(field.label) }}</mat-label>
+                        <mat-label [innerHTML]="renderRich(field.label)"></mat-label>
                         <input matInput type="tel" [formControlName]="controlName(field)" [placeholder]="pipeText(field.placeholder) || ''" />
-                        @if (field.helpText) { <mat-hint>{{ pipeText(field.helpText) }}</mat-hint> }
+                        @if (field.helpText) { <mat-hint [innerHTML]="renderRich(field.helpText)"></mat-hint> }
                       </mat-form-field>
                     }
                     @case ('Date') {
                       <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>{{ pipeText(field.label) }}</mat-label>
+                        <mat-label [innerHTML]="renderRich(field.label)"></mat-label>
                         <input matInput type="date" [formControlName]="controlName(field)" />
-                        @if (field.helpText) { <mat-hint>{{ pipeText(field.helpText) }}</mat-hint> }
+                        @if (field.helpText) { <mat-hint [innerHTML]="renderRich(field.helpText)"></mat-hint> }
                       </mat-form-field>
                     }
                     @case ('DateTime') {
                       <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>{{ pipeText(field.label) }}</mat-label>
+                        <mat-label [innerHTML]="renderRich(field.label)"></mat-label>
                         <input matInput type="datetime-local" [formControlName]="controlName(field)" />
-                        @if (field.helpText) { <mat-hint>{{ pipeText(field.helpText) }}</mat-hint> }
+                        @if (field.helpText) { <mat-hint [innerHTML]="renderRich(field.helpText)"></mat-hint> }
                       </mat-form-field>
                     }
                     @case ('Select') {
                       <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>{{ pipeText(field.label) }}</mat-label>
+                        <mat-label [innerHTML]="renderRich(field.label)"></mat-label>
                         <mat-select [formControlName]="controlName(field)">
                           @for (opt of getOptions(field); track opt.value) {
                             <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
                           }
                         </mat-select>
-                        @if (field.helpText) { <mat-hint>{{ pipeText(field.helpText) }}</mat-hint> }
+                        @if (field.helpText) { <mat-hint [innerHTML]="renderRich(field.helpText)"></mat-hint> }
                       </mat-form-field>
                     }
                     @case ('Checkbox') {
                       <div class="checkbox-block">
-                        <mat-checkbox [formControlName]="controlName(field)">{{ pipeText(field.label) }}</mat-checkbox>
-                        @if (field.helpText) { <span class="help-text">{{ pipeText(field.helpText) }}</span> }
+                        <mat-checkbox [formControlName]="controlName(field)"><span [innerHTML]="renderRich(field.label)"></span></mat-checkbox>
+                        @if (field.helpText) { <span class="help-text" [innerHTML]="renderRich(field.helpText)"></span> }
                       </div>
                     }
                     @case ('Radio') {
                       <div class="radio-block">
-                        <label class="field-label">{{ pipeText(field.label) }}</label>
+                        <label class="field-label" [innerHTML]="renderRich(field.label)"></label>
                         <mat-radio-group [formControlName]="controlName(field)">
                           @for (opt of getOptions(field); track opt.value) {
                             <mat-radio-button [value]="opt.value">{{ opt.label }}</mat-radio-button>
                           }
                         </mat-radio-group>
-                        @if (field.helpText) { <span class="help-text">{{ pipeText(field.helpText) }}</span> }
+                        @if (field.helpText) { <span class="help-text" [innerHTML]="renderRich(field.helpText)"></span> }
                       </div>
                     }
                     @default {
                       <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>{{ pipeText(field.label) }}</mat-label>
+                        <mat-label [innerHTML]="renderRich(field.label)"></mat-label>
                         <input matInput [formControlName]="controlName(field)" [placeholder]="pipeText(field.placeholder) || ''" />
-                        @if (field.helpText) { <mat-hint>{{ pipeText(field.helpText) }}</mat-hint> }
+                        @if (field.helpText) { <mat-hint [innerHTML]="renderRich(field.helpText)"></mat-hint> }
                       </mat-form-field>
                     }
                   }

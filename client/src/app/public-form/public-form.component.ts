@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -82,6 +83,7 @@ export class PublicFormComponent {
   private http = inject(HttpClient);
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
+  private sanitizer = inject(DomSanitizer);
 
   form = signal<PublicForm | null>(null);
   loading = signal(true);
@@ -342,6 +344,38 @@ export class PublicFormComponent {
       const initial = this.initialValueFor(field);
       this.formGroup.addControl(this.controlName(field), this.fb.control(initial, validators));
     }
+  }
+
+  // Combines answer piping ({{field_name}} substitution) with a tiny safe
+  // markdown subset: **bold**, *italic*, `code`, and [text](url) with url
+  // restricted to http(s):// or mailto:. Escapes HTML first so raw tags in
+  // labels or piped values can never be rendered as markup.
+  renderRich(text: string | null | undefined): SafeHtml {
+    if (!text) return '';
+    const piped = this.pipeText(text);
+    const escaped = piped
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+    // Order matters: links first (so bold/italic don't chew up brackets in
+    // the URL), then bold before italic (** must match before single *).
+    const withLinks = escaped.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_m, label, url) => {
+      // Only http(s) and mailto URLs are safe; anything else (javascript:,
+      // data:, file:, etc.) falls back to inert text.
+      if (!/^(https?:\/\/|mailto:)/i.test(url)) return label;
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+    });
+    const withBold = withLinks.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+    const withItalic = withBold.replace(/(?:^|[^*])\*([^*\n]+)\*(?!\*)/g, (m, inner) => {
+      // Keep the leading char (a boundary) that our regex captured so *bold*
+      // in "some *text*" doesn't eat the preceding space.
+      const lead = m[0] === '*' ? '' : m[0];
+      return `${lead}<em>${inner}</em>`;
+    });
+    const withCode = withItalic.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+    return this.sanitizer.bypassSecurityTrustHtml(withCode);
   }
 
   // Answer piping: replaces {{field_name}} tokens with the current value of
