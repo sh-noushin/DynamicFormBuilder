@@ -105,6 +105,14 @@
       <mat-hint>Each successful submission is POSTed as JSON to this URL.</mat-hint>
     </mat-form-field>
 
+    <div class="toggle-row">
+      <mat-slide-toggle color="primary"
+                        [checked]="oneResponsePerEmail()"
+                        (change)="oneResponsePerEmail.set($any($event).checked)">
+        One response per email
+      </mat-slide-toggle>
+    </div>
+
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Webhook signing secret (optional)</mat-label>
       <input matInput

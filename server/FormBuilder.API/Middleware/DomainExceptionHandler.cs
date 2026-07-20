@@ -28,6 +28,7 @@ public sealed class DomainExceptionHandler : IExceptionHandler
             InvalidCurrentPasswordException => (StatusCodes.Status400BadRequest, "Invalid Current Password"),
             FormSubmissionValidationException => (StatusCodes.Status400BadRequest, "Validation Failed"),
             FormClosedException => (StatusCodes.Status410Gone, "Form Closed"),
+            DuplicateSubmissionException => (StatusCodes.Status409Conflict, "Duplicate Submission"),
             ArgumentException => (StatusCodes.Status400BadRequest, "Bad Request"),
             _ => (0, string.Empty)
         };

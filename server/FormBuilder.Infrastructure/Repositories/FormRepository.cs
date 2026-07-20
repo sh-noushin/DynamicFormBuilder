@@ -65,6 +65,7 @@ public class FormRepository : IFormRepository
         existingForm.ClosesAt = form.ClosesAt;
         existingForm.WebhookUrl = form.WebhookUrl;
         existingForm.WebhookSecret = form.WebhookSecret;
+        existingForm.OneResponsePerEmail = form.OneResponsePerEmail;
         existingForm.IsActive = form.IsActive;
 
         await _context.SaveChangesAsync();

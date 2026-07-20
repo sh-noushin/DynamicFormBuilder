@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 export type CreateFormDialogData = {
   name?: string;
@@ -21,7 +22,8 @@ export type CreateFormDialogData = {
     MatInputModule,
     MatIconModule,
     MatButtonModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatSlideToggleModule
 ],
   templateUrl: './create-form-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -41,6 +43,7 @@ export class CreateFormDialogComponent {
   webhookUrl = signal('');
   webhookSecret = signal('');
   showWebhookSecret = signal<boolean>(false);
+  oneResponsePerEmail = signal<boolean>(false);
   touched = {
     name: signal(false),
     description: signal(false)
@@ -143,7 +146,8 @@ export class CreateFormDialogComponent {
       maxSubmissions: this.maxSubmissions().trim() ? Number(this.maxSubmissions()) : undefined,
       closesAt: this.closesAtInput() ? new Date(this.closesAtInput()) : undefined,
       webhookUrl: this.webhookUrl().trim() || undefined,
-      webhookSecret: this.webhookSecret().trim() || undefined
+      webhookSecret: this.webhookSecret().trim() || undefined,
+      oneResponsePerEmail: this.oneResponsePerEmail()
     };
     this.dialogRef.close(result);
   }

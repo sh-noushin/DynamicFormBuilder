@@ -33,5 +33,7 @@ public class CreateFormDto
     [StringLength(128)]
     public string? WebhookSecret { get; set; }
 
+    public bool OneResponsePerEmail { get; set; }
+
     public List<CreateFormFieldDto> Fields { get; set; } = new List<CreateFormFieldDto>();
 }

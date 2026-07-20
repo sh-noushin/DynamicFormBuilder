@@ -61,6 +61,17 @@ public class FormSubmissionRepository : IFormSubmissionRepository
             .CountAsync(s => s.FormVersion.FormId == formId);
     }
 
+    public async Task<bool> HasSubmissionFromEmailAsync(Guid formId, string email)
+    {
+        // Case-insensitive because every mailbox provider we care about
+        // treats the local part as case-insensitive in practice.
+        var normalized = email.Trim().ToLower();
+        return await _context.FormSubmissions
+            .AnyAsync(s => s.FormVersion.FormId == formId
+                        && s.SubmitterEmail != null
+                        && s.SubmitterEmail.ToLower() == normalized);
+    }
+
     public async Task<IReadOnlyList<DateTime>> GetSubmittedAtByFormIdSinceAsync(Guid formId, DateTime since)
     {
         return await _context.FormSubmissions

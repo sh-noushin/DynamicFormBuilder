@@ -29,6 +29,10 @@ public class Form
     // Shared secret used to compute an HMAC-SHA256 signature over the
     // webhook body, sent as X-Webhook-Signature. Null means unsigned.
     public string? WebhookSecret { get; set; }
+    // When true, a submission is rejected if the submitter's email address
+    // has already submitted this form (checked case-insensitively across all
+    // versions). Anonymous submissions - those without an email - always pass.
+    public bool OneResponsePerEmail { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public bool IsActive { get; set; } = true;

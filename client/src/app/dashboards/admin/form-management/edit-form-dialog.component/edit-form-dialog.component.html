@@ -19,6 +19,11 @@
 
     <div class="toggle-row">
       <mat-slide-toggle color="primary" [checked]="isActive()" (change)="isActive.set($any($event).checked)">Active</mat-slide-toggle>
+      <mat-slide-toggle color="primary"
+                        [checked]="oneResponsePerEmail()"
+                        (change)="oneResponsePerEmail.set($any($event).checked)">
+        One response per email
+      </mat-slide-toggle>
     </div>
 
     <div class="brand-row">

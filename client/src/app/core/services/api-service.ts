@@ -2393,6 +2393,7 @@ export class CreateFormDto implements ICreateFormDto {
     closesAt?: Date | undefined;
     webhookUrl?: string | undefined;
     webhookSecret?: string | undefined;
+    oneResponsePerEmail?: boolean;
     fields?: CreateFormFieldDto[];
 
     [key: string]: any;
@@ -2422,6 +2423,7 @@ export class CreateFormDto implements ICreateFormDto {
             this.closesAt = _data["closesAt"] ? new Date(_data["closesAt"].toString()) : undefined as any;
             this.webhookUrl = _data["webhookUrl"];
             this.webhookSecret = _data["webhookSecret"];
+            this.oneResponsePerEmail = _data["oneResponsePerEmail"];
             if (Array.isArray(_data["fields"])) {
                 this.fields = [] as any;
                 for (let item of _data["fields"])
@@ -2453,6 +2455,7 @@ export class CreateFormDto implements ICreateFormDto {
         data["closesAt"] = this.closesAt ? this.closesAt.toISOString() : undefined as any;
         data["webhookUrl"] = this.webhookUrl;
         data["webhookSecret"] = this.webhookSecret;
+        data["oneResponsePerEmail"] = this.oneResponsePerEmail;
         if (Array.isArray(this.fields)) {
             data["fields"] = [];
             for (let item of this.fields)
@@ -2715,6 +2718,7 @@ export class FormDto implements IFormDto {
     closesAt?: Date | undefined;
     webhookUrl?: string | undefined;
     webhookSecret?: string | undefined;
+    oneResponsePerEmail?: boolean;
     createdAt?: Date;
     updatedAt?: Date;
     isActive?: boolean;
@@ -2750,6 +2754,7 @@ export class FormDto implements IFormDto {
             this.closesAt = _data["closesAt"] ? new Date(_data["closesAt"].toString()) : undefined as any;
             this.webhookUrl = _data["webhookUrl"];
             this.webhookSecret = _data["webhookSecret"];
+            this.oneResponsePerEmail = _data["oneResponsePerEmail"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : undefined as any;
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : undefined as any;
             this.isActive = _data["isActive"];
@@ -2787,6 +2792,7 @@ export class FormDto implements IFormDto {
         data["closesAt"] = this.closesAt ? this.closesAt.toISOString() : undefined as any;
         data["webhookUrl"] = this.webhookUrl;
         data["webhookSecret"] = this.webhookSecret;
+        data["oneResponsePerEmail"] = this.oneResponsePerEmail;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : undefined as any;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : undefined as any;
         data["isActive"] = this.isActive;
@@ -3337,6 +3343,7 @@ export class UpdateFormDto implements IUpdateFormDto {
     closesAt?: Date | undefined;
     webhookUrl?: string | undefined;
     webhookSecret?: string | undefined;
+    oneResponsePerEmail?: boolean;
     isActive?: boolean;
 
     [key: string]: any;
@@ -3366,6 +3373,7 @@ export class UpdateFormDto implements IUpdateFormDto {
             this.closesAt = _data["closesAt"] ? new Date(_data["closesAt"].toString()) : undefined as any;
             this.webhookUrl = _data["webhookUrl"];
             this.webhookSecret = _data["webhookSecret"];
+            this.oneResponsePerEmail = _data["oneResponsePerEmail"];
             this.isActive = _data["isActive"];
         }
     }
@@ -3393,6 +3401,7 @@ export class UpdateFormDto implements IUpdateFormDto {
         data["closesAt"] = this.closesAt ? this.closesAt.toISOString() : undefined as any;
         data["webhookUrl"] = this.webhookUrl;
         data["webhookSecret"] = this.webhookSecret;
+        data["oneResponsePerEmail"] = this.oneResponsePerEmail;
         data["isActive"] = this.isActive;
         return data;
     }

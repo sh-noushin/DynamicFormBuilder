@@ -115,6 +115,17 @@ public class PublicFormService : IPublicFormService
                 validationErrors.ToDictionary(kv => kv.Key, kv => (IEnumerable<string>)kv.Value));
         }
 
+        // Duplicate check runs after field validation so a malformed submission
+        // reports its field errors first; anonymous submissions (no email)
+        // skip the check because there is nothing to dedupe against.
+        if (form.OneResponsePerEmail && !string.IsNullOrWhiteSpace(submission.SubmitterEmail))
+        {
+            if (await _submissionRepository.HasSubmissionFromEmailAsync(form.Id, submission.SubmitterEmail))
+            {
+                throw new DuplicateSubmissionException();
+            }
+        }
+
         var entity = new FormSubmission
         {
             FormVersionId = version.Id,

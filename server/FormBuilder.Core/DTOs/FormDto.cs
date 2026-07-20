@@ -14,6 +14,7 @@ public class FormDto
     public DateTime? ClosesAt { get; set; }
     public string? WebhookUrl { get; set; }
     public string? WebhookSecret { get; set; }
+    public bool OneResponsePerEmail { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public bool IsActive { get; set; } = true;

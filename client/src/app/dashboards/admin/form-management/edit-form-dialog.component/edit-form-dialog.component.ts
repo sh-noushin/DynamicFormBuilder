@@ -58,6 +58,7 @@ export class EditFormDialogComponent implements OnInit {
 	webhookUrl = signal<string>('');
 	webhookSecret = signal<string>('');
 	showWebhookSecret = signal<boolean>(false);
+	oneResponsePerEmail = signal<boolean>(false);
 
 	nameTouched = signal<boolean>(false);
 	isSaving = signal(false);
@@ -84,6 +85,7 @@ export class EditFormDialogComponent implements OnInit {
 			this.closesAtInput.set(this.dateToLocalInput((src as any).closesAt));
 			this.webhookUrl.set((src as any).webhookUrl ?? '');
 			this.webhookSecret.set((src as any).webhookSecret ?? '');
+			this.oneResponsePerEmail.set(!!(src as any).oneResponsePerEmail);
 		}
 
 		setWebhookUrlFromEvent(ev: Event) {
@@ -195,6 +197,7 @@ export class EditFormDialogComponent implements OnInit {
 			closesAt: this.closesAtInput() ? new Date(this.closesAtInput()) : undefined,
 			webhookUrl: this.webhookUrl().trim() || undefined,
 			webhookSecret: this.webhookSecret().trim() || undefined,
+			oneResponsePerEmail: this.oneResponsePerEmail(),
 		});
 		this.api.formsPUT(this.data.form.id, payload).subscribe({
 			next: updated => {

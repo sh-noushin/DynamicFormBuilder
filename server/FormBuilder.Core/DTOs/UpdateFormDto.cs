@@ -33,5 +33,7 @@ public class UpdateFormDto
     [StringLength(128)]
     public string? WebhookSecret { get; set; }
 
+    public bool OneResponsePerEmail { get; set; }
+
     public bool IsActive { get; set; } = true;
 }

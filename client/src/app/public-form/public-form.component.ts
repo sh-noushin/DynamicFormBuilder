@@ -329,6 +329,8 @@ export class PublicFormComponent {
           } else if (err?.status === 410) {
             this.formClosed.set(true);
             this.closedReason.set(err?.error?.message ?? err?.error?.detail ?? 'This form is no longer accepting responses.');
+          } else if (err?.status === 409) {
+            this.errorMessage.set(err?.error?.message ?? err?.error?.detail ?? 'A response has already been submitted from this email address.');
           } else if (err?.status === 404) {
             this.errorMessage.set('This form is no longer accepting responses.');
           } else {
