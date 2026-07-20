@@ -23,15 +23,22 @@
           <button
             mat-stroked-button
             (click)="clearSelection()"
-            [disabled]="bulkDeleting()">
+            [disabled]="bulkDeleting() || bulkExporting()">
             <mat-icon>close</mat-icon>
             <span>Clear</span>
+          </button>
+          <button
+            mat-stroked-button
+            (click)="bulkExport()"
+            [disabled]="bulkDeleting() || bulkExporting()">
+            <mat-icon>download</mat-icon>
+            @if (bulkExporting()) { <span>Exporting&hellip;</span> } @else { <span>Export selected</span> }
           </button>
           <button
             mat-flat-button
             color="warn"
             (click)="bulkDelete()"
-            [disabled]="bulkDeleting()">
+            [disabled]="bulkDeleting() || bulkExporting()">
             <mat-icon>delete</mat-icon>
             @if (bulkDeleting()) { <span>Deleting&hellip;</span> } @else { <span>Delete selected</span> }
           </button>

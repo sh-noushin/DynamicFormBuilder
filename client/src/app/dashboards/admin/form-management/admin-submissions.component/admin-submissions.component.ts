@@ -73,6 +73,7 @@ export class AdminSubmissionsComponent {
   // checks; the template treats it as immutable and replaces via .set().
   selectedIds = signal<Set<string>>(new Set());
   bulkDeleting = signal(false);
+  bulkExporting = signal(false);
 
   formId = computed(() => this.route.snapshot.paramMap.get('id') ?? '');
 
@@ -196,6 +197,44 @@ export class AdminSubmissionsComponent {
         this.submissions.set([...this.submissions()]);
       }
     });
+  }
+
+  bulkExport(): void {
+    const id = this.formId();
+    const ids = Array.from(this.selectedIds());
+    if (!id || ids.length === 0 || this.bulkExporting()) return;
+
+    this.bulkExporting.set(true);
+    const token = typeof localStorage !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
+
+    this.http
+      .post(
+        `${environment.apiBaseUrl}/api/FormSubmissions/form/${encodeURIComponent(id)}/export.csv`,
+        { ids },
+        { headers, responseType: 'blob', observe: 'response' },
+      )
+      .subscribe({
+        next: response => {
+          this.bulkExporting.set(false);
+          const contentDisposition = response.headers.get('content-disposition') ?? '';
+          const match = /filename="?([^";]+)"?/.exec(contentDisposition);
+          const filename = match?.[1] ?? `submissions-${id}-selected.csv`;
+          const url = URL.createObjectURL(response.body as Blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          this.snack.open(`Exported ${ids.length} submission${ids.length === 1 ? '' : 's'}`, 'Close', { duration: 2500 });
+        },
+        error: () => {
+          this.bulkExporting.set(false);
+          this.snack.open('Bulk export failed', 'Close', { duration: 3000 });
+        },
+      });
   }
 
   bulkDelete(): void {

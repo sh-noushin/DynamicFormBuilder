@@ -156,8 +156,34 @@ public class FormSubmissionsController : ControllerBase
     [ProducesResponseType(typeof(void), 404)]
     public async Task<IActionResult> ExportFormSubmissions(Guid formId)
     {
+        return await BuildCsvExportAsync(formId, filterIds: null);
+    }
+
+    // Selected-only CSV export. POST (not GET) because the id list may be
+    // large enough to blow past URL length limits at ~50-100 submissions.
+    [HttpPost("form/{formId}/export.csv")]
+    [Authorize(Roles = Roles.Admin)]
+    [Produces("text/csv")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(typeof(void), 400)]
+    public async Task<IActionResult> ExportSelectedFormSubmissions(Guid formId, [FromBody] BulkDeleteSubmissionsDto payload)
+    {
+        if (payload?.Ids == null || payload.Ids.Count == 0)
+            return BadRequest(new { message = "At least one submission id must be provided." });
+
+        var filter = new HashSet<Guid>(payload.Ids.Where(id => id != Guid.Empty));
+        return await BuildCsvExportAsync(formId, filter);
+    }
+
+    private async Task<IActionResult> BuildCsvExportAsync(Guid formId, HashSet<Guid>? filterIds)
+    {
         var currentVersion = await _formVersionService.GetCurrentVersionAsync(formId);
         var submissions = await _submissionService.GetSubmissionsByFormIdAsync(formId);
+
+        if (filterIds is { Count: > 0 })
+        {
+            submissions = submissions.Where(s => filterIds.Contains(s.Id));
+        }
 
         var fieldColumns = currentVersion.Fields
             .OrderBy(f => f.Order)
@@ -181,7 +207,8 @@ public class FormSubmissionsController : ControllerBase
         });
 
         var csv = CsvWriter.Write(headers, rows);
-        var fileName = $"submissions-{formId}-{DateTime.UtcNow:yyyyMMdd-HHmmss}.csv";
+        var suffix = filterIds is { Count: > 0 } ? $"-selected-{filterIds.Count}" : string.Empty;
+        var fileName = $"submissions-{formId}{suffix}-{DateTime.UtcNow:yyyyMMdd-HHmmss}.csv";
         return File(new UTF8Encoding(encoderShouldEmitUTF8Identifier: true).GetBytes(csv), "text/csv", fileName);
     }
 
