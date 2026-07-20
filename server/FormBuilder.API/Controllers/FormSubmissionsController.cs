@@ -206,6 +206,17 @@ public class FormSubmissionsController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpPost("form/{formId}/bulk-delete")]
+    [Authorize(Roles = Roles.Admin)]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(BulkDeleteResultDto), 200)]
+    [ProducesResponseType(typeof(void), 400)]
+    public async Task<ActionResult<BulkDeleteResultDto>> BulkDeleteSubmissions(Guid formId, [FromBody] BulkDeleteSubmissionsDto payload)
+    {
+        var deleted = await _submissionService.BulkDeleteSubmissionsAsync(formId, payload.Ids);
+        return Ok(new BulkDeleteResultDto { Deleted = deleted });
+    }
 }
 
    

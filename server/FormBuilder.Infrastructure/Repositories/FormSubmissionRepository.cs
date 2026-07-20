@@ -123,4 +123,19 @@ public class FormSubmissionRepository : IFormSubmissionRepository
         await _context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<int> DeleteManyByFormAsync(Guid formId, IReadOnlyList<Guid> ids)
+    {
+        if (ids.Count == 0) return 0;
+
+        var toDelete = await _context.FormSubmissions
+            .Where(s => s.FormVersion.FormId == formId && ids.Contains(s.Id))
+            .ToListAsync();
+
+        if (toDelete.Count == 0) return 0;
+
+        _context.FormSubmissions.RemoveRange(toDelete);
+        await _context.SaveChangesAsync();
+        return toDelete.Count;
+    }
 }

@@ -17,4 +17,9 @@ public interface IFormSubmissionRepository
     Task<IReadOnlyList<DateTime>> GetSubmittedAtByFormIdSinceAsync(Guid formId, DateTime since);
     Task<FormSubmission?> UpdateAsync(Guid id, FormSubmission source);
     Task<bool> DeleteAsync(Guid id);
+    // Deletes every submission whose id is in ids AND whose parent form has
+    // Id == formId. The formId scoping is a defense-in-depth guard so a
+    // request for form A cannot delete submissions belonging to form B.
+    // Returns the number of rows actually removed.
+    Task<int> DeleteManyByFormAsync(Guid formId, IReadOnlyList<Guid> ids);
 }

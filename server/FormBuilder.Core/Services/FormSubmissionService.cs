@@ -148,4 +148,19 @@ public class FormSubmissionService : IFormSubmissionService
             throw new FormSubmissionNotFoundException(id);
         return result;
     }
+
+    public async Task<int> BulkDeleteSubmissionsAsync(Guid formId, IReadOnlyList<Guid> ids)
+    {
+        if (formId == Guid.Empty)
+            throw new ArgumentException("Form ID cannot be empty.", nameof(formId));
+        if (ids == null)
+            throw new ArgumentNullException(nameof(ids));
+
+        // Drop empty and duplicate ids up front so the repository doesn't
+        // have to defend against them.
+        var normalized = ids.Where(id => id != Guid.Empty).Distinct().ToList();
+        if (normalized.Count == 0) return 0;
+
+        return await _repository.DeleteManyByFormAsync(formId, normalized);
+    }
 }

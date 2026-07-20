@@ -12,8 +12,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialog } from '@angular/material/dialog';
 import { Client, FormDto, FormFieldDto, FormSubmissionDto, FormVersionDto } from '../../../../core/services/api-service';
 import { environment } from '../../../../../environments/environment';
+import { DeleteDialogComponent, DeleteDialogData } from '../../../../shared/delete-dialog.component/delete-dialog.component';
 
 @Component({
   selector: 'app-admin-submissions',
@@ -32,6 +35,7 @@ import { environment } from '../../../../../environments/environment';
     MatFormFieldModule,
     MatInputModule,
     MatPaginatorModule,
+    MatCheckboxModule,
     DatePipe,
   ],
   templateUrl: './admin-submissions.component.html',
@@ -42,6 +46,7 @@ export class AdminSubmissionsComponent {
   private api = inject(Client);
   private http = inject(HttpClient);
   private snack = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
 
   form = signal<FormDto | null>(null);
   submissions = signal<FormSubmissionDto[]>([]);
@@ -51,6 +56,10 @@ export class AdminSubmissionsComponent {
   searchQuery = signal<string>('');
   pageIndex = signal(0);
   pageSize = signal(25);
+  // Submission ids the admin has ticked. Kept as a Set for O(1) membership
+  // checks; the template treats it as immutable and replaces via .set().
+  selectedIds = signal<Set<string>>(new Set());
+  bulkDeleting = signal(false);
 
   formId = computed(() => this.route.snapshot.paramMap.get('id') ?? '');
 
@@ -86,7 +95,85 @@ export class AdminSubmissionsComponent {
       .filter(Boolean)
   );
 
-  displayedColumns = computed(() => ['submittedAt', 'submitterName', 'submitterEmail', ...this.fieldColumns()]);
+  displayedColumns = computed(() => ['select', 'submittedAt', 'submitterName', 'submitterEmail', ...this.fieldColumns()]);
+
+  isSelected(id: string | undefined): boolean {
+    return !!id && this.selectedIds().has(id);
+  }
+
+  toggleSelected(id: string | undefined): void {
+    if (!id) return;
+    const next = new Set(this.selectedIds());
+    if (next.has(id)) next.delete(id); else next.add(id);
+    this.selectedIds.set(next);
+  }
+
+  allOnPageSelected = computed<boolean>(() => {
+    const page = this.pagedSubmissions();
+    if (page.length === 0) return false;
+    const sel = this.selectedIds();
+    return page.every(s => s.id != null && sel.has(String(s.id)));
+  });
+
+  someOnPageSelected = computed<boolean>(() => {
+    const page = this.pagedSubmissions();
+    const sel = this.selectedIds();
+    return page.some(s => s.id != null && sel.has(String(s.id))) && !this.allOnPageSelected();
+  });
+
+  togglePageSelection(): void {
+    const page = this.pagedSubmissions();
+    const next = new Set(this.selectedIds());
+    if (this.allOnPageSelected()) {
+      for (const s of page) if (s.id != null) next.delete(String(s.id));
+    } else {
+      for (const s of page) if (s.id != null) next.add(String(s.id));
+    }
+    this.selectedIds.set(next);
+  }
+
+  clearSelection(): void { this.selectedIds.set(new Set()); }
+
+  bulkDelete(): void {
+    const id = this.formId();
+    const ids = Array.from(this.selectedIds());
+    if (!id || ids.length === 0 || this.bulkDeleting()) return;
+
+    const ref = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        itemType: 'submissions',
+        itemName: `${ids.length} selected submission${ids.length === 1 ? '' : 's'}`
+      } as DeleteDialogData,
+      width: '420px',
+      panelClass: 'elevated-dialog-panel',
+      disableClose: true,
+    });
+
+    ref.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+      this.bulkDeleting.set(true);
+      const token = typeof localStorage !== 'undefined' ? localStorage.getItem('auth_token') : null;
+      const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
+      this.http
+        .post<{ deleted: number }>(`${environment.apiBaseUrl}/api/FormSubmissions/form/${encodeURIComponent(id)}/bulk-delete`, { ids }, { headers })
+        .subscribe({
+          next: r => {
+            this.bulkDeleting.set(false);
+            // Optimistically drop the rows without a re-fetch. If deleted<ids
+            // (some vanished server-side), a full reload would still be right,
+            // but the local filter is close enough for a UX-focused delete.
+            const removed = new Set(ids);
+            this.submissions.set(this.submissions().filter(s => !s.id || !removed.has(String(s.id))));
+            this.clearSelection();
+            this.snack.open(`Deleted ${r.deleted} submission${r.deleted === 1 ? '' : 's'}`, 'Close', { duration: 2500 });
+          },
+          error: () => {
+            this.bulkDeleting.set(false);
+            this.snack.open('Bulk delete failed', 'Close', { duration: 3000 });
+          },
+        });
+    });
+  }
 
   constructor() {
     this.load();
