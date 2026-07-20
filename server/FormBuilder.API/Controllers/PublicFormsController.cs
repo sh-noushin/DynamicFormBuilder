@@ -18,10 +18,14 @@ public class PublicFormsController : ControllerBase
     private const string PasswordHeader = "X-Form-Password";
 
     private readonly IPublicFormService _publicFormService;
+    private readonly IFormSubmissionDraftService _draftService;
 
-    public PublicFormsController(IPublicFormService publicFormService)
+    public PublicFormsController(
+        IPublicFormService publicFormService,
+        IFormSubmissionDraftService draftService)
     {
         _publicFormService = publicFormService;
+        _draftService = draftService;
     }
 
     [HttpGet("{slug}")]
@@ -33,6 +37,27 @@ public class PublicFormsController : ControllerBase
         var password = Request.Headers.TryGetValue(PasswordHeader, out var v) ? v.ToString() : null;
         var form = await _publicFormService.GetBySlugAsync(slug, password);
         return Ok(form);
+    }
+
+    [HttpPost("{slug}/drafts")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(FormSubmissionDraftDto), 200)]
+    [ProducesResponseType(typeof(void), 404)]
+    public async Task<ActionResult<FormSubmissionDraftDto>> SaveDraft(string slug, [FromBody] SaveDraftDto payload)
+    {
+        var saved = await _draftService.SaveAsync(slug, payload);
+        return Ok(saved);
+    }
+
+    [HttpGet("{slug}/drafts/{resumeToken:guid}")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(FormSubmissionDraftDto), 200)]
+    [ProducesResponseType(typeof(void), 404)]
+    public async Task<ActionResult<FormSubmissionDraftDto>> GetDraft(string slug, Guid resumeToken)
+    {
+        var draft = await _draftService.GetAsync(slug, resumeToken);
+        if (draft == null) return NotFound();
+        return Ok(draft);
     }
 
     [HttpPost("{slug}/submissions")]

@@ -41,6 +41,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFormVersionRepository, FormVersionRepository>();
         services.AddScoped<IFormFieldRepository, FormFieldRepository>();
         services.AddScoped<IFormSubmissionRepository, FormSubmissionRepository>();
+        services.AddScoped<IFormSubmissionDraftRepository, FormSubmissionDraftRepository>();
         return services;
     }
 
@@ -52,6 +53,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFormSubmissionService, FormSubmissionService>();
         services.AddScoped<IPublicFormService, PublicFormService>();
         services.AddScoped<IFormAnalyticsService, FormAnalyticsService>();
+        services.AddScoped<IFormSubmissionDraftService, FormSubmissionDraftService>();
         services.AddHttpClient(FormBuilder.Infrastructure.Services.HttpWebhookSender.HttpClientName, client =>
         {
             // 10s cap keeps a slow receiver from tying up the submit path.

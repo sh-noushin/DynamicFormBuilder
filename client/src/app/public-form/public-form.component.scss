@@ -9,6 +9,59 @@
   overflow: hidden;
 }
 
+.resume-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.resume-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+
+  .resume-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+
+    mat-icon { color: #10b981; }
+    h3 { margin: 0; font-size: 18px; }
+  }
+
+  .resume-link {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px;
+    background: #f1f5f9;
+    padding: 10px 12px;
+    border-radius: 6px;
+    word-break: break-all;
+    margin: 12px 0;
+  }
+
+  .resume-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+
+  .resume-note {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 12px;
+  }
+}
+
 .public-form-page {
   min-height: 100vh;
   padding: 48px 16px;

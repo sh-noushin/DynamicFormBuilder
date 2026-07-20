@@ -255,6 +255,10 @@
                   <span>Previous</span>
                 </button>
               }
+              <button mat-stroked-button type="button" (click)="saveDraft()" [disabled]="savingDraft()">
+                <mat-icon>bookmark</mat-icon>
+                @if (savingDraft()) { <span>Saving&hellip;</span> } @else { <span>Save &amp; continue later</span> }
+              </button>
               @if (!isLastPage()) {
                 <button mat-flat-button color="primary" type="button" (click)="nextPage()">
                   <span>Next</span>
@@ -266,6 +270,27 @@
                 </button>
               }
             </div>
+
+            @if (resumeDialogOpen()) {
+              <div class="resume-overlay" (click)="closeResumeDialog()">
+                <div class="resume-card" (click)="$event.stopPropagation()">
+                  <div class="resume-header">
+                    <mat-icon>bookmark_added</mat-icon>
+                    <h3>Your progress is saved</h3>
+                  </div>
+                  <p>Return using this link to pick up where you left off:</p>
+                  <div class="resume-link">{{ resumeUrl() }}</div>
+                  <div class="resume-actions">
+                    <button mat-stroked-button type="button" (click)="copyResumeUrl()">
+                      <mat-icon>content_copy</mat-icon>
+                      <span>Copy link</span>
+                    </button>
+                    <button mat-flat-button color="primary" type="button" (click)="closeResumeDialog()">Done</button>
+                  </div>
+                  <p class="resume-note">The link is valid for 30 days. Keep it safe &mdash; anyone with the link can view or edit your response.</p>
+                </div>
+              </div>
+            }
           </form>
         </mat-card-content>
       </mat-card>

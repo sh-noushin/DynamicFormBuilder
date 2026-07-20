@@ -47,6 +47,14 @@ interface PublicForm {
 
 const PASSWORD_HEADER = 'X-Form-Password';
 
+interface DraftResponse {
+  resumeToken: string;
+  expiresAt: string;
+  submitterName?: string | null;
+  submitterEmail?: string | null;
+  fieldValues: Record<string, string | null>;
+}
+
 @Component({
   selector: 'app-public-form',
   standalone: true,
@@ -87,6 +95,14 @@ export class PublicFormComponent {
   passwordAttempted = signal(false);
   passwordError = signal<string | null>(null);
   passwordSubmitting = signal(false);
+
+  // Save-and-resume state. Token is either loaded from ?draft=<guid> or
+  // returned by a Save call; keeping it in a signal lets subsequent Save
+  // clicks update the same draft rather than making a new one each time.
+  resumeToken = signal<string | null>(null);
+  savingDraft = signal(false);
+  resumeUrl = signal<string | null>(null);
+  resumeDialogOpen = signal(false);
   fieldErrors = signal<Record<string, string[]>>({});
   fileUploading = signal<Record<string, boolean>>({});
   fileMeta = signal<Record<string, { token: string; name: string; size: number } | undefined>>({});
@@ -151,8 +167,87 @@ export class PublicFormComponent {
 
   constructor() {
     this.capturePrefill();
-    this.load();
+    const draftToken = this.route.snapshot.queryParamMap.get('draft');
+    if (draftToken) {
+      this.loadDraftThenForm(draftToken);
+    } else {
+      this.load();
+    }
   }
+
+  // Fetches the saved draft, merges its values into the prefill map, then
+  // loads the form as normal so buildFormControls -> initialValueFor picks
+  // up the saved answers. Falls through to a plain load() if the draft is
+  // missing/expired so a stale bookmark just shows a blank form instead of
+  // an error page.
+  private loadDraftThenForm(token: string): void {
+    const slug = this.slug();
+    this.http
+      .get<DraftResponse>(`${environment.apiBaseUrl}/api/public/forms/${encodeURIComponent(slug)}/drafts/${encodeURIComponent(token)}`)
+      .subscribe({
+        next: (draft) => {
+          this.resumeToken.set(draft.resumeToken);
+          for (const [name, value] of Object.entries(draft.fieldValues ?? {})) {
+            if (value != null) this.prefill.set(name, value);
+          }
+          if (draft.submitterName) this.formGroup.get('submitterName')?.setValue(draft.submitterName);
+          if (draft.submitterEmail) this.formGroup.get('submitterEmail')?.setValue(draft.submitterEmail);
+          this.load();
+        },
+        error: () => this.load(),
+      });
+  }
+
+  saveDraft(): void {
+    const slug = this.slug();
+    if (!slug || this.savingDraft()) return;
+    this.savingDraft.set(true);
+
+    const raw = this.formGroup.getRawValue() as Record<string, unknown>;
+    const form = this.form();
+    const fieldValues: Record<string, string | null> = {};
+    for (const field of (form?.fields ?? [])) {
+      // Skip File / Signature / PageBreak: their in-progress values are
+      // opaque tokens/blobs/markers that can't be usefully resumed.
+      if (field.type === 'File' || field.type === 'Signature' || field.type === 'PageBreak') continue;
+      const v = raw[this.controlName(field)];
+      fieldValues[field.name] = v === undefined || v === null ? null : String(v);
+    }
+
+    const payload = {
+      resumeToken: this.resumeToken() ?? undefined,
+      submitterName: (raw['submitterName'] as string | null) || null,
+      submitterEmail: (raw['submitterEmail'] as string | null) || null,
+      fieldValues,
+    };
+
+    this.http
+      .post<DraftResponse>(`${environment.apiBaseUrl}/api/public/forms/${encodeURIComponent(slug)}/drafts`, payload)
+      .subscribe({
+        next: (draft) => {
+          this.savingDraft.set(false);
+          this.resumeToken.set(draft.resumeToken);
+          // Preserve any other query params (?email=, ?draft= will be
+          // overwritten below).
+          const url = new URL(window.location.href);
+          url.searchParams.set('draft', draft.resumeToken);
+          this.resumeUrl.set(url.toString());
+          this.resumeDialogOpen.set(true);
+        },
+        error: () => {
+          this.savingDraft.set(false);
+          this.errorMessage.set('Could not save your draft. Please try again.');
+        },
+      });
+  }
+
+  copyResumeUrl(): void {
+    const url = this.resumeUrl();
+    if (!url || !navigator.clipboard?.writeText) return;
+    navigator.clipboard.writeText(url).catch(() => { /* best-effort */ });
+  }
+
+  closeResumeDialog(): void { this.resumeDialogOpen.set(false); }
 
   private capturePrefill(): void {
     const params = this.route.snapshot.queryParamMap;

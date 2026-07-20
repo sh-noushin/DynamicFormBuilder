@@ -15,6 +15,7 @@ public class FormBuilderDbContext : IdentityDbContext<User>
     public DbSet<FormVersionField> FormVersionFields { get; set; }
     public DbSet<FormSubmission> FormSubmissions { get; set; }
     public DbSet<FormSubmissionValue> FormSubmissionValues { get; set; }
+    public DbSet<FormSubmissionDraft> FormSubmissionDrafts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -94,6 +95,20 @@ public class FormBuilderDbContext : IdentityDbContext<User>
             entity.HasKey(e => e.Id);
             entity.Property(e => e.FieldName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.FieldValue).HasMaxLength(2000);
+        });
+
+        modelBuilder.Entity<FormSubmissionDraft>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.ResumeToken).IsUnique();
+            entity.HasIndex(e => e.ExpiresAt);
+            entity.Property(e => e.SubmitterName).HasMaxLength(200);
+            entity.Property(e => e.SubmitterEmail).HasMaxLength(200);
+            entity.Property(e => e.FieldValuesJson).IsRequired().HasMaxLength(64000);
+            entity.HasOne(e => e.Form)
+                  .WithMany()
+                  .HasForeignKey(e => e.FormId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
