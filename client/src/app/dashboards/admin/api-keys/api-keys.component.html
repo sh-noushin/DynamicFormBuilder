@@ -5,7 +5,7 @@
         <mat-card-title>API keys</mat-card-title>
         <mat-card-subtitle>{{ keys().length }} key{{ keys().length === 1 ? '' : 's' }} total</mat-card-subtitle>
       </div>
-      <button mat-raised-button color="primary" (click)="openCreate()">
+      <button mat-raised-button color="primary" class="btn-primary" (click)="openCreate()">
         <mat-icon>vpn_key</mat-icon>
         <span>Create API key</span>
       </button>
