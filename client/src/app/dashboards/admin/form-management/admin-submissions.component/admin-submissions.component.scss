@@ -117,8 +117,60 @@ table {
 
   .value-cell {
     max-width: 260px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+
+    .text-cell {
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+  }
+}
+
+.muted { color: #64748b; }
+
+.signature-thumb {
+  display: block;
+  height: 40px;
+  width: auto;
+  max-width: 140px;
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  object-fit: contain;
+  padding: 2px;
+}
+
+.file-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #93c5fd;
+  text-decoration: none;
+  font-weight: 500;
+
+  &:hover { color: #bfdbfe; text-decoration: underline; }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.rating-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #64748b;
+
+    &.filled { color: #facc15; }
   }
 }

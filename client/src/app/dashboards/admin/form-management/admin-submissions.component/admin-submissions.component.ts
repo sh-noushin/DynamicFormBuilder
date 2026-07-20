@@ -8,7 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Client, FormDto, FormSubmissionDto, FormVersionDto } from '../../../../core/services/api-service';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Client, FormDto, FormFieldDto, FormSubmissionDto, FormVersionDto } from '../../../../core/services/api-service';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -24,6 +25,7 @@ import { environment } from '../../../../../environments/environment';
     MatTableModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatTooltipModule,
     DatePipe,
   ],
   templateUrl: './admin-submissions.component.html',
@@ -92,6 +94,25 @@ export class AdminSubmissionsComponent {
     const values = submission.values ?? [];
     const hit = values.find(v => (v.fieldName ?? '') === fieldName);
     return hit?.fieldValue ?? '';
+  }
+
+  fieldType(fieldName: string): string {
+    const field = (this.currentVersion()?.fields ?? []).find(f => f.name === fieldName);
+    return String(field?.type ?? '');
+  }
+
+  ratingStars(value: string): { filled: boolean; index: number }[] {
+    const n = Math.max(0, Math.min(5, parseInt(value, 10) || 0));
+    return [1, 2, 3, 4, 5].map(i => ({ filled: i <= n, index: i }));
+  }
+
+  fileDownloadUrl(token: string): string {
+    return `${environment.apiBaseUrl}/api/uploads/${encodeURIComponent(token)}`;
+  }
+
+  fileOriginalName(token: string): string {
+    const idx = token.indexOf('__');
+    return idx >= 0 ? token.substring(idx + 2) : token;
   }
 
   downloadCsv(): void {

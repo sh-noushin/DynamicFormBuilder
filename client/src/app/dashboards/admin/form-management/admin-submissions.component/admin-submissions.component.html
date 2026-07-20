@@ -62,7 +62,35 @@
           @for (col of fieldColumns(); track col) {
             <ng-container [matColumnDef]="col">
               <th mat-header-cell *matHeaderCellDef>{{ col }}</th>
-              <td mat-cell *matCellDef="let s" class="value-cell">{{ valueFor(s, col) || '—' }}</td>
+              <td mat-cell *matCellDef="let s" class="value-cell">
+                @if (!valueFor(s, col)) {
+                  <span class="muted">—</span>
+                } @else {
+                  @switch (fieldType(col)) {
+                    @case ('Signature') {
+                      <img class="signature-thumb" [src]="valueFor(s, col)" alt="Signature" />
+                    }
+                    @case ('File') {
+                      <a class="file-link" [href]="fileDownloadUrl(valueFor(s, col))" target="_blank" rel="noopener">
+                        <mat-icon>attach_file</mat-icon>
+                        <span>{{ fileOriginalName(valueFor(s, col)) }}</span>
+                      </a>
+                    }
+                    @case ('Rating') {
+                      <span class="rating-cell" [attr.aria-label]="valueFor(s, col) + ' out of 5 stars'">
+                        @for (star of ratingStars(valueFor(s, col)); track star.index) {
+                          <mat-icon [class.filled]="star.filled">{{ star.filled ? 'star' : 'star_border' }}</mat-icon>
+                        }
+                      </span>
+                    }
+                    @default {
+                      <span [matTooltip]="valueFor(s, col)" [matTooltipDisabled]="valueFor(s, col).length < 40" class="text-cell">
+                        {{ valueFor(s, col) }}
+                      </span>
+                    }
+                  }
+                }
+              </td>
             </ng-container>
           }
 
