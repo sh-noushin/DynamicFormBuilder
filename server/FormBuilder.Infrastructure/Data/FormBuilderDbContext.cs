@@ -33,6 +33,8 @@ public class FormBuilderDbContext : IdentityDbContext<User>
             entity.Property(e => e.RedirectUrl).HasMaxLength(500);
             entity.Property(e => e.WebhookUrl).HasMaxLength(500);
             entity.Property(e => e.WebhookSecret).HasMaxLength(128);
+            entity.Property(e => e.ConfirmationEmailSubject).HasMaxLength(200);
+            entity.Property(e => e.ConfirmationEmailBody).HasMaxLength(4000);
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.Property(e => e.UpdatedAt).IsRequired();
             entity.HasMany(e => e.Versions)

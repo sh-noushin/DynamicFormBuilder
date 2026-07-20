@@ -59,6 +59,9 @@ export class EditFormDialogComponent implements OnInit {
 	webhookSecret = signal<string>('');
 	showWebhookSecret = signal<boolean>(false);
 	oneResponsePerEmail = signal<boolean>(false);
+	sendConfirmationEmail = signal<boolean>(false);
+	confirmationEmailSubject = signal<string>('');
+	confirmationEmailBody = signal<string>('');
 
 	nameTouched = signal<boolean>(false);
 	isSaving = signal(false);
@@ -86,6 +89,18 @@ export class EditFormDialogComponent implements OnInit {
 			this.webhookUrl.set((src as any).webhookUrl ?? '');
 			this.webhookSecret.set((src as any).webhookSecret ?? '');
 			this.oneResponsePerEmail.set(!!(src as any).oneResponsePerEmail);
+			this.sendConfirmationEmail.set(!!(src as any).sendConfirmationEmail);
+			this.confirmationEmailSubject.set((src as any).confirmationEmailSubject ?? '');
+			this.confirmationEmailBody.set((src as any).confirmationEmailBody ?? '');
+		}
+
+		setConfirmationSubjectFromEvent(ev: Event) {
+			const val = (ev.target as HTMLInputElement)?.value ?? '';
+			this.confirmationEmailSubject.set(val);
+		}
+		setConfirmationBodyFromEvent(ev: Event) {
+			const val = (ev.target as HTMLTextAreaElement)?.value ?? '';
+			this.confirmationEmailBody.set(val);
 		}
 
 		setWebhookUrlFromEvent(ev: Event) {
@@ -198,6 +213,9 @@ export class EditFormDialogComponent implements OnInit {
 			webhookUrl: this.webhookUrl().trim() || undefined,
 			webhookSecret: this.webhookSecret().trim() || undefined,
 			oneResponsePerEmail: this.oneResponsePerEmail(),
+			sendConfirmationEmail: this.sendConfirmationEmail(),
+			confirmationEmailSubject: this.confirmationEmailSubject().trim() || undefined,
+			confirmationEmailBody: this.confirmationEmailBody().trim() || undefined,
 		});
 		this.api.formsPUT(this.data.form.id, payload).subscribe({
 			next: updated => {

@@ -44,6 +44,9 @@ export class CreateFormDialogComponent {
   webhookSecret = signal('');
   showWebhookSecret = signal<boolean>(false);
   oneResponsePerEmail = signal<boolean>(false);
+  sendConfirmationEmail = signal<boolean>(false);
+  confirmationEmailSubject = signal('');
+  confirmationEmailBody = signal('');
   touched = {
     name: signal(false),
     description: signal(false)
@@ -92,6 +95,14 @@ export class CreateFormDialogComponent {
     this.webhookSecret.set(val);
   }
   clearWebhookSecret() { this.webhookSecret.set(''); }
+  setConfirmationSubjectFromEvent(ev: Event) {
+    const val = (ev.target as HTMLInputElement)?.value ?? '';
+    this.confirmationEmailSubject.set(val);
+  }
+  setConfirmationBodyFromEvent(ev: Event) {
+    const val = (ev.target as HTMLTextAreaElement)?.value ?? '';
+    this.confirmationEmailBody.set(val);
+  }
 
   maxSubmissionsError(): string | null {
     const v = this.maxSubmissions().trim();
@@ -147,7 +158,10 @@ export class CreateFormDialogComponent {
       closesAt: this.closesAtInput() ? new Date(this.closesAtInput()) : undefined,
       webhookUrl: this.webhookUrl().trim() || undefined,
       webhookSecret: this.webhookSecret().trim() || undefined,
-      oneResponsePerEmail: this.oneResponsePerEmail()
+      oneResponsePerEmail: this.oneResponsePerEmail(),
+      sendConfirmationEmail: this.sendConfirmationEmail(),
+      confirmationEmailSubject: this.confirmationEmailSubject().trim() || undefined,
+      confirmationEmailBody: this.confirmationEmailBody().trim() || undefined
     };
     this.dialogRef.close(result);
   }

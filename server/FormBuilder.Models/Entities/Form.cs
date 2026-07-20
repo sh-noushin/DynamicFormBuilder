@@ -33,6 +33,13 @@ public class Form
     // has already submitted this form (checked case-insensitively across all
     // versions). Anonymous submissions - those without an email - always pass.
     public bool OneResponsePerEmail { get; set; }
+    // When true, the submitter receives an email copy of their submission
+    // after a successful submit (only if they provided an email address).
+    public bool SendConfirmationEmail { get; set; }
+    // Optional per-form overrides for the confirmation subject and body.
+    // Null falls back to the default template.
+    public string? ConfirmationEmailSubject { get; set; }
+    public string? ConfirmationEmailBody { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public bool IsActive { get; set; } = true;

@@ -133,6 +133,34 @@
       }
       <mat-hint>When set, the payload is signed as HMAC-SHA256 in the X-Webhook-Signature header (sha256=hex).</mat-hint>
     </mat-form-field>
+
+    <div class="toggle-row">
+      <mat-slide-toggle color="primary"
+                        [checked]="sendConfirmationEmail()"
+                        (change)="sendConfirmationEmail.set($any($event).checked)">
+        Email confirmation to submitter
+      </mat-slide-toggle>
+    </div>
+
+    @if (sendConfirmationEmail()) {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Confirmation email subject (optional)</mat-label>
+        <input matInput maxlength="200"
+               [value]="confirmationEmailSubject()"
+               (input)="setConfirmationSubjectFromEvent($event)"
+               placeholder="Thanks for your response" />
+        <mat-hint>Leave blank to use the default subject.</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Confirmation email body (optional)</mat-label>
+        <textarea matInput rows="3" maxlength="4000"
+                  [value]="confirmationEmailBody()"
+                  (input)="setConfirmationBodyFromEvent($event)"
+                  placeholder="Thanks for your response. A copy of what you submitted is below for your records."></textarea>
+        <mat-hint>Shown before the submitted values. Leave blank for the default.</mat-hint>
+      </mat-form-field>
+    }
   </div>
 </mat-dialog-content>
 

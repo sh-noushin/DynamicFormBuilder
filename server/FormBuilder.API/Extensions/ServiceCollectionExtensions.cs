@@ -60,6 +60,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IWebhookSender, FormBuilder.Infrastructure.Services.HttpWebhookSender>();
         services.AddScoped<IEmailSender, FormBuilder.Infrastructure.Services.SmtpEmailSender>();
         services.AddScoped<ISubmissionNotifier, SubmissionNotifier>();
+        services.AddScoped<ISubmitterConfirmationSender, SubmitterConfirmationSender>();
         services.AddScoped<IFieldRule, RequiredRule>();
         services.AddScoped<IFieldRule, PatternRule>();
         services.AddScoped<IFieldRule, LengthRule>();

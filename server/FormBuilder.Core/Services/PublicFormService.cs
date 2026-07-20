@@ -15,6 +15,7 @@ public class PublicFormService : IPublicFormService
     private readonly IFieldValidator _validator;
     private readonly ISubmissionNotifier _notifier;
     private readonly IWebhookSender _webhookSender;
+    private readonly ISubmitterConfirmationSender _confirmationSender;
 
     public PublicFormService(
         IFormRepository formRepository,
@@ -22,7 +23,8 @@ public class PublicFormService : IPublicFormService
         IMapper mapper,
         IFieldValidator validator,
         ISubmissionNotifier notifier,
-        IWebhookSender webhookSender)
+        IWebhookSender webhookSender,
+        ISubmitterConfirmationSender confirmationSender)
     {
         _formRepository = formRepository;
         _submissionRepository = submissionRepository;
@@ -30,6 +32,7 @@ public class PublicFormService : IPublicFormService
         _validator = validator;
         _notifier = notifier;
         _webhookSender = webhookSender;
+        _confirmationSender = confirmationSender;
     }
 
     public async Task<PublicFormDto> GetBySlugAsync(string slug, string? accessPassword)
@@ -145,6 +148,7 @@ public class PublicFormService : IPublicFormService
         var dto = _mapper.Map<FormSubmissionDto>(created);
         await _notifier.NotifyAsync(form.Name, dto);
         await _webhookSender.SendAsync(form, dto);
+        await _confirmationSender.SendAsync(form, dto);
         return dto;
     }
 

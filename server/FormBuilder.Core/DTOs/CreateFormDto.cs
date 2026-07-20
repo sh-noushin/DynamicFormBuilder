@@ -35,5 +35,13 @@ public class CreateFormDto
 
     public bool OneResponsePerEmail { get; set; }
 
+    public bool SendConfirmationEmail { get; set; }
+
+    [StringLength(200)]
+    public string? ConfirmationEmailSubject { get; set; }
+
+    [StringLength(4000)]
+    public string? ConfirmationEmailBody { get; set; }
+
     public List<CreateFormFieldDto> Fields { get; set; } = new List<CreateFormFieldDto>();
 }
