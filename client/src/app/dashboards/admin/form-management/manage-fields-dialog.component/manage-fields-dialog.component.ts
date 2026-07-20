@@ -172,6 +172,69 @@ export class ManageFieldsDialogComponent implements OnInit {
     });
   }
 
+  duplicateField(field: FormFieldDto) {
+    if (this.isSaving() || !field.id) return;
+    const existing = new Set(this.fields().map(f => String(f.name ?? '').toLowerCase()));
+    const newName = uniquifyName(String(field.name ?? 'field'), existing);
+    this.isSaving.set(true);
+    const dto = new CreateFormFieldDto({
+      name: newName,
+      label: `${field.label} (copy)`,
+      type: String(field.type),
+      // Temporary order — the reorder call below places the clone right
+      // after its source so admins don't have to drag it into position.
+      order: this.fields().length + 1,
+      isRequired: !!field.isRequired,
+      isVisible: field.isVisible !== false,
+      isReadOnly: !!field.isReadOnly,
+      placeholder: field.placeholder || '',
+      helpText: field.helpText || '',
+      defaultValue: field.defaultValue || '',
+      validation: field.validation || '',
+      options: field.options || '',
+      showIfCondition: (field as any).showIfCondition || undefined,
+    });
+    this.api.fieldsPOST(this.data.formId, this.data.versionNumber, dto).subscribe({
+      next: created => {
+        // Re-fetch so we're reordering against the freshest server state,
+        // then shove the new row into the slot right after its source.
+        this.api.fieldsAll(this.data.formId, this.data.versionNumber).subscribe({
+          next: fresh => {
+            const sorted = fresh.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+            const withoutNew = sorted.filter(f => f.id !== created.id);
+            const sourceIdx = withoutNew.findIndex(f => f.id === field.id);
+            const insertIdx = sourceIdx >= 0 ? sourceIdx + 1 : withoutNew.length;
+            const finalOrder = [...withoutNew.slice(0, insertIdx), created, ...withoutNew.slice(insertIdx)];
+            const ids = finalOrder.map(f => f.id!).filter(Boolean);
+            this.api.reorder(this.data.formId, this.data.versionNumber, ids).subscribe({
+              next: () => {
+                this.isSaving.set(false);
+                this.snack.open('Field duplicated', 'Close', { duration: 2000 });
+                this.loadFields();
+              },
+              error: () => {
+                // Order didn't stick, but the clone itself exists - keep
+                // the reload so the admin at least sees the new field.
+                this.isSaving.set(false);
+                this.snack.open('Field duplicated; order not saved', 'Close', { duration: 3000 });
+                this.loadFields();
+              },
+            });
+          },
+          error: () => {
+            this.isSaving.set(false);
+            this.snack.open('Field duplicated', 'Close', { duration: 2000 });
+            this.loadFields();
+          },
+        });
+      },
+      error: () => {
+        this.isSaving.set(false);
+        this.snack.open('Failed to duplicate field', 'Close', { duration: 3000 });
+      },
+    });
+  }
+
   deleteField(field: FormFieldDto) {
     const dialogRef = this.dialog.open(DeleteDialogComponent, {
       data: { itemType: 'field', itemName: field.label } as DeleteDialogData,

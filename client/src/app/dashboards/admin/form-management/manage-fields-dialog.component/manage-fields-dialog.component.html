@@ -63,6 +63,14 @@
           </button>
           <button
             mat-icon-button
+            class="btn-duplicate"
+            matTooltip="Duplicate field"
+            [disabled]="isSaving()"
+            (click)="duplicateField(field)">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+          <button
+            mat-icon-button
             class="btn-delete"
             matTooltip="Delete field"
             (click)="deleteField(field)">
