@@ -1,6 +1,6 @@
 ﻿namespace FormBuilder.Models.Exceptions;
 
-public class InvalidUserRoleException : Exception
+public class InvalidUserRoleException : InvalidValueException
 {
     public InvalidUserRoleException() : base("Invalid user role specified.")
     {

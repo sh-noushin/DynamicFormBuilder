@@ -1,0 +1,251 @@
+<h2 mat-dialog-title class="dialog-title">
+  <mat-icon>{{ isEditMode ? 'edit' : 'add_circle' }}</mat-icon>
+  <span>{{ isEditMode ? 'Edit Field' : 'Add Field' }}</span>
+  <span class="spacer"></span>
+</h2>
+
+
+<mat-dialog-content class="dialog-content">
+  <div class="dialog-form two-col">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Label</mat-label>
+      <input matInput [value]="label()" (input)="label.set($event.target.value); touched.label.set(true)" placeholder="Field label" />
+      @if (labelError()) { <mat-error>{{ labelError() }}</mat-error> }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width name-field">
+      <mat-label>Name</mat-label>
+      <input matInput [value]="name()" (input)="name.set($event.target.value); touched.name.set(true)" placeholder="field_name" />
+  <!-- Hint removed as requested -->
+      @if (nameError()) { <mat-error class="name-error">{{ nameError() }}</mat-error> }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Type</mat-label>
+      <mat-select [value]="type()" (selectionChange)="typeChanged($event.value)">
+        @for (t of types; track t) { <mat-option [value]="t">{{ t }}</mat-option> }
+      </mat-select>
+    </mat-form-field>
+
+    <div class="checkbox-row span-2">
+      <mat-checkbox [checked]="isRequired()" (change)="isRequired.set($any($event).checked)">Required</mat-checkbox>
+      <mat-checkbox [checked]="isVisible()" (change)="isVisible.set($any($event).checked)">Visible</mat-checkbox>
+      <mat-checkbox [checked]="isReadOnly()" (change)="isReadOnly.set($any($event).checked)">Read Only</mat-checkbox>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width span-2">
+      <mat-label>Placeholder</mat-label>
+      <input matInput [value]="placeholder()" (input)="placeholder.set($event.target.value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width span-2">
+      <mat-label>Help Text</mat-label>
+      <input matInput [value]="helpText()" (input)="helpText.set($event.target.value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width span-2">
+      <mat-label>Default Value</mat-label>
+      <input matInput [value]="defaultValue()" (input)="defaultValue.set($event.target.value)" />
+    </mat-form-field>
+
+    @if (!hasTypedConstraints) {
+      <mat-form-field appearance="outline" class="full-width span-2">
+        <mat-label>Validation</mat-label>
+        <input matInput [value]="validation()" (input)="validation.set($event.target.value)" />
+      </mat-form-field>
+    }
+
+    @if (showFileConstraints) {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Max file size (MB)</mat-label>
+        <input matInput type="number" min="1" max="1024" step="1"
+               [value]="fileMaxSizeMb()"
+               (input)="fileMaxSizeMb.set($any($event.target).value)"
+               placeholder="e.g. 5" />
+        @if (fileMaxSizeError()) { <mat-error>{{ fileMaxSizeError() }}</mat-error> }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Allowed extensions</mat-label>
+        <input matInput
+               [value]="fileAllowedExts()"
+               (input)="fileAllowedExts.set($any($event.target).value)"
+               placeholder="pdf, png, jpg" />
+        <mat-hint>Comma-separated, leave blank to allow any type.</mat-hint>
+      </mat-form-field>
+    }
+
+    @if (showTextConstraints) {
+      <mat-form-field appearance="outline" class="full-width span-2">
+        <mat-label>Pattern (regex)</mat-label>
+        <input matInput
+               [value]="patternRegex()"
+               (input)="patternRegex.set($any($event.target).value)"
+               placeholder="^[a-zA-Z ]+$" />
+        @if (patternError()) { <mat-error>{{ patternError() }}</mat-error> }
+        <mat-hint>JavaScript regex without slashes. Leave blank for no pattern check.</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width span-2">
+        <mat-label>Pattern error message</mat-label>
+        <input matInput
+               [value]="patternMessage()"
+               (input)="patternMessage.set($any($event.target).value)"
+               placeholder="e.g. Letters and spaces only" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Min length</mat-label>
+        <input matInput type="number" min="0" step="1"
+               [value]="minLength()"
+               (input)="minLength.set($any($event.target).value)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Max length</mat-label>
+        <input matInput type="number" min="0" step="1"
+               [value]="maxLength()"
+               (input)="maxLength.set($any($event.target).value)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width span-2">
+        <mat-label>Length error message</mat-label>
+        <input matInput
+               [value]="lengthMessage()"
+               (input)="lengthMessage.set($any($event.target).value)"
+               placeholder="e.g. Between 3 and 20 characters" />
+      </mat-form-field>
+    }
+
+    @if (showNumberConstraints) {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Minimum</mat-label>
+        <input matInput type="number"
+               [value]="minimum()"
+               (input)="minimum.set($any($event.target).value)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Maximum</mat-label>
+        <input matInput type="number"
+               [value]="maximum()"
+               (input)="maximum.set($any($event.target).value)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width span-2">
+        <mat-label>Range error message</mat-label>
+        <input matInput
+               [value]="rangeMessage()"
+               (input)="rangeMessage.set($any($event.target).value)"
+               placeholder="e.g. Enter a number between 1 and 100" />
+      </mat-form-field>
+    }
+
+    <div class="show-if-builder span-2">
+      <div class="show-if-header">
+        <mat-icon>visibility</mat-icon>
+        <span>Show only when</span>
+      </div>
+
+      <div class="show-if-row">
+        <mat-form-field appearance="outline" class="show-if-picker">
+          <mat-label>Field</mat-label>
+          <mat-select [value]="showIfField()" (selectionChange)="onShowIfFieldChange($event.value)">
+            <mat-option [value]="''">Always show</mat-option>
+            @for (sibling of siblingFields; track sibling.id ?? sibling.name) {
+              <mat-option [value]="sibling.name">{{ sibling.label || sibling.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        @if (showIfField()) {
+          <span class="show-if-eq">equals</span>
+
+          @if (triggerFieldOptions().length) {
+            <mat-form-field appearance="outline" class="show-if-value">
+              <mat-label>Value</mat-label>
+              <mat-select [value]="showIfEquals()" (selectionChange)="showIfEquals.set($event.value)">
+                @for (opt of triggerFieldOptions(); track opt.value) {
+                  <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          } @else if (triggerFieldType() === 'Checkbox') {
+            <mat-form-field appearance="outline" class="show-if-value">
+              <mat-label>State</mat-label>
+              <mat-select [value]="showIfEquals()" (selectionChange)="showIfEquals.set($event.value)">
+                <mat-option value="true">Checked</mat-option>
+                <mat-option value="false">Unchecked</mat-option>
+              </mat-select>
+            </mat-form-field>
+          } @else {
+            <mat-form-field appearance="outline" class="show-if-value">
+              <mat-label>Value</mat-label>
+              <input matInput [value]="showIfEquals()" (input)="showIfEquals.set($event.target.value)" />
+            </mat-form-field>
+          }
+        }
+      </div>
+
+      @if (siblingFields.length === 0) {
+        <div class="show-if-empty">Add other fields to this version first to make one dependent on another.</div>
+      } @else {
+        <div class="show-if-hint">Leave "Field" set to <em>Always show</em> if this field should never be hidden.</div>
+      }
+
+      @if (isPageBreak && showIfField()) {
+        <mat-form-field appearance="outline" class="show-if-value">
+          <mat-label>Skip to page</mat-label>
+          <input matInput type="number" min="1" step="1"
+                 [value]="showIfGoToPage()"
+                 (input)="showIfGoToPage.set($any($event.target).value)"
+                 placeholder="e.g. 3" />
+          <mat-hint>When the rule above matches, jump to this page (1-indexed) instead of the next one. Leave blank for no skip.</mat-hint>
+        </mat-form-field>
+      }
+    </div>
+
+    @if (showOptions) {
+      <div class="options-section span-2">
+        <div class="options-header">
+          <div class="title-row">
+            <mat-icon>list</mat-icon>
+            <span>Options</span>
+          </div>
+          <button mat-mini-fab color="primary" type="button" aria-label="Add option" (click)="addOption()">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+        <div class="option-rows">
+          @for (opt of optionItems(); track $index; let i = $index) {
+            <div class="option-row">
+              <mat-form-field appearance="outline" class="opt-value">
+                <mat-label>Stored Value</mat-label>
+                <input matInput [value]="opt.value" (input)="updateOptionValue(i, $event.target.value)" />
+                <mat-hint>Sent to backend</mat-hint>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="opt-label">
+                <mat-label>Display Label</mat-label>
+                <input matInput [value]="opt.label" (input)="updateOptionLabel(i, $event.target.value)" />
+                <mat-hint>Shown to users</mat-hint>
+              </mat-form-field>
+              <button mat-icon-button color="warn" type="button" aria-label="Remove option" (click)="removeOption(i)" [disabled]="optionItems().length === 1">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+        @if (optionsInvalid()) { <div class="options-error">Fill both stored value and display label (minimum one option).</div> }
+        <div class="options-hint">Values are saved to the database; labels appear in the dropdown.</div>
+      </div>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-raised-button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
+  <button mat-raised-button color="primary" type="button" class="btn-primary" (click)="save()" [disabled]="invalid">
+    <mat-icon>save</mat-icon>
+    <span>{{ isEditMode ? 'Save changes' : 'Save' }}</span>
+  </button>
+</mat-dialog-actions>

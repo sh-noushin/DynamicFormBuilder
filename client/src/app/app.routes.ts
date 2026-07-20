@@ -12,23 +12,47 @@ export const routes: Routes = [
     component: LoginComponent
   },
   {
+    path: 'f/:slug',
+    loadComponent: () => import('./public-form/public-form.component').then(m => m.PublicFormComponent)
+  },
+  {
     path: 'admin',
-    loadComponent: () => import('./dashbosrds/admin/admin-dashboard.component').then(m => m.AdminDashboardComponent),
+    loadComponent: () => import('./dashboards/admin/admin-dashboard.component').then(m => m.AdminDashboardComponent),
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: [UserRole.Admin] },
     children: [
       {
         path: '',
-        redirectTo: 'forms',
+        redirectTo: 'overview',
         pathMatch: 'full'
       },
       {
+        path: 'overview',
+        loadComponent: () => import('./dashboards/admin/admin-overview.component/admin-overview.component').then(m => m.AdminOverviewComponent)
+      },
+      {
         path: 'forms',
-        loadComponent: () => import('./dashbosrds/admin/form-management/forms-list.component/forms-list.component').then(m => m.FormsListComponent)
+        loadComponent: () => import('./dashboards/admin/form-management/forms-list.component/forms-list.component').then(m => m.FormsListComponent)
+      },
+      {
+        path: 'forms/:id/submissions',
+        loadComponent: () => import('./dashboards/admin/form-management/admin-submissions.component/admin-submissions.component').then(m => m.AdminSubmissionsComponent)
+      },
+      {
+        path: 'forms/:id/analytics',
+        loadComponent: () => import('./dashboards/admin/form-management/form-analytics.component/form-analytics.component').then(m => m.FormAnalyticsComponent)
+      },
+      {
+        path: 'forms/:formId/preview/:versionNumber',
+        loadComponent: () => import('./dashboards/admin/form-management/admin-preview.component/admin-preview.component').then(m => m.AdminPreviewComponent)
       },
       {
         path: 'users',
-        loadComponent: () => import('./dashbosrds/admin/user-management/users-list.component/users-list.component').then(m => m.UsersListComponent)
+        loadComponent: () => import('./dashboards/admin/user-management/users-list.component/users-list.component').then(m => m.UsersListComponent)
+      },
+      {
+        path: 'api-keys',
+        loadComponent: () => import('./dashboards/admin/api-keys/api-keys.component').then(m => m.ApiKeysComponent)
       }
     ]
   },
@@ -36,7 +60,7 @@ export const routes: Routes = [
     path: 'user',
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: [UserRole.User] },
-    loadComponent: () => import('./dashbosrds/user/user-dashboard.component/user-dashboard.component').then(m => m.UserDashboardComponent)
+    loadComponent: () => import('./dashboards/user/user-dashboard.component/user-dashboard.component').then(m => m.UserDashboardComponent)
   },
   {
     path: '',

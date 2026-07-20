@@ -1,6 +1,6 @@
 ﻿namespace FormBuilder.Models.Exceptions;
 
-public class FormVersionNotFoundException : Exception
+public class FormVersionNotFoundException : EntityNotFoundException
 {
     public FormVersionNotFoundException() : base("Form version was not found.")
     {

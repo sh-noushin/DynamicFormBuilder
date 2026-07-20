@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { HeaderComponent } from '../header.component/header.component';
 import { FooterComponent } from '../footer.component/footer.component';
@@ -12,6 +12,7 @@ import { MatListModule } from '@angular/material/list';
   standalone: true,
   imports: [RouterOutlet, RouterModule, HeaderComponent, FooterComponent, MatSidenavModule, MatIconModule, MatButtonModule, MatListModule],
   templateUrl: './content.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./content.component.scss']
 })
 export class ContentComponent {

@@ -1,4 +1,8 @@
-﻿using FormBuilder.Core.DTOs;
+﻿using System.Globalization;
+using System.Text;
+using FormBuilder.Core.Common;
+using FormBuilder.Core.Constants;
+using FormBuilder.Core.DTOs;
 using FormBuilder.Core.Interfaces;
 using FormBuilder.Models.Entities;
 using FormBuilder.Models.Exceptions;
@@ -9,6 +13,10 @@ namespace FormBuilder.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+// Class-level Bearer default. Individual GET endpoints opt in to the
+// ApiKey scheme via a per-method [Authorize(AuthenticationSchemes = ...)]
+// so writes stay Bearer-only by construction (safer than trying to
+// exclude ApiKey per write endpoint).
 [Authorize]
 public class FormSubmissionsController : ControllerBase
 {
@@ -24,7 +32,7 @@ public class FormSubmissionsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin,User")]
+    [Authorize(Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(FormSubmissionDto), 201)]
     [ProducesResponseType(typeof(void), 400)]
@@ -69,7 +77,7 @@ public class FormSubmissionsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin,User")]
+    [Authorize(AuthenticationSchemes = "Bearer,ApiKey", Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(FormSubmissionDto), 200)]
     [ProducesResponseType(typeof(void), 404)]
@@ -85,7 +93,7 @@ public class FormSubmissionsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = "Admin,User")]
+    [Authorize(Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(FormSubmissionDto), 200)]
     [ProducesResponseType(typeof(void), 404)]
@@ -122,7 +130,7 @@ public class FormSubmissionsController : ControllerBase
     }
 
     [HttpGet("form-version/{formVersionId}")]
-    [Authorize(Roles = "Admin,User")]
+    [Authorize(AuthenticationSchemes = "Bearer,ApiKey", Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<FormSubmissionDto>), 200)]
     public async Task<ActionResult<IEnumerable<FormSubmissionDto>>> GetSubmissionsByFormVersion(Guid formVersionId)
@@ -132,7 +140,7 @@ public class FormSubmissionsController : ControllerBase
     }
 
     [HttpGet("form/{formId}")]
-    [Authorize(Roles = "Admin,User")]
+    [Authorize(AuthenticationSchemes = "Bearer,ApiKey", Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<FormSubmissionDto>), 200)]
     public async Task<ActionResult<IEnumerable<FormSubmissionDto>>> GetSubmissionsByForm(Guid formId)
@@ -141,8 +149,71 @@ public class FormSubmissionsController : ControllerBase
         return Ok(submissions);
     }
 
+    [HttpGet("form/{formId}/export.csv")]
+    [Authorize(AuthenticationSchemes = "Bearer,ApiKey", Roles = Roles.Admin)]
+    [Produces("text/csv")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(typeof(void), 404)]
+    public async Task<IActionResult> ExportFormSubmissions(Guid formId)
+    {
+        return await BuildCsvExportAsync(formId, filterIds: null);
+    }
+
+    // Selected-only CSV export. POST (not GET) because the id list may be
+    // large enough to blow past URL length limits at ~50-100 submissions.
+    [HttpPost("form/{formId}/export.csv")]
+    [Authorize(Roles = Roles.Admin)]
+    [Produces("text/csv")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(typeof(void), 400)]
+    public async Task<IActionResult> ExportSelectedFormSubmissions(Guid formId, [FromBody] BulkDeleteSubmissionsDto payload)
+    {
+        if (payload?.Ids == null || payload.Ids.Count == 0)
+            return BadRequest(new { message = "At least one submission id must be provided." });
+
+        var filter = new HashSet<Guid>(payload.Ids.Where(id => id != Guid.Empty));
+        return await BuildCsvExportAsync(formId, filter);
+    }
+
+    private async Task<IActionResult> BuildCsvExportAsync(Guid formId, HashSet<Guid>? filterIds)
+    {
+        var currentVersion = await _formVersionService.GetCurrentVersionAsync(formId);
+        var submissions = await _submissionService.GetSubmissionsByFormIdAsync(formId);
+
+        if (filterIds is { Count: > 0 })
+        {
+            submissions = submissions.Where(s => filterIds.Contains(s.Id));
+        }
+
+        var fieldColumns = currentVersion.Fields
+            .OrderBy(f => f.Order)
+            .Select(f => f.Name)
+            .ToList();
+
+        var headers = new List<string> { "SubmittedAt", "SubmitterName", "SubmitterEmail" };
+        headers.AddRange(fieldColumns);
+
+        var rows = submissions.Select(submission =>
+        {
+            var byName = submission.Values.ToDictionary(v => v.FieldName, v => v.FieldValue, StringComparer.OrdinalIgnoreCase);
+            var row = new List<string?>
+            {
+                submission.SubmittedAt.ToString("O", CultureInfo.InvariantCulture),
+                submission.SubmitterName,
+                submission.SubmitterEmail
+            };
+            row.AddRange(fieldColumns.Select(col => byName.TryGetValue(col, out var v) ? v : null));
+            return row;
+        });
+
+        var csv = CsvWriter.Write(headers, rows);
+        var suffix = filterIds is { Count: > 0 } ? $"-selected-{filterIds.Count}" : string.Empty;
+        var fileName = $"submissions-{formId}{suffix}-{DateTime.UtcNow:yyyyMMdd-HHmmss}.csv";
+        return File(new UTF8Encoding(encoderShouldEmitUTF8Identifier: true).GetBytes(csv), "text/csv", fileName);
+    }
+
     [HttpGet("form-version/{formVersionId}/count")]
-    [Authorize(Roles = "Admin,User")]
+    [Authorize(AuthenticationSchemes = "Bearer,ApiKey", Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(int), 200)]
     public async Task<ActionResult<int>> GetSubmissionCountByFormVersion(Guid formVersionId)
@@ -152,7 +223,7 @@ public class FormSubmissionsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin,User")]
+    [Authorize(Roles = Roles.AdminOrUser)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(void), 204)]
     [ProducesResponseType(typeof(void), 404)]
@@ -165,6 +236,39 @@ public class FormSubmissionsController : ControllerBase
         }
 
         return NoContent();
+    }
+
+    [HttpPatch("{id}/notes")]
+    [Authorize(Roles = Roles.AdminOrUser)]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(FormSubmissionDto), 200)]
+    [ProducesResponseType(typeof(void), 404)]
+    public async Task<ActionResult<FormSubmissionDto>> UpdateAdminNotes(Guid id, [FromBody] UpdateSubmissionNotesDto payload)
+    {
+        var updated = await _submissionService.UpdateAdminNotesAsync(id, payload.AdminNotes);
+        return Ok(updated);
+    }
+
+    [HttpPatch("{id}/tags")]
+    [Authorize(Roles = Roles.AdminOrUser)]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(FormSubmissionDto), 200)]
+    [ProducesResponseType(typeof(void), 404)]
+    public async Task<ActionResult<FormSubmissionDto>> UpdateTags(Guid id, [FromBody] UpdateSubmissionTagsDto payload)
+    {
+        var updated = await _submissionService.UpdateTagsAsync(id, payload.Tags ?? new List<string>());
+        return Ok(updated);
+    }
+
+    [HttpPost("form/{formId}/bulk-delete")]
+    [Authorize(Roles = Roles.Admin)]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(BulkDeleteResultDto), 200)]
+    [ProducesResponseType(typeof(void), 400)]
+    public async Task<ActionResult<BulkDeleteResultDto>> BulkDeleteSubmissions(Guid formId, [FromBody] BulkDeleteSubmissionsDto payload)
+    {
+        var deleted = await _submissionService.BulkDeleteSubmissionsAsync(formId, payload.Ids);
+        return Ok(new BulkDeleteResultDto { Deleted = deleted });
     }
 }
 

@@ -1,17 +1,34 @@
 using System.Text.Json;
 using FormBuilder.Core.Interfaces;
-using FormBuilder.Models.Entities;
+using FormBuilder.Core.Services.FieldRules;
 
 namespace FormBuilder.Core.Services;
 
 public class FieldValidator : IFieldValidator
 {
     private readonly FormBuilder.Models.Repositories.IFormVersionRepository _versionRepository;
+    private readonly IReadOnlyList<IFieldRule> _rules;
 
-    public FieldValidator(FormBuilder.Models.Repositories.IFormVersionRepository versionRepository)
+    public FieldValidator(FormBuilder.Models.Repositories.IFormVersionRepository versionRepository, IEnumerable<IFieldRule> rules)
     {
         _versionRepository = versionRepository;
+        _rules = rules.ToList();
     }
+
+    // Convenience constructor for tests and standalone usage; wires the built-in rule set.
+    public FieldValidator(FormBuilder.Models.Repositories.IFormVersionRepository versionRepository)
+        : this(versionRepository, DefaultRules())
+    {
+    }
+
+    public static IEnumerable<IFieldRule> DefaultRules() => new IFieldRule[]
+    {
+        new RequiredRule(),
+        new PatternRule(),
+        new LengthRule(),
+        new NumericRangeRule(),
+        new AllowedValuesRule()
+    };
 
     public async Task<Dictionary<string, List<string>>> ValidateAsync(Guid formVersionId, Dictionary<string, string?>? fieldValues)
     {
@@ -24,82 +41,42 @@ public class FieldValidator : IFieldValidator
             return errors;
         }
 
-        // Normalize incoming values map
         fieldValues ??= new Dictionary<string, string?>();
 
         foreach (var field in version.Fields.OrderBy(f => f.Order))
         {
-            var fieldErrors = new List<string>();
             fieldValues.TryGetValue(field.Name, out var rawValue);
-            var hasValue = !string.IsNullOrEmpty(rawValue);
 
-            // Required check
-            if (field.IsRequired && !hasValue)
-                fieldErrors.Add("This field is required.");
+            var fieldErrors = new List<string>();
 
-            // If there's a validation JSON, try to parse it and apply rules
-            if (!string.IsNullOrEmpty(field.Validation) && hasValue)
+            JsonElement? validationRoot = null;
+            JsonDocument? doc = null;
+
+            if (!string.IsNullOrEmpty(field.Validation))
             {
                 try
                 {
-                    using var doc = JsonDocument.Parse(field.Validation);
-                    var root = doc.RootElement;
-
-                    // pattern / regex
-                    if (root.TryGetProperty("pattern", out var patternEl) && patternEl.ValueKind == JsonValueKind.String)
-                    {
-                        var pattern = patternEl.GetString()!;
-                        try
-                        {
-                            if (!System.Text.RegularExpressions.Regex.IsMatch(rawValue!, pattern))
-                                fieldErrors.Add("Value does not match the required pattern.");
-                        }
-                        catch
-                        {
-                            // ignore invalid regex here but surface generic message
-                            fieldErrors.Add("Validation pattern is invalid on the field configuration.");
-                        }
-                    }
-
-                    // minLength / maxLength
-                    if (root.TryGetProperty("minLength", out var minLenEl) && minLenEl.ValueKind == JsonValueKind.Number && rawValue != null)
-                    {
-                        if (rawValue!.Length < minLenEl.GetInt32())
-                            fieldErrors.Add($"Minimum length is {minLenEl.GetInt32()}.");
-                    }
-                    if (root.TryGetProperty("maxLength", out var maxLenEl) && maxLenEl.ValueKind == JsonValueKind.Number && rawValue != null)
-                    {
-                        if (rawValue!.Length > maxLenEl.GetInt32())
-                            fieldErrors.Add($"Maximum length is {maxLenEl.GetInt32()}.");
-                    }
-
-                    // numeric min/max
-                    if (field.Type == FieldType.Number && double.TryParse(rawValue, out var numeric))
-                    {
-                        if (root.TryGetProperty("minimum", out var minEl) && minEl.ValueKind == JsonValueKind.Number)
-                        {
-                            if (numeric < minEl.GetDouble())
-                                fieldErrors.Add($"Minimum value is {minEl.GetDouble()}.");
-                        }
-                        if (root.TryGetProperty("maximum", out var maxEl) && maxEl.ValueKind == JsonValueKind.Number)
-                        {
-                            if (numeric > maxEl.GetDouble())
-                                fieldErrors.Add($"Maximum value is {maxEl.GetDouble()}.");
-                        }
-                    }
-
-                    // allowed values (enum/select)
-                    if (root.TryGetProperty("allowed", out var allowedEl) && allowedEl.ValueKind == JsonValueKind.Array)
-                    {
-                        var allowed = allowedEl.EnumerateArray().Where(e => e.ValueKind == JsonValueKind.String).Select(e => e.GetString()).ToHashSet(StringComparer.OrdinalIgnoreCase);
-                        if (!allowed.Contains(rawValue))
-                            fieldErrors.Add("Value is not one of the allowed options.");
-                    }
+                    doc = JsonDocument.Parse(field.Validation);
+                    validationRoot = doc.RootElement.Clone();
                 }
                 catch (JsonException)
                 {
                     fieldErrors.Add("Invalid validation configuration for this field.");
                 }
+                finally
+                {
+                    doc?.Dispose();
+                }
+            }
+
+            var context = new FieldValidationContext(field, rawValue, validationRoot);
+
+            // If the config JSON is invalid, skip config-dependent rules; still run required.
+            foreach (var rule in _rules)
+            {
+                if (validationRoot is null && rule is not RequiredRule)
+                    continue;
+                fieldErrors.AddRange(rule.Validate(context));
             }
 
             if (fieldErrors.Any())

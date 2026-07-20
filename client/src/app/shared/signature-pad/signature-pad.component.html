@@ -1,0 +1,17 @@
+<div class="signature-pad">
+  @if (label) {
+    <label class="pad-label">{{ label }}</label>
+  }
+  <div class="pad-frame">
+    <canvas #canvas></canvas>
+    <div class="pad-actions">
+      <button mat-stroked-button type="button" (click)="clear()" [disabled]="!hasSignature()">
+        <mat-icon>clear</mat-icon>
+        <span>Clear</span>
+      </button>
+    </div>
+  </div>
+  @if (!hasSignature()) {
+    <div class="pad-hint">Sign above with your mouse, finger, or stylus.</div>
+  }
+</div>

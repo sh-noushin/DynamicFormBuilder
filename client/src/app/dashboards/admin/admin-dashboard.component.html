@@ -1,0 +1,47 @@
+
+<app-header title="Admin Dashboard"></app-header>
+
+<div class="admin-dashboard">
+  <mat-tab-group class="dashboard-tabs" [selectedIndex]="selectedIndex()" (selectedIndexChange)="onTabChange($event)" mat-stretch-tabs="false" mat-align-tabs="start">
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <div class="tab-label tab-label-primary">
+          <mat-icon class="tab-icon">dashboard</mat-icon>
+          <span>Overview</span>
+        </div>
+      </ng-template>
+      <div class="tab-content"></div>
+    </mat-tab>
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <div class="tab-label tab-label-primary">
+          <mat-icon class="tab-icon">description</mat-icon>
+          <span>Forms</span>
+        </div>
+      </ng-template>
+      <div class="tab-content"></div>
+    </mat-tab>
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <div class="tab-label tab-label-primary">
+          <mat-icon class="tab-icon">people</mat-icon>
+          <span>Users</span>
+        </div>
+      </ng-template>
+      <div class="tab-content"></div>
+    </mat-tab>
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <div class="tab-label tab-label-primary">
+          <mat-icon class="tab-icon">vpn_key</mat-icon>
+          <span>API keys</span>
+        </div>
+      </ng-template>
+      <div class="tab-content"></div>
+    </mat-tab>
+  </mat-tab-group>
+
+  <div class="content-area">
+    <router-outlet></router-outlet>
+  </div>
+</div>

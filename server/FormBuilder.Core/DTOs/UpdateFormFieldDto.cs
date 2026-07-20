@@ -12,6 +12,7 @@ public class UpdateFormFieldDto
     public string? Options { get; set; } 
     public string? Placeholder { get; set; }
     public string? HelpText { get; set; }
+    public string? ShowIfCondition { get; set; }
     public int Order { get; set; }
     public bool IsVisible { get; set; } = true;
     public bool IsReadOnly { get; set; } = false;

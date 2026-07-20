@@ -17,10 +17,67 @@ namespace FormBuilder.Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.0");
 
+            modelBuilder.Entity("FormBuilder.Models.Entities.ApiKey", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("KeyHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("KeyPrefix")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("LastUsedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KeyHash")
+                        .IsUnique();
+
+                    b.ToTable("ApiKeys");
+                });
+
             modelBuilder.Entity("FormBuilder.Models.Entities.Form", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AccessPassword")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BrandColor")
+                        .HasMaxLength(9)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ClosesAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ConfirmationEmailBody")
+                        .HasMaxLength(4000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ConfirmationEmailSubject")
+                        .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
@@ -30,7 +87,17 @@ namespace FormBuilder.Infrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("FaviconUrl")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Locale")
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("MaxSubmissions")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
@@ -38,10 +105,46 @@ namespace FormBuilder.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("OneResponsePerEmail")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("OneResponsePerIp")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("RedirectUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("SendConfirmationEmail")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ThankYouMessage")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("WebhookSecret")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("WebhookSlackFormat")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("WebhookUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
 
                     b.ToTable("Forms");
                 });
@@ -50,6 +153,10 @@ namespace FormBuilder.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AdminNotes")
+                        .HasMaxLength(4000)
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("FormVersionId")
@@ -70,11 +177,61 @@ namespace FormBuilder.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Tags")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("FormVersionId");
 
                     b.ToTable("FormSubmissions");
+                });
+
+            modelBuilder.Entity("FormBuilder.Models.Entities.FormSubmissionDraft", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FieldValuesJson")
+                        .IsRequired()
+                        .HasMaxLength(64000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("FormId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ResumeToken")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SubmitterEmail")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SubmitterName")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("FormId");
+
+                    b.HasIndex("ResumeToken")
+                        .IsUnique();
+
+                    b.ToTable("FormSubmissionDrafts");
                 });
 
             modelBuilder.Entity("FormBuilder.Models.Entities.FormSubmissionValue", b =>
@@ -184,6 +341,10 @@ namespace FormBuilder.Infrastructure.Migrations
 
                     b.Property<string>("Placeholder")
                         .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ShowIfCondition")
+                        .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Type")
@@ -401,6 +562,17 @@ namespace FormBuilder.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("FormVersion");
+                });
+
+            modelBuilder.Entity("FormBuilder.Models.Entities.FormSubmissionDraft", b =>
+                {
+                    b.HasOne("FormBuilder.Models.Entities.Form", "Form")
+                        .WithMany()
+                        .HasForeignKey("FormId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Form");
                 });
 
             modelBuilder.Entity("FormBuilder.Models.Entities.FormSubmissionValue", b =>

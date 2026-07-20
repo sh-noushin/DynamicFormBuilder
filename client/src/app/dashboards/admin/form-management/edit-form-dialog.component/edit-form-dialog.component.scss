@@ -1,0 +1,206 @@
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 8px 4px;
+}
+
+// Groups multiple <mat-slide-toggle> elements onto one line with enough
+// spacing that the second toggle's thumb doesn't kiss the previous label.
+// 32px matches the horizontal rhythm used elsewhere in the dialog.
+.toggle-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+  padding: 4px 2px;
+  margin: 4px 0;
+}
+
+.brand-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--dialog-text, #cbd5e1);
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: var(--dialog-icon, #9cd2ff);
+  }
+}
+
+.brand-input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 44px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+
+  &::-webkit-color-swatch-wrapper { padding: 2px; }
+  &::-webkit-color-swatch { border: none; border-radius: 6px; }
+}
+
+.brand-hex {
+  font-family: monospace;
+  font-size: 13px;
+  min-width: 70px;
+}
+
+.brand-reset { margin-left: 4px; }
+
+.action-btn {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  padding: 0;
+  margin: 0;
+
+  &.edit-btn {
+    background-color: #2196f3;
+    color: white;
+    &:hover {
+      background-color: #42a5f5;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(33, 150, 243, 0.4), 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3), 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  &.delete-btn {
+    background-color: #f44336;
+    color: white;
+    &:hover {
+      background-color: #ef5350;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(244, 67, 54, 0.4), 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(244, 67, 54, 0.3), 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  mat-icon {
+    font-size: 18px !important;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+  }
+}
+.dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--dialog-text-strong);
+  mat-icon {
+    color: var(--dialog-icon);
+    background: rgba(100,181,246,0.16);
+    border-radius: 10px;
+    padding: 6px;
+  }
+  .spacer { flex: 1; }
+}
+
+
+.dialog-form mat-form-field {
+  &:first-of-type {
+    margin-top: 16px;
+  }
+}
+
+
+
+.versions-table-card {
+  margin-top: 15px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+
+  mat-card-header {
+    background: transparent;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    mat-card-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    mat-card-subtitle {
+      color: #64748b;
+      font-size: 0.875rem;
+      margin-top: 4px;
+    }
+
+    .header-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      button[mat-raised-button] {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background-color: #2196f3;
+        color: #fff;
+        box-shadow: 0 2px 4px rgba(33,150,243,0.3);
+      }
+    }
+  }
+  mat-card-content {
+    padding: 0;
+  }
+}
+.cell { color: #111827; }
+.table-row { transition: all 0.2s ease; }
+.table-row:hover { background: #f8f9ff; }
+.actions-cell .mat-mdc-icon-button { box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+.btn-edit { color: #0284c7; }
+.btn-publish { color: #10b981; }
+.btn-current { color: #6366f1; }
+.btn-delete { color: #ef4444; }
+.status-indicator {
+  width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+}
+.status-active { background-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
+.status-inactive { background-color: #d1d5db; box-shadow: 0 0 0 3px rgba(209,213,219,0.4); }
+.badge { font-size: 12px; padding: 2px 6px; background: #e5e7eb; border-radius: 999px; color: #374151; }
+.badge-current { background: #d1fae5; color: #065f46; }
+
+:host {
+  color: var(--dialog-text-strong);
+}
+

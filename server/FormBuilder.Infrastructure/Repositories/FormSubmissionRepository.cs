@@ -1,6 +1,5 @@
 ﻿using FormBuilder.Infrastructure.Data;
 using FormBuilder.Models.Entities;
-using FormBuilder.Models.Exceptions;
 using FormBuilder.Models.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -56,35 +55,69 @@ public class FormSubmissionRepository : IFormSubmissionRepository
             .CountAsync(s => s.FormVersionId == formVersionId);
     }
 
-    public async Task<FormSubmission> UpdateAsync(Guid id, string? submitterName, string? submitterEmail, Dictionary<string, string?> fieldValues)
+    public async Task<int> GetSubmissionCountByFormIdAsync(Guid formId)
+    {
+        return await _context.FormSubmissions
+            .CountAsync(s => s.FormVersion.FormId == formId);
+    }
+
+    public async Task<bool> HasSubmissionFromEmailAsync(Guid formId, string email)
+    {
+        // Case-insensitive because every mailbox provider we care about
+        // treats the local part as case-insensitive in practice.
+        var normalized = email.Trim().ToLower();
+        return await _context.FormSubmissions
+            .AnyAsync(s => s.FormVersion.FormId == formId
+                        && s.SubmitterEmail != null
+                        && s.SubmitterEmail.ToLower() == normalized);
+    }
+
+    public async Task<bool> HasSubmissionFromIpAsync(Guid formId, string ipAddress)
+    {
+        var normalized = ipAddress.Trim();
+        if (normalized.Length == 0) return false;
+        return await _context.FormSubmissions
+            .AnyAsync(s => s.FormVersion.FormId == formId
+                        && s.SubmitterIpAddress == normalized);
+    }
+
+    public async Task<IReadOnlyList<DateTime>> GetSubmittedAtByFormIdSinceAsync(Guid formId, DateTime since)
+    {
+        return await _context.FormSubmissions
+            .AsNoTracking()
+            .Where(s => s.FormVersion.FormId == formId && s.SubmittedAt >= since)
+            .OrderBy(s => s.SubmittedAt)
+            .Select(s => s.SubmittedAt)
+            .ToListAsync();
+    }
+
+    public async Task<FormSubmission?> UpdateAsync(Guid id, FormSubmission source)
     {
         var submission = await _context.FormSubmissions
             .Include(s => s.Values)
             .FirstOrDefaultAsync(s => s.Id == id);
 
         if (submission == null)
-        {
-            throw new FormSubmissionNotFoundException(id);
-        }
+            return null;
 
-        submission.SubmitterName = submitterName;
-        submission.SubmitterEmail = submitterEmail;
+        submission.SubmitterName = source.SubmitterName;
+        submission.SubmitterEmail = source.SubmitterEmail;
+        submission.AdminNotes = source.AdminNotes;
         submission.SubmittedAt = DateTime.UtcNow;
 
         _context.FormSubmissionValues.RemoveRange(submission.Values);
         submission.Values.Clear();
 
-        foreach (var kvp in fieldValues)
+        foreach (var value in source.Values)
         {
             submission.Values.Add(new FormSubmissionValue
             {
-                FieldName = kvp.Key,
-                FieldValue = kvp.Value
+                FieldName = value.FieldName,
+                FieldValue = value.FieldValue
             });
         }
 
         await _context.SaveChangesAsync();
-
         await _context.Entry(submission).Collection(s => s.Values).LoadAsync();
 
         return submission;
@@ -99,5 +132,46 @@ public class FormSubmissionRepository : IFormSubmissionRepository
         _context.FormSubmissions.Remove(submission);
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<FormSubmission?> UpdateAdminNotesAsync(Guid id, string? adminNotes)
+    {
+        var submission = await _context.FormSubmissions
+            .Include(s => s.Values)
+            .FirstOrDefaultAsync(s => s.Id == id);
+
+        if (submission == null) return null;
+
+        submission.AdminNotes = adminNotes;
+        await _context.SaveChangesAsync();
+        return submission;
+    }
+
+    public async Task<FormSubmission?> UpdateTagsAsync(Guid id, string? tagsCsv)
+    {
+        var submission = await _context.FormSubmissions
+            .Include(s => s.Values)
+            .FirstOrDefaultAsync(s => s.Id == id);
+
+        if (submission == null) return null;
+
+        submission.Tags = tagsCsv;
+        await _context.SaveChangesAsync();
+        return submission;
+    }
+
+    public async Task<int> DeleteManyByFormAsync(Guid formId, IReadOnlyList<Guid> ids)
+    {
+        if (ids.Count == 0) return 0;
+
+        var toDelete = await _context.FormSubmissions
+            .Where(s => s.FormVersion.FormId == formId && ids.Contains(s.Id))
+            .ToListAsync();
+
+        if (toDelete.Count == 0) return 0;
+
+        _context.FormSubmissions.RemoveRange(toDelete);
+        await _context.SaveChangesAsync();
+        return toDelete.Count;
     }
 }

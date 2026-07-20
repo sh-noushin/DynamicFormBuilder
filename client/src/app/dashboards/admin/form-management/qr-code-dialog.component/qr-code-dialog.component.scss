@@ -1,0 +1,42 @@
+.dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 16px 16px;
+  min-width: 320px;
+}
+
+.qr-frame {
+  background: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  line-height: 0;
+
+  svg {
+    display: block;
+    width: 240px;
+    height: 240px;
+  }
+}
+
+.url-row {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  color: var(--mat-sys-on-surface-variant, #64748b);
+  word-break: break-all;
+  text-align: center;
+  max-width: 280px;
+}
+
+.dialog-actions {
+  padding: 8px 16px 16px;
+  gap: 4px;
+}

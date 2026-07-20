@@ -1,0 +1,97 @@
+<div class="analytics-page">
+  <div class="header-row">
+    <button mat-icon-button routerLink="/admin/forms" aria-label="Back to forms">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-text">
+      <h2>Analytics</h2>
+      @if (form(); as f) { <span class="form-name">{{ f.name }}</span> }
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="state-block">
+      <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
+      <p>Loading analytics&hellip;</p>
+    </div>
+  } @else if (errorMessage()) {
+    <mat-card class="state-card">
+      <mat-icon class="state-icon">error_outline</mat-icon>
+      <p>{{ errorMessage() }}</p>
+    </mat-card>
+  } @else if (analytics(); as a) {
+    <div class="stat-row">
+      <mat-card class="stat-card">
+        <span class="stat-label">Total submissions</span>
+        <span class="stat-value">{{ a.totalSubmissions | number }}</span>
+      </mat-card>
+      <mat-card class="stat-card">
+        <span class="stat-label">Last 7 days</span>
+        <span class="stat-value">{{ a.last7Days | number }}</span>
+      </mat-card>
+      <mat-card class="stat-card">
+        <span class="stat-label">Last 30 days</span>
+        <span class="stat-value">{{ a.last30Days | number }}</span>
+      </mat-card>
+    </div>
+
+    <mat-card class="chart-card">
+      <mat-card-header>
+        <mat-card-title>Submissions over last 30 days</mat-card-title>
+        <mat-card-subtitle>Peak: {{ peak() | number }} on the busiest day</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <svg class="chart" [attr.viewBox]="viewBox" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Daily submissions bar chart">
+          <line class="axis" [attr.x1]="chartInnerLeft" [attr.x2]="chartInnerRight" [attr.y1]="yBottom()" [attr.y2]="yBottom()"></line>
+          <text class="y-tick" [attr.x]="chartInnerLeft - 6" [attr.y]="yTop() + 4" text-anchor="end">{{ peak() | number }}</text>
+          <text class="y-tick" [attr.x]="chartInnerLeft - 6" [attr.y]="yBottom()" text-anchor="end">0</text>
+          @for (bar of bars(); track bar.date) {
+            <rect class="bar"
+                  [attr.x]="bar.x"
+                  [attr.y]="bar.y"
+                  [attr.width]="bar.width"
+                  [attr.height]="bar.height">
+              <title>{{ bar.date }} — {{ bar.count | number }} submission(s)</title>
+            </rect>
+          }
+          @for (l of xLabels(); track l.label) {
+            <text class="x-tick" [attr.x]="l.x" [attr.y]="chartHeight - 8" text-anchor="middle">{{ l.label }}</text>
+          }
+        </svg>
+      </mat-card-content>
+    </mat-card>
+
+    @if (fieldBreakdowns().length > 0) {
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Answer breakdowns</mat-card-title>
+          <mat-card-subtitle>Distribution across choice fields on the current version</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="breakdown-grid">
+          @for (field of fieldBreakdowns(); track field.fieldName) {
+            <div class="breakdown-block">
+              <div class="breakdown-head">
+                <span class="breakdown-label">{{ field.fieldLabel || field.fieldName }}</span>
+                <span class="breakdown-meta">{{ field.fieldType }} &middot; {{ field.totalAnswered | number }} answered</span>
+              </div>
+              <div class="breakdown-rows">
+                @for (b of field.buckets; track b.label) {
+                  <div class="breakdown-row">
+                    <div class="row-label" [title]="b.label">{{ b.label }}</div>
+                    <div class="row-bar-wrap">
+                      <div class="row-bar" [style.width.%]="bucketWidthPct(b, field)"></div>
+                    </div>
+                    <div class="row-count">
+                      <span class="count">{{ b.count | number }}</span>
+                      <span class="percent">{{ bucketWidthPct(b, field) }}%</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    }
+  }
+</div>

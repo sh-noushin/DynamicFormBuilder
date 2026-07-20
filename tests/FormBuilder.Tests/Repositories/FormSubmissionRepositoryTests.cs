@@ -117,9 +117,18 @@ namespace FormBuilder.Tests.Repositories
             context.FormSubmissions.Add(submission);
             await context.SaveChangesAsync();
             var repo = new FormSubmissionRepository(context);
-            var updated = await repo.UpdateAsync(submission.Id, "New", "new@example.com", new Dictionary<string, string?> { { "Field2", "Value2" } });
+            var source = new FormSubmission
+            {
+                SubmitterName = "New",
+                SubmitterEmail = "new@example.com",
+                Values = new List<FormSubmissionValue>
+                {
+                    new FormSubmissionValue { FieldName = "Field2", FieldValue = "Value2" }
+                }
+            };
+            var updated = await repo.UpdateAsync(submission.Id, source);
             Assert.NotNull(updated);
-            Assert.Equal("New", updated.SubmitterName);
+            Assert.Equal("New", updated!.SubmitterName);
             Assert.Equal("new@example.com", updated.SubmitterEmail);
             Assert.Single(updated.Values);
             Assert.Equal("Field2", updated.Values[0].FieldName);

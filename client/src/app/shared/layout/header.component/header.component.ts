@@ -1,4 +1,4 @@
-import { Component, inject, signal, Input, computed } from '@angular/core';
+import { Component, inject, signal, Input, computed, ChangeDetectionStrategy } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,6 +16,7 @@ import { Client as ApiClient } from '../../../core/services/api-service';
   standalone: true,
   imports: [MatIconModule, MatButtonModule, MatToolbarModule, MatMenuModule, MatDialogModule],
   templateUrl: './header.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent {
@@ -81,7 +82,6 @@ export class HeaderComponent {
   private handlePasswordChange(payload: ChangePasswordPayload) {
     this.api.changePassword(payload).subscribe({
       next: (result) => {
-        console.info('Password changed successfully', result);
         // TODO: Show success feedback to user
       },
       error: (err) => {

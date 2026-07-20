@@ -2,30 +2,33 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FormBuilder.Core.DTOs;
+using FormBuilder.Core.Options;
 using FormBuilder.Core.Services;
-using Microsoft.Extensions.Configuration;
-using NSubstitute;
-
 using FormBuilder.Models.Entities;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace FormBuilder.Tests.Services
 {
     public class JwtServiceTests
     {
-        private readonly IConfiguration _configuration;
         private readonly JwtService _jwtService;
 
         public JwtServiceTests()
         {
-            _configuration = Substitute.For<IConfiguration>();
-            _jwtService = new JwtService(_configuration);
+            var options = Options.Create(new JwtOptions
+            {
+                Key = "test-key-test-key-test-key-test-key-test-key-test-key",
+                Issuer = "TestIssuer",
+                Audience = "TestAudience",
+                ExpireMinutes = 60
+            });
+            _jwtService = new JwtService(options);
         }
 
         [Fact]
-        public async Task GenerateTokenAsync_ReturnsTokenString()
+        public void GenerateToken_ReturnsTokenString()
         {
-            // Arrange
             var user = new UserDto
             {
                 Id = "1",
@@ -36,15 +39,8 @@ namespace FormBuilder.Tests.Services
             };
             var roles = new List<string> { "User" };
 
-            _configuration["Jwt:Key"].Returns("test-key-test-key-test-key-test-key-test-key-test-key");
-            _configuration["Jwt:Issuer"].Returns("TestIssuer");
-            _configuration["Jwt:Audience"].Returns("TestAudience");
-            _configuration["Jwt:ExpireMinutes"].Returns("60");
+            var token = _jwtService.GenerateToken(user, roles);
 
-            // Act
-            var token = await _jwtService.GenerateTokenAsync(user, roles);
-
-            // Assert
             Assert.False(string.IsNullOrWhiteSpace(token));
         }
     }

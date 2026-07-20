@@ -1,6 +1,6 @@
 ﻿namespace FormBuilder.Models.Exceptions;
 
-public class UserUpdateFailedException : Exception
+public class UserUpdateFailedException : IdentityOperationFailedException
 {
     public UserUpdateFailedException() : base("Failed to update user.")
     {

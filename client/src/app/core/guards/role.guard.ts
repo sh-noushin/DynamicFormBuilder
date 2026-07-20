@@ -42,7 +42,6 @@ export class RoleGuard implements CanActivate {
         );
         
         if (!hasRequiredRole) {
-          console.warn('[RoleGuard] User does not have required role');
           this.redirectToUnauthorized();
           return false;
         }
@@ -50,7 +49,6 @@ export class RoleGuard implements CanActivate {
         return true;
       }),
       catchError(err => {
-        console.warn('[RoleGuard] Token validation failed:', err);
         localStorage.removeItem('auth_token');
         this.router.navigate(['/login']);
         return of(false);

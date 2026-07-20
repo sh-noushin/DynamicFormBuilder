@@ -1,5 +1,6 @@
 using FormBuilder.Core.Interfaces;
 using FormBuilder.Core.Services;
+using FormBuilder.Core.Services.FieldRules;
 using FormBuilder.Infrastructure.Data;
 using FormBuilder.Infrastructure.Repositories;
 using FormBuilder.Models.Entities;
@@ -40,6 +41,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFormVersionRepository, FormVersionRepository>();
         services.AddScoped<IFormFieldRepository, FormFieldRepository>();
         services.AddScoped<IFormSubmissionRepository, FormSubmissionRepository>();
+        services.AddScoped<IFormSubmissionDraftRepository, FormSubmissionDraftRepository>();
+        services.AddScoped<IApiKeyRepository, ApiKeyRepository>();
         return services;
     }
 
@@ -49,8 +52,28 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFormVersionService, FormVersionService>();
         services.AddScoped<IFormFieldService, FormFieldService>();
         services.AddScoped<IFormSubmissionService, FormSubmissionService>();
-        services.AddScoped<FormBuilder.Core.Interfaces.IFieldValidator, FormBuilder.Core.Services.FieldValidator>();
+        services.AddScoped<IPublicFormService, PublicFormService>();
+        services.AddScoped<IFormAnalyticsService, FormAnalyticsService>();
+        services.AddScoped<IFormSubmissionDraftService, FormSubmissionDraftService>();
+        services.AddScoped<IApiKeyService, ApiKeyService>();
+        services.AddHttpClient(FormBuilder.Infrastructure.Services.HttpWebhookSender.HttpClientName, client =>
+        {
+            // 10s cap keeps a slow receiver from tying up the submit path.
+            client.Timeout = TimeSpan.FromSeconds(10);
+        });
+        services.AddScoped<IWebhookSender, FormBuilder.Infrastructure.Services.HttpWebhookSender>();
+        services.AddScoped<IEmailSender, FormBuilder.Infrastructure.Services.SmtpEmailSender>();
+        services.AddScoped<ISubmissionNotifier, SubmissionNotifier>();
+        services.AddScoped<ISubmitterConfirmationSender, SubmitterConfirmationSender>();
+        services.AddScoped<IFieldRule, RequiredRule>();
+        services.AddScoped<IFieldRule, PatternRule>();
+        services.AddScoped<IFieldRule, LengthRule>();
+        services.AddScoped<IFieldRule, NumericRangeRule>();
+        services.AddScoped<IFieldRule, AllowedValuesRule>();
+        services.AddScoped<IFieldValidator, FieldValidator>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IPasswordService, PasswordService>();
+        services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IJwtService, JwtService>();
         return services;
     }

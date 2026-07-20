@@ -1,0 +1,405 @@
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDialog } from '@angular/material/dialog';
+import { Client, FormDto, FormFieldDto, FormSubmissionDto, FormVersionDto } from '../../../../core/services/api-service';
+import { environment } from '../../../../../environments/environment';
+import { DeleteDialogComponent, DeleteDialogData } from '../../../../shared/delete-dialog.component/delete-dialog.component';
+import { SubmissionDetailDialogComponent, SubmissionDetailDialogData } from '../submission-detail-dialog.component/submission-detail-dialog.component';
+
+@Component({
+  selector: 'app-admin-submissions',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
+    MatTableModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
+    MatTooltipModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatPaginatorModule,
+    MatCheckboxModule,
+    MatChipsModule,
+    MatSelectModule,
+    DatePipe,
+  ],
+  templateUrl: './admin-submissions.component.html',
+  styleUrl: './admin-submissions.component.scss',
+})
+export class AdminSubmissionsComponent {
+  private route = inject(ActivatedRoute);
+  private api = inject(Client);
+  private http = inject(HttpClient);
+  private snack = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
+
+  form = signal<FormDto | null>(null);
+  submissions = signal<FormSubmissionDto[]>([]);
+  loading = signal(true);
+  downloading = signal(false);
+  errorMessage = signal<string | null>(null);
+  searchQuery = signal<string>('');
+  // yyyy-MM-dd strings taken directly from <input type="date">. Empty means
+  // "no bound on this side". Used to filter SubmittedAt after the search
+  // filter has run.
+  fromDate = signal<string>('');
+  toDate = signal<string>('');
+  // Tag filter: submissions must carry at least one of the selected tags to
+  // pass through. Empty selection = no tag filter.
+  selectedTagFilter = signal<string[]>([]);
+  pageIndex = signal(0);
+  pageSize = signal(25);
+  // Submission ids the admin has ticked. Kept as a Set for O(1) membership
+  // checks; the template treats it as immutable and replaces via .set().
+  selectedIds = signal<Set<string>>(new Set());
+  bulkDeleting = signal(false);
+  bulkExporting = signal(false);
+
+  formId = computed(() => this.route.snapshot.paramMap.get('id') ?? '');
+
+  filteredSubmissions = computed<FormSubmissionDto[]>(() => {
+    const q = this.searchQuery().trim().toLowerCase();
+    // Interpret the date inputs in local time. The From bound is inclusive at
+    // 00:00 of that day; the To bound is inclusive through 23:59:59.999.
+    const from = this.fromDate() ? new Date(this.fromDate() + 'T00:00:00').getTime() : null;
+    const to = this.toDate() ? new Date(this.toDate() + 'T23:59:59.999').getTime() : null;
+
+    const selectedTags = this.selectedTagFilter();
+    const tagFilterActive = selectedTags.length > 0;
+
+    return this.submissions().filter(s => {
+      if (from != null || to != null) {
+        const ts = s.submittedAt ? new Date(s.submittedAt as any).getTime() : NaN;
+        if (Number.isNaN(ts)) return false;
+        if (from != null && ts < from) return false;
+        if (to != null && ts > to) return false;
+      }
+      if (tagFilterActive) {
+        const rowTags: string[] = Array.isArray((s as any).tags) ? (s as any).tags : [];
+        if (!selectedTags.some(t => rowTags.includes(t))) return false;
+      }
+      if (!q) return true;
+      if ((s.submitterName ?? '').toLowerCase().includes(q)) return true;
+      if ((s.submitterEmail ?? '').toLowerCase().includes(q)) return true;
+      for (const v of (s.values ?? [])) {
+        if ((v.fieldValue ?? '').toLowerCase().includes(q)) return true;
+      }
+      return false;
+    });
+  });
+
+  // Union of tags across all currently-loaded submissions. Drives the
+  // toolbar filter dropdown so admins don't have to remember exact labels.
+  availableTags = computed<string[]>(() => {
+    const set = new Set<string>();
+    for (const s of this.submissions()) {
+      const arr = (s as any).tags;
+      if (Array.isArray(arr)) for (const t of arr) if (t) set.add(String(t));
+    }
+    return Array.from(set).sort();
+  });
+
+  pagedSubmissions = computed<FormSubmissionDto[]>(() => {
+    const start = this.pageIndex() * this.pageSize();
+    return this.filteredSubmissions().slice(start, start + this.pageSize());
+  });
+
+  currentVersion = computed<FormVersionDto | null>(() => {
+    const f = this.form();
+    if (!f) return null;
+    return (f.versions ?? []).find(v => v.isCurrentVersion) ?? f.currentVersion ?? null;
+  });
+
+  fieldColumns = computed<string[]>(() =>
+    (this.currentVersion()?.fields ?? [])
+      .slice()
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map(f => f.name ?? '')
+      .filter(Boolean)
+  );
+
+  displayedColumns = computed(() => ['select', 'submittedAt', 'submitterName', 'submitterEmail', ...this.fieldColumns(), 'tags', 'actions']);
+
+  isSelected(id: string | undefined): boolean {
+    return !!id && this.selectedIds().has(id);
+  }
+
+  toggleSelected(id: string | undefined): void {
+    if (!id) return;
+    const next = new Set(this.selectedIds());
+    if (next.has(id)) next.delete(id); else next.add(id);
+    this.selectedIds.set(next);
+  }
+
+  allOnPageSelected = computed<boolean>(() => {
+    const page = this.pagedSubmissions();
+    if (page.length === 0) return false;
+    const sel = this.selectedIds();
+    return page.every(s => s.id != null && sel.has(String(s.id)));
+  });
+
+  someOnPageSelected = computed<boolean>(() => {
+    const page = this.pagedSubmissions();
+    const sel = this.selectedIds();
+    return page.some(s => s.id != null && sel.has(String(s.id))) && !this.allOnPageSelected();
+  });
+
+  togglePageSelection(): void {
+    const page = this.pagedSubmissions();
+    const next = new Set(this.selectedIds());
+    if (this.allOnPageSelected()) {
+      for (const s of page) if (s.id != null) next.delete(String(s.id));
+    } else {
+      for (const s of page) if (s.id != null) next.add(String(s.id));
+    }
+    this.selectedIds.set(next);
+  }
+
+  clearSelection(): void { this.selectedIds.set(new Set()); }
+
+  openDetail(submission: FormSubmissionDto): void {
+    const fields = this.currentVersion()?.fields ?? [];
+    // Pass the current filtered slice as the navigable list so the dialog's
+    // prev/next arrows walk the same set the admin is looking at (search +
+    // date + tag filters applied). The dialog mutates entries in place; we
+    // just re-broadcast the array on close so signal consumers refresh.
+    const list = this.filteredSubmissions();
+    const initialIndex = Math.max(0, list.findIndex(s => String(s.id) === String(submission.id)));
+    const ref = this.dialog.open(SubmissionDetailDialogComponent, {
+      width: 'min(760px, 95vw)',
+      panelClass: 'elevated-dialog-panel',
+      data: { submissions: list, initialIndex, fields } as SubmissionDetailDialogData,
+    });
+    ref.afterClosed().subscribe((result?: { updatedIds?: string[] }) => {
+      if (result?.updatedIds?.length) {
+        // Rows were mutated in place inside the dialog. Force a signal
+        // refresh so filteredSubmissions / availableTags recompute.
+        this.submissions.set([...this.submissions()]);
+      }
+    });
+  }
+
+  bulkExport(): void {
+    const id = this.formId();
+    const ids = Array.from(this.selectedIds());
+    if (!id || ids.length === 0 || this.bulkExporting()) return;
+
+    this.bulkExporting.set(true);
+    const token = typeof localStorage !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
+
+    this.http
+      .post(
+        `${environment.apiBaseUrl}/api/FormSubmissions/form/${encodeURIComponent(id)}/export.csv`,
+        { ids },
+        { headers, responseType: 'blob', observe: 'response' },
+      )
+      .subscribe({
+        next: response => {
+          this.bulkExporting.set(false);
+          const contentDisposition = response.headers.get('content-disposition') ?? '';
+          const match = /filename="?([^";]+)"?/.exec(contentDisposition);
+          const filename = match?.[1] ?? `submissions-${id}-selected.csv`;
+          const url = URL.createObjectURL(response.body as Blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          this.snack.open(`Exported ${ids.length} submission${ids.length === 1 ? '' : 's'}`, 'Close', { duration: 2500 });
+        },
+        error: () => {
+          this.bulkExporting.set(false);
+          this.snack.open('Bulk export failed', 'Close', { duration: 3000 });
+        },
+      });
+  }
+
+  bulkDelete(): void {
+    const id = this.formId();
+    const ids = Array.from(this.selectedIds());
+    if (!id || ids.length === 0 || this.bulkDeleting()) return;
+
+    const ref = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        itemType: 'submissions',
+        itemName: `${ids.length} selected submission${ids.length === 1 ? '' : 's'}`
+      } as DeleteDialogData,
+      width: '420px',
+      panelClass: 'elevated-dialog-panel',
+      disableClose: true,
+    });
+
+    ref.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+      this.bulkDeleting.set(true);
+      const token = typeof localStorage !== 'undefined' ? localStorage.getItem('auth_token') : null;
+      const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
+      this.http
+        .post<{ deleted: number }>(`${environment.apiBaseUrl}/api/FormSubmissions/form/${encodeURIComponent(id)}/bulk-delete`, { ids }, { headers })
+        .subscribe({
+          next: r => {
+            this.bulkDeleting.set(false);
+            // Optimistically drop the rows without a re-fetch. If deleted<ids
+            // (some vanished server-side), a full reload would still be right,
+            // but the local filter is close enough for a UX-focused delete.
+            const removed = new Set(ids);
+            this.submissions.set(this.submissions().filter(s => !s.id || !removed.has(String(s.id))));
+            this.clearSelection();
+            this.snack.open(`Deleted ${r.deleted} submission${r.deleted === 1 ? '' : 's'}`, 'Close', { duration: 2500 });
+          },
+          error: () => {
+            this.bulkDeleting.set(false);
+            this.snack.open('Bulk delete failed', 'Close', { duration: 3000 });
+          },
+        });
+    });
+  }
+
+  constructor() {
+    this.load();
+  }
+
+  private load(): void {
+    const id = this.formId();
+    if (!id) {
+      this.errorMessage.set('Missing form id.');
+      this.loading.set(false);
+      return;
+    }
+
+    this.api.formsGET(id).subscribe({
+      next: form => this.form.set(form),
+      error: () => this.errorMessage.set('Could not load form.'),
+    });
+
+    this.api.form(id).subscribe({
+      next: subs => {
+        this.submissions.set(subs);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.errorMessage.set('Could not load submissions.');
+        this.loading.set(false);
+      },
+    });
+  }
+
+  valueFor(submission: FormSubmissionDto, fieldName: string): string {
+    const values = submission.values ?? [];
+    const hit = values.find(v => (v.fieldName ?? '') === fieldName);
+    return hit?.fieldValue ?? '';
+  }
+
+  fieldType(fieldName: string): string {
+    const field = (this.currentVersion()?.fields ?? []).find(f => f.name === fieldName);
+    return String(field?.type ?? '');
+  }
+
+  ratingStars(value: string): { filled: boolean; index: number }[] {
+    const n = Math.max(0, Math.min(5, parseInt(value, 10) || 0));
+    return [1, 2, 3, 4, 5].map(i => ({ filled: i <= n, index: i }));
+  }
+
+  fileDownloadUrl(token: string): string {
+    return `${environment.apiBaseUrl}/api/uploads/${encodeURIComponent(token)}`;
+  }
+
+  fileOriginalName(token: string): string {
+    const idx = token.indexOf('__');
+    return idx >= 0 ? token.substring(idx + 2) : token;
+  }
+
+  setSearch(value: string): void {
+    this.searchQuery.set(value);
+    this.pageIndex.set(0);
+  }
+  clearSearch(): void { this.setSearch(''); }
+
+  setFromDate(value: string): void {
+    this.fromDate.set(value);
+    this.pageIndex.set(0);
+  }
+  setToDate(value: string): void {
+    this.toDate.set(value);
+    this.pageIndex.set(0);
+  }
+  clearDateRange(): void {
+    this.fromDate.set('');
+    this.toDate.set('');
+    this.pageIndex.set(0);
+  }
+  hasDateFilter(): boolean { return !!this.fromDate() || !!this.toDate(); }
+
+  setTagFilter(tags: string[]): void {
+    this.selectedTagFilter.set(tags ?? []);
+    this.pageIndex.set(0);
+  }
+  clearTagFilter(): void { this.setTagFilter([]); }
+  tagsFor(submission: FormSubmissionDto): string[] {
+    const arr = (submission as any).tags;
+    return Array.isArray(arr) ? arr : [];
+  }
+  onPage(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+  }
+
+  downloadCsv(): void {
+    const id = this.formId();
+    if (!id || this.downloading()) return;
+    this.downloading.set(true);
+
+    const token = typeof localStorage !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
+
+    this.http
+      .get(`${environment.apiBaseUrl}/api/FormSubmissions/form/${encodeURIComponent(id)}/export.csv`, {
+        responseType: 'blob',
+        headers,
+        observe: 'response',
+      })
+      .subscribe({
+        next: response => {
+          this.downloading.set(false);
+          const contentDisposition = response.headers.get('content-disposition') ?? '';
+          const match = /filename="?([^";]+)"?/.exec(contentDisposition);
+          const filename = match?.[1] ?? `submissions-${id}.csv`;
+          const url = URL.createObjectURL(response.body as Blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        },
+        error: () => {
+          this.downloading.set(false);
+          this.snack.open('CSV download failed', 'Close', { duration: 3000 });
+        },
+      });
+  }
+}

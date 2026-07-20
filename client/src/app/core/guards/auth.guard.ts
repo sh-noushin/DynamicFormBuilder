@@ -32,7 +32,6 @@ export class AuthGuard implements CanActivate {
             observer.complete();
           },
           error: err => {
-            console.warn('[AuthGuard] Token validation failed:', err);
             this.removeTokenAndRedirect();
             observer.next(false);
             observer.complete();

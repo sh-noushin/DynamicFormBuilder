@@ -1,6 +1,6 @@
 ﻿namespace FormBuilder.Models.Exceptions;
 
-public class UserNotFoundException : Exception
+public class UserNotFoundException : EntityNotFoundException
 {
     public UserNotFoundException() : base("User was not found.")
     {

@@ -1,0 +1,107 @@
+.toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  box-shadow: var(--brand-shadow-sm);
+}
+
+.toolbar-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.logout-btn {
+  &:hover {
+    background: var(--brand-surface-alt);
+  }
+}
+
+.admin-dashboard {
+  padding: 120px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  // Subtle off-white canvas so light-surface cards read as depth-1 layers
+  // (Linear / Notion / Vercel scale).
+  background: var(--brand-canvas);
+  min-height: 100vh;
+  color: var(--brand-text-strong);
+}
+
+.dashboard-tabs {
+  background: transparent;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.tab-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.tab-label-primary {
+  background: var(--brand-primary-soft);
+  color: var(--brand-primary-hover);
+}
+
+.tab-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.dashboard-tabs {
+  .mat-mdc-tab-list, .mat-tab-labels {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-left: 8px;
+  }
+  .mat-mdc-tab-indicator, .mat-ink-bar {
+    height: 3px !important;
+    background-color: var(--brand-primary) !important;
+    border-radius: 2px;
+  }
+  .mat-mdc-tab-label .tab-label, .mat-tab-label .tab-label {
+    background: transparent;
+    color: var(--brand-text-muted);
+  }
+  .mat-mdc-tab-label.mat-mdc-tab-label-active .tab-label,
+  .mat-tab-label.mat-tab-label-active .tab-label {
+    background: var(--brand-primary-soft);
+    color: var(--brand-primary-hover);
+  }
+  .mat-mdc-tab-label, .mat-tab-label {
+    padding: 4px 6px;
+  }
+}
+
+.content-area {
+  margin-top: 16px;
+  max-width: 1200px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .sidenav {
+    width: 240px;
+  }
+
+  .toolbar-title {
+    font-size: 1.25rem;
+  }
+}

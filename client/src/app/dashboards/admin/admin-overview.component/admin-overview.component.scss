@@ -1,0 +1,235 @@
+.overview-page {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.state-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 96px 16px;
+  color: var(--brand-text-muted);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 22px;
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--brand-radius-lg);
+  color: var(--brand-text-strong);
+  box-shadow: var(--brand-shadow-sm);
+}
+
+.stat-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--brand-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--brand-primary-soft);
+  color: var(--brand-primary-hover);
+
+  mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+
+  // Semantic-color variants use their own soft tints so the icon reads as
+  // "active / success / warning" without requiring a full palette change.
+  &.accent {
+    background: rgba(14, 165, 233, 0.10);
+    color: #0284c7;
+  }
+  &.success {
+    background: rgba(16, 185, 129, 0.10);
+    color: #059669;
+  }
+  &.warn {
+    background: rgba(245, 158, 11, 0.10);
+    color: #d97706;
+  }
+}
+
+.stat-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-value {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--brand-text-strong);
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--brand-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.panel {
+  padding: 20px 24px;
+  border-radius: var(--brand-radius-lg);
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-border);
+  color: var(--brand-text-strong);
+  box-shadow: var(--brand-shadow-sm);
+
+  mat-card-title { font-size: 16px; font-weight: 600; color: var(--brand-text-strong); }
+  mat-card-subtitle { color: var(--brand-text-muted); font-size: 13px; margin-top: 2px; }
+  mat-card-header {
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--brand-border);
+    margin-bottom: 12px;
+    display: block;
+  }
+}
+
+.panel-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--brand-text-muted);
+
+  mat-icon {
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
+    color: var(--brand-border-strong);
+  }
+}
+
+.recent-list,
+.top-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.recent-item {
+  padding: 10px 12px;
+  border-radius: var(--brand-radius-sm);
+  cursor: pointer;
+  transition: background 0.12s ease;
+
+  &:hover {
+    background: var(--brand-surface-alt);
+  }
+}
+
+// Top-form row is a single horizontal line: icon + name on the left,
+// count chip on the right. The .top-item needs its own flex layout
+// because .top-primary + .top-count are siblings, not nested.
+.top-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--brand-radius-sm);
+  cursor: pointer;
+  transition: background 0.12s ease;
+
+  &:hover {
+    background: var(--brand-surface-alt);
+  }
+}
+
+.recent-primary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.top-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.recent-form {
+  font-weight: 600;
+  color: var(--brand-text-strong);
+}
+
+.recent-time {
+  font-size: 12px;
+  color: var(--brand-text-muted);
+  white-space: nowrap;
+}
+
+.recent-secondary {
+  font-size: 13px;
+  color: var(--brand-text-muted);
+  margin-top: 2px;
+}
+
+.top-icon {
+  color: var(--brand-text-subtle);
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.top-name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 500;
+  color: var(--brand-text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.top-count {
+  flex-shrink: 0;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--brand-primary-soft);
+  color: var(--brand-primary-hover);
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 28px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.quick-actions {
+  display: flex;
+  gap: 12px;
+
+  button mat-icon { margin-right: 6px; }
+}

@@ -13,6 +13,9 @@ public class FormVersionField
     public string? Options { get; set; } 
     public string? Placeholder { get; set; }
     public string? HelpText { get; set; }
+    // JSON rule that hides the field unless another field matches a value.
+    // Shape: {"field":"otherFieldName","equals":"value"}. Null = always shown.
+    public string? ShowIfCondition { get; set; }
     public int Order { get; set; }
     public bool IsVisible { get; set; } = true;
     public bool IsReadOnly { get; set; } = false;

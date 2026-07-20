@@ -1,6 +1,6 @@
 ﻿namespace FormBuilder.Models.Exceptions;
 
-public class FormVersionFieldNotFoundException : Exception
+public class FormVersionFieldNotFoundException : EntityNotFoundException
 {
     public FormVersionFieldNotFoundException() : base("Form version field was not found.")
     {

@@ -1,0 +1,278 @@
+<h2 mat-dialog-title class="dialog-title">
+  <mat-icon>edit_note</mat-icon>
+  <span>Edit Form</span>
+  <span class="spacer"></span>
+</h2>
+
+<mat-dialog-content class="dialog-content">
+  <div class="dialog-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Form name</mat-label>
+      <input matInput [value]="name()" (input)="setNameFromEvent($event); nameTouched.set(true)" placeholder="Form name" />
+      @if (nameTouched() && nameError()) { <mat-error>{{ nameError() }}</mat-error> }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description</mat-label>
+      <textarea matInput [value]="description()" (input)="setDescriptionFromEvent($event)" rows="3" placeholder="Descriptionn"></textarea>
+    </mat-form-field>
+
+    <div class="toggle-row">
+      <mat-slide-toggle color="primary" [checked]="isActive()" (change)="isActive.set($any($event).checked)">Active</mat-slide-toggle>
+      <mat-slide-toggle color="primary"
+                        [checked]="oneResponsePerEmail()"
+                        (change)="oneResponsePerEmail.set($any($event).checked)">
+        One response per email
+      </mat-slide-toggle>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Public form language</mat-label>
+      <mat-select [value]="locale()" (selectionChange)="locale.set($any($event).value)">
+        @for (opt of localeOptions; track opt.value) {
+          <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+        }
+      </mat-select>
+      <mat-hint>Language of the built-in strings (Next, Submit, error messages, ...). Field labels are not translated.</mat-hint>
+    </mat-form-field>
+
+    <div class="brand-row">
+      <label class="brand-label">
+        <mat-icon>palette</mat-icon>
+        <span>Brand color</span>
+      </label>
+      <input type="color" class="brand-input" [value]="brandColor() || '#6366f1'" (input)="brandColor.set($any($event.target).value)" />
+      <span class="brand-hex" [style.color]="brandColor() || '#94a3b8'">{{ brandColor() || 'Default' }}</span>
+      @if (brandColor()) {
+        <button mat-button type="button" class="brand-reset" (click)="clearBrandColor()">
+          <mat-icon>refresh</mat-icon>
+          <span>Reset</span>
+        </button>
+      }
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Access password (optional)</mat-label>
+      <input matInput
+             [type]="showPassword() ? 'text' : 'password'"
+             [value]="accessPassword()"
+             (input)="setAccessPasswordFromEvent($event)"
+             placeholder="Leave blank for public access"
+             autocomplete="new-password" />
+      <button mat-icon-button matSuffix type="button"
+              (click)="showPassword.set(!showPassword())"
+              [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+        <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
+      @if (accessPassword()) {
+        <button mat-icon-button matSuffix type="button" (click)="clearAccessPassword()" aria-label="Clear password">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+      <mat-hint>When set, visitors must enter this password to view and submit the form.</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Thank-you message (optional)</mat-label>
+      <textarea matInput rows="2"
+                [value]="thankYouMessage()"
+                (input)="setThankYouMessageFromEvent($event)"
+                placeholder="Thanks for your response!"></textarea>
+      <mat-hint>Shown after a successful submission. Ignored if a redirect URL is set.</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Redirect URL after submit (optional)</mat-label>
+      <input matInput type="url"
+             [value]="redirectUrl()"
+             (input)="setRedirectUrlFromEvent($event)"
+             placeholder="https://example.com/thanks" />
+      @if (redirectUrlError()) { <mat-error>{{ redirectUrlError() }}</mat-error> }
+      <mat-hint>Must start with http:// or https://. Takes priority over the message.</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Response limit (optional)</mat-label>
+      <input matInput type="number" min="1" step="1"
+             [value]="maxSubmissions()"
+             (input)="setMaxSubmissionsFromEvent($event)"
+             placeholder="e.g. 100" />
+      @if (maxSubmissionsError()) { <mat-error>{{ maxSubmissionsError() }}</mat-error> }
+      <mat-hint>Form closes automatically once this many submissions have been received.</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Auto-close date & time (optional)</mat-label>
+      <input matInput type="datetime-local"
+             [value]="closesAtInput()"
+             (input)="setClosesAtFromEvent($event)" />
+      @if (closesAtInput()) {
+        <button mat-icon-button matSuffix type="button" (click)="clearClosesAt()" aria-label="Clear close date">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+      <mat-hint>Uses your local time zone. After this moment the form stops accepting responses.</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Webhook URL (optional)</mat-label>
+      <input matInput type="url"
+             [value]="webhookUrl()"
+             (input)="setWebhookUrlFromEvent($event)"
+             placeholder="https://example.com/webhooks/forms" />
+      @if (webhookUrlError()) { <mat-error>{{ webhookUrlError() }}</mat-error> }
+      <mat-hint>Each successful submission is POSTed as JSON to this URL.</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Webhook signing secret (optional)</mat-label>
+      <input matInput
+             [type]="showWebhookSecret() ? 'text' : 'password'"
+             [value]="webhookSecret()"
+             (input)="setWebhookSecretFromEvent($event)"
+             placeholder="Any random string"
+             autocomplete="off" />
+      <button mat-icon-button matSuffix type="button"
+              (click)="showWebhookSecret.set(!showWebhookSecret())"
+              [attr.aria-label]="showWebhookSecret() ? 'Hide secret' : 'Show secret'">
+        <mat-icon>{{ showWebhookSecret() ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
+      @if (webhookSecret()) {
+        <button mat-icon-button matSuffix type="button" (click)="clearWebhookSecret()" aria-label="Clear secret">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+      <mat-hint>When set, the payload is signed as HMAC-SHA256 in the X-Webhook-Signature header (sha256=hex).</mat-hint>
+    </mat-form-field>
+
+    <div class="toggle-row">
+      <mat-slide-toggle color="primary"
+                        [checked]="webhookSlackFormat()"
+                        (change)="webhookSlackFormat.set($any($event).checked)">
+        Post as Slack incoming webhook
+      </mat-slide-toggle>
+      <mat-slide-toggle color="primary"
+                        [checked]="oneResponsePerIp()"
+                        (change)="oneResponsePerIp.set($any($event).checked)">
+        One response per IP
+      </mat-slide-toggle>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Custom favicon URL (optional)</mat-label>
+      <input matInput type="url"
+             [value]="faviconUrl()"
+             (input)="faviconUrl.set($any($event.target).value)"
+             placeholder="https://example.com/favicon.ico" />
+      <mat-hint>Overrides the tab icon on /f/&lt;slug&gt;. Must start with http:// or https://.</mat-hint>
+    </mat-form-field>
+
+    <div class="toggle-row">
+      <mat-slide-toggle color="primary"
+                        [checked]="sendConfirmationEmail()"
+                        (change)="sendConfirmationEmail.set($any($event).checked)">
+        Email confirmation to submitter
+      </mat-slide-toggle>
+    </div>
+
+    @if (sendConfirmationEmail()) {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Confirmation email subject (optional)</mat-label>
+        <input matInput maxlength="200"
+               [value]="confirmationEmailSubject()"
+               (input)="setConfirmationSubjectFromEvent($event)"
+               placeholder="Thanks for your response to {{ name() }}" />
+        <mat-hint>Leave blank to use the default subject.</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Confirmation email body (optional)</mat-label>
+        <textarea matInput rows="3" maxlength="4000"
+                  [value]="confirmationEmailBody()"
+                  (input)="setConfirmationBodyFromEvent($event)"
+                  placeholder="Thanks for your response. A copy of what you submitted is below for your records."></textarea>
+        <mat-hint>Shown before the submitted values. Leave blank for the default.</mat-hint>
+      </mat-form-field>
+    }
+  </div>
+
+  <mat-card class="versions-table-card">
+    <mat-card-header>
+      <mat-card-title>Versions</mat-card-title>
+      <mat-card-subtitle>{{ versions().length }} versions total</mat-card-subtitle>
+      <div class="header-actions">
+        <button mat-raised-button color="primary" class="btn-primary" (click)="addVersion()">
+          <mat-icon>add</mat-icon>
+          Add Version
+        </button>
+      </div>
+    </mat-card-header>
+    <mat-card-content>
+  <table mat-table [dataSource]="versions()" class="table-base">
+        <ng-container matColumnDef="versionNumber">
+          <th mat-header-cell *matHeaderCellDef class="header-cell">Version</th>
+          <td mat-cell *matCellDef="let v" class="cell">v{{ v.versionNumber }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef class="header-cell">Description</th>
+          <td mat-cell *matCellDef="let v" class="cell">{{ v.description }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef class="header-cell">Created</th>
+          <td mat-cell *matCellDef="let v" class="cell">{{ v.createdAt | date:'MMM d, y' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="isPublished">
+          <th mat-header-cell *matHeaderCellDef class="header-cell">Published</th>
+          <td mat-cell *matCellDef="let v" class="cell">
+            <div class="status-indicator" [class]="v.isPublished ? 'status-active' : 'status-inactive'"></div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="isCurrent">
+          <th mat-header-cell *matHeaderCellDef class="header-cell">Current</th>
+          <td mat-cell *matCellDef="let v" class="cell">
+            @if (v.isCurrentVersion) { <span class="badge badge-current">Current</span> } @else { <span class="badge">-</span> }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="header-cell">Actions</th>
+          <td mat-cell *matCellDef="let v" class="cell actions-cell">
+            <button mat-icon-button class="btn-edit" matTooltip="Edit description" (click)="editVersion(v)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="btn-publish" matTooltip="Publish" (click)="publishVersion(v)" [disabled]="v.isPublished">
+              <mat-icon>publish</mat-icon>
+            </button>
+            <button mat-icon-button class="btn-current" matTooltip="Make current" (click)="makeCurrent(v)" [disabled]="v.isCurrentVersion">
+              <mat-icon>check_circle</mat-icon>
+            </button>
+            <button mat-icon-button class="btn-edit" matTooltip="Manage fields" (click)="manageFields(v)">
+              <mat-icon>view_list</mat-icon>
+            </button>
+            <button mat-icon-button class="btn-preview" matTooltip="Preview" (click)="previewVersion(v)">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button class="btn-delete" matTooltip="Delete version" (click)="deleteVersion(v)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-raised-button type="button" class="btn-cancel" (click)="close()">Cancel</button>
+  <button mat-raised-button color="primary" type="button" class="btn-primary" (click)="save()" [disabled]="invalid() || isSaving()">
+    @if (!isSaving()) { <mat-icon>save</mat-icon> } @else { <mat-icon>hourglass_top</mat-icon> }
+    @if (!isSaving()) { <span>Save</span> } @else { <span>Saving...</span> }
+  </button>
+</mat-dialog-actions>

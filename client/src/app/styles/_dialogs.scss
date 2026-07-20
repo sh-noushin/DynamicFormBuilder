@@ -1,48 +1,32 @@
 @use './variables' as *;
 
-$dialog-surface: linear-gradient(135deg, #0f172a 0%, #0b1324 48%, #0a101c 100%);
-$dialog-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(100, 181, 246, 0.16);
-$dialog-border: rgba(100, 181, 246, 0.18);
-$dialog-border-soft: rgba(100, 181, 246, 0.12);
-$dialog-text-strong: #e8f1ff;
-$dialog-text: #c7d6f5;
-$dialog-text-muted: #9fb2d7;
-$dialog-icon: #9cd2ff;
-$dialog-accent: #64b5f6;
+// Shared dialog styling — pulls every color from the global token set in
+// styles.scss (:root). Every component-level dialog SCSS inherits from
+// this, so tweaking values here updates the whole app.
 
 .mat-mdc-dialog-panel {
-  --dialog-surface-bg: #0f172a;
-  --dialog-surface-gradient: #{$dialog-surface};
-  --dialog-surface-border: #{$dialog-border};
-  --dialog-surface-border-soft: #{$dialog-border-soft};
-  --dialog-text-strong: #{$dialog-text-strong};
-  --dialog-text: #{$dialog-text};
-  --dialog-text-muted: #{$dialog-text-muted};
-  --dialog-icon: #{$dialog-icon};
-  --dialog-accent: #{$dialog-accent};
+  // Re-export the global tokens under the older --dialog-* names so any
+  // dialog template still using them keeps working without a rename.
+  --dialog-surface-bg: var(--brand-surface);
+  --dialog-surface-border: var(--brand-border);
+  --dialog-surface-border-soft: var(--brand-border-subtle);
+  --dialog-text-strong: var(--brand-text-strong);
+  --dialog-text: var(--brand-text);
+  --dialog-text-muted: var(--brand-text-muted);
+  --dialog-icon: var(--brand-primary-hover);
+  --dialog-accent: var(--brand-primary);
   color: var(--dialog-text-strong);
 
   .mdc-dialog__surface,
   &.elevated-dialog-panel .mdc-dialog__surface,
   &.wide-dialog-panel .mdc-dialog__surface {
-    border-radius: 18px !important;
-    background: var(--dialog-surface-gradient);
+    border-radius: var(--brand-radius-lg) !important;
+    background: var(--brand-surface);
     color: var(--dialog-text-strong);
-    box-shadow: $dialog-shadow;
+    box-shadow: var(--brand-shadow-lg);
     border: 1px solid var(--dialog-surface-border);
     overflow: hidden;
     position: relative;
-  }
-
-  .mdc-dialog__surface::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 20% 20%, rgba(100, 181, 246, 0.08), transparent 35%),
-                radial-gradient(circle at 80% 0%, rgba(99, 102, 241, 0.08), transparent 42%),
-                radial-gradient(circle at 50% 110%, rgba(12, 74, 110, 0.12), transparent 40%);
-    pointer-events: none;
-    z-index: 0;
   }
 
   .dialog-title {
@@ -51,8 +35,8 @@ $dialog-accent: #64b5f6;
     display: flex;
     align-items: center;
     gap: 10px;
-    font-weight: 700;
-    letter-spacing: 0.2px;
+    font-weight: 600;
+    letter-spacing: 0;
     color: var(--dialog-text-strong);
     margin: 6px 6px 12px 6px;
     padding: 4px 4px 2px 4px;
@@ -60,8 +44,8 @@ $dialog-accent: #64b5f6;
 
   .dialog-title mat-icon {
     color: var(--dialog-icon);
-    background: rgba(100, 181, 246, 0.16);
-    border-radius: 10px;
+    background: var(--brand-primary-soft);
+    border-radius: var(--brand-radius-md);
     padding: 6px;
   }
 
@@ -73,10 +57,8 @@ $dialog-accent: #64b5f6;
     position: relative;
     z-index: 1;
     padding: 12px 16px 4px;
-    margin: 0 2px;    
-     background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
-    border: 1px solid var(--dialog-surface-border-soft);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    margin: 0 2px;
+    background: transparent;
     color: var(--dialog-text);
   }
 
@@ -89,7 +71,7 @@ $dialog-accent: #64b5f6;
     position: relative;
     z-index: 1;
     padding: 12px 16px 16px;
-    background: rgba(255, 255, 255, 0.04);
+    background: transparent;
     border-top: 1px solid var(--dialog-surface-border-soft);
     display: flex;
     gap: 10px;
@@ -100,95 +82,45 @@ $dialog-accent: #64b5f6;
     flex: 1;
   }
 
+  // Angular Material's outlined text field is already light-mode by
+  // default; we just tighten the shape here to match the app's radius scale.
   .mat-mdc-form-field {
-    --mdc-filled-text-field-container-color: rgba(255, 255, 255, 0.03);
-    --mdc-outlined-text-field-outline-color: rgba(100, 181, 246, 0.1);
-    --mdc-outlined-text-field-hover-outline-color: rgba(148, 191, 255, 0.4);
-    --mdc-outlined-text-field-focus-outline-color: var(--dialog-accent);
-    --mdc-outlined-text-field-label-text-color: rgba(255, 255, 255, 0.9);
-    --mat-mdc-form-field-label-text-color: rgba(255, 255, 255, 0.9);
-    --mdc-outlined-text-field-container-shape: 10px;
+    --mdc-outlined-text-field-container-shape: var(--brand-radius-md);
     --mdc-outlined-text-field-outline-width: 1px;
-    border-radius: 10px;
     color: var(--dialog-text-strong);
   }
 
-  .mat-mdc-form-field .mdc-floating-label {
-    opacity: 0;
-    transform: translateY(4px);
-    transition: opacity 0.2s ease, transform 0.2s ease;
-  }
-
-  .mat-mdc-form-field.mat-focused .mdc-floating-label,
-  .mat-mdc-form-field .mdc-floating-label--float-above {
-    opacity: 1;
-    transform: translateY(-18px) scale(0.8);
-    color: #ffffff !important;
-  }
-
-  .mat-mdc-form-field .mdc-floating-label,
-  .mat-mdc-form-field .mdc-floating-label--float-above {
-    color: #ffffff !important;
-  }
-
-  input.mat-input-element,
-  .mdc-text-field__input {
-    color: #ffffff !important;
+  .btn-primary {
+    border-radius: var(--brand-radius-md);
+    text-transform: none;
+    background: var(--brand-primary);
+    color: var(--brand-surface);
+    border: none;
+    box-shadow: none;
+    letter-spacing: 0;
     font-weight: 500;
   }
 
-  input.mat-input-element::placeholder,
-  .mdc-text-field__input::placeholder {
-    color: #ffffff !important;
-    opacity: 1 !important;
-  }
-
-  .mat-mdc-form-field-subscript-wrapper,
-  .mat-mdc-form-field-hint-wrapper,
-  .mat-mdc-form-field-error-wrapper {
-    color: rgba(232, 241, 255, 0.82);
-  }
-
-  .mdc-notched-outline__leading,
-  .mdc-notched-outline__trailing,
-  .mdc-notched-outline__notch {
-    border-color: rgba(100, 181, 246, 0.2);
-  }
-
-  .mat-mdc-raised-button,
-  .mat-mdc-unelevated-button {
-    box-shadow: none;
-  }
-
-  .btn-primary {
-    border-radius: $radius-pill;
-    text-transform: none;
-    background: linear-gradient(90deg, #a6b4c8 0%, #c1cad9 100%);
-    color: #0f2d55;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: 0 12px 28px rgba(99, 102, 241, 0.28);
-    letter-spacing: 0.01em;
-  }
-
   .btn-primary:hover {
-    background: linear-gradient(90deg, #c1cad9 0%, #d6dde8 100%);
-    color: #0c2548;
+    background: var(--brand-primary-hover);
   }
 
   .btn-primary:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     box-shadow: none;
   }
 
   .btn-cancel {
-    border-radius: $radius-pill;
+    border-radius: var(--brand-radius-md);
     text-transform: none;
-    color: var(--dialog-text-strong);
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: var(--dialog-text);
+    background: var(--brand-surface);
+    border: 1px solid var(--dialog-surface-border);
+    font-weight: 500;
   }
 
   .btn-cancel:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--brand-canvas);
+    border-color: var(--brand-border-strong);
   }
 }

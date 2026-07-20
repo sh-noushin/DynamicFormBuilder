@@ -1,10 +1,14 @@
-﻿using FormBuilder.Models.Entities;
+using System.ComponentModel.DataAnnotations;
+using FormBuilder.Models.Entities;
 
 namespace FormBuilder.Core.DTOs;
 
 public class LoginDto
 {
+    [Required, StringLength(64, MinimumLength = 1)]
     public string Username { get; set; } = string.Empty;
+
+    [Required, StringLength(256, MinimumLength = 1)]
     public string Password { get; set; } = string.Empty;
 }
 
@@ -26,15 +30,26 @@ public class UserInfoDto
 
 public class RegisterUserDto
 {
+    [Required, StringLength(64, MinimumLength = 3)]
     public string Username { get; set; } = string.Empty;
+
+    [Required, EmailAddress, StringLength(256)]
     public string Email { get; set; } = string.Empty;
+
+    [Required, StringLength(256, MinimumLength = 6)]
     public string Password { get; set; } = string.Empty;
-    public UserRole Role { get; set; } = UserRole.User; 
+
+    public UserRole Role { get; set; } = UserRole.User;
 }
+
 public class UpdateUserDto
 {
+    [Required, StringLength(64, MinimumLength = 3)]
     public string Username { get; set; } = string.Empty;
+
+    [Required, EmailAddress, StringLength(256)]
     public string Email { get; set; } = string.Empty;
+
     public UserRole Role { get; set; }
 }
 
@@ -49,6 +64,9 @@ public class UserDto
 
 public class ChangePasswordDto
 {
+    [Required, StringLength(256, MinimumLength = 1)]
     public string CurrentPassword { get; set; } = string.Empty;
+
+    [Required, StringLength(256, MinimumLength = 6)]
     public string NewPassword { get; set; } = string.Empty;
 }

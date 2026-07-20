@@ -1,6 +1,6 @@
 ﻿namespace FormBuilder.Models.Exceptions;
 
-public class DuplicateUsernameException : Exception
+public class DuplicateUsernameException : DuplicateEntityException
 {
     public DuplicateUsernameException() : base("Username already exists.")
     {

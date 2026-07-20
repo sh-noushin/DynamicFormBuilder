@@ -1,8 +1,8 @@
 
-$color-primary: #2196f3;
-$color-primary-rgb: 33 150 243; 
-$color-accent: #6366f1; 
-$color-accent-rgb: 99 102 241;
+$color-primary: #6366f1;
+$color-primary-rgb: 99 102 241;
+$color-accent: #0ea5e9;
+$color-accent-rgb: 14 165 233;
 $color-success: #10b981;
 $color-warning: #f59e0b;
 $color-danger: #ef4444;
@@ -48,8 +48,8 @@ $z-overlay: 800;
 $transition-fast: 120ms;
 $transition-base: 200ms;
 
-$button-shadow: 0 2px 4px rgba(33,150,243,0.30); 
-$focus-ring: 0 0 0 2px rgba(33,150,243,0.35);
+$button-shadow: 0 2px 4px rgba(99, 102, 241, 0.30);
+$focus-ring: 0 0 0 2px rgba(99, 102, 241, 0.35);
 
 @mixin focus-ring {
   outline: none;

@@ -11,4 +11,7 @@ public interface IFormSubmissionService
     Task<int> GetSubmissionCountByFormVersionIdAsync(Guid formVersionId);
     Task<FormSubmissionDto> UpdateSubmissionAsync(Guid id, UpdateFormSubmissionDto updateDto);
     Task<bool> DeleteSubmissionAsync(Guid id);
+    Task<int> BulkDeleteSubmissionsAsync(Guid formId, IReadOnlyList<Guid> ids);
+    Task<FormSubmissionDto> UpdateAdminNotesAsync(Guid id, string? adminNotes);
+    Task<FormSubmissionDto> UpdateTagsAsync(Guid id, IEnumerable<string> tags);
 }

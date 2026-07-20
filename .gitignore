@@ -416,3 +416,13 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# SQLite write-ahead log files (transient, per-run)
+*.db-shm
+*.db-wal
+
+# User-uploaded files
+server/FormBuilder.API/uploads/
+
+# Claude Code local settings
+.claude/

@@ -1,0 +1,191 @@
+<mat-card class="forms-table-card">
+  <mat-card-header>
+    <mat-card-title>All Forms</mat-card-title>
+    <mat-card-subtitle>
+      @if (searchQuery() || activeFilter() !== 'all') {
+        {{ filteredForms().length }} of {{ forms().length }} forms
+      } @else {
+        {{ forms().length }} forms total
+      }
+    </mat-card-subtitle>
+    <div class="header-actions">
+      <button mat-stroked-button (click)="importFileInput.click()">
+        <mat-icon>file_upload</mat-icon>
+        Import
+      </button>
+      <input #importFileInput hidden type="file" accept="application/json,.json" (change)="onImportFile($event)" />
+      <button mat-raised-button color="primary" (click)="openCreateDialog()">
+        <mat-icon>add</mat-icon>
+        Create Form
+      </button>
+    </div>
+  </mat-card-header>
+
+  @if (!isLoading() && forms().length > 0) {
+    <div class="list-toolbar">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-icon matPrefix>search</mat-icon>
+        <mat-label>Search forms</mat-label>
+        <input matInput [value]="searchQuery()" (input)="setSearch($any($event.target).value)" placeholder="Name or description" />
+        @if (searchQuery()) {
+          <button matSuffix mat-icon-button aria-label="Clear search" (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+
+      <div class="filter-chips">
+        <button mat-stroked-button class="chip" [class.chip-active]="activeFilter() === 'all'" (click)="setFilter('all')">All</button>
+        <button mat-stroked-button class="chip" [class.chip-active]="activeFilter() === 'active'" (click)="setFilter('active')">Active</button>
+        <button mat-stroked-button class="chip" [class.chip-active]="activeFilter() === 'inactive'" (click)="setFilter('inactive')">Inactive</button>
+      </div>
+    </div>
+  }
+
+  <mat-card-content>
+    @if (isLoading()) {
+      <div class="loading-state">
+        <p>Loading forms...</p>
+      </div>
+    } @else if (error() && forms().length === 0) {
+      <div class="error-state">
+        <mat-icon class="error-icon">error</mat-icon>
+        <h3>{{ error() }}</h3>
+        <button mat-raised-button color="primary" (click)="loadForms()">Retry</button>
+      </div>
+    } @else if (filteredForms().length > 0) {
+      <table mat-table [dataSource]="filteredForms()" class="table-base">
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef class="header-cell">Form Name</th>
+          <td mat-cell *matCellDef="let form" class="name-cell">
+            <div class="form-name">
+              <mat-icon class="form-icon">description</mat-icon>
+              <span class="name-text">{{ form.name }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef class="header-cell">Description</th>
+          <td mat-cell *matCellDef="let form" class="description-cell">
+            <span class="description-text">{{ form.description }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef class="header-cell">Created</th>
+          <td mat-cell *matCellDef="let form" class="date-cell">
+            {{ form.createdAt | date:'MMM d, y' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="isActive">
+          <th mat-header-cell *matHeaderCellDef class="header-cell">Status</th>
+          <td mat-cell *matCellDef="let form" class="status-cell">
+            <span class="status-badge" [class]="form.isActive ? 'status-active' : 'status-inactive'">
+              {{ form.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="header-cell">Actions</th>
+          <td mat-cell *matCellDef="let form" class="actions-cell">
+            <div class="action-buttons">
+              <button
+                mat-icon-button
+                (click)="viewSubmissions(form)"
+                matTooltip="View submissions"
+                class="btn-view">
+                <mat-icon>list_alt</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                (click)="viewAnalytics(form)"
+                matTooltip="Analytics"
+                class="btn-analytics">
+                <mat-icon>bar_chart</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                (click)="copyShareLink(form)"
+                [matTooltip]="canShare(form) ? 'Copy public link' : 'Publish a version to share'"
+                [disabled]="!canShare(form)"
+                class="btn-share">
+                <mat-icon>{{ copiedSlug() === form.slug ? 'check_circle' : 'share' }}</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                (click)="openEmbedDialog(form)"
+                [matTooltip]="canShare(form) ? 'Embed on another site' : 'Publish a version to embed'"
+                [disabled]="!canShare(form)"
+                class="btn-embed">
+                <mat-icon>code</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                (click)="openQrDialog(form)"
+                [matTooltip]="canShare(form) ? 'QR code for this link' : 'Publish a version to share'"
+                [disabled]="!canShare(form)"
+                class="btn-qr">
+                <mat-icon>qr_code_2</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                (click)="editForm(form)"
+                matTooltip="Edit Form"
+                class="btn-edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                (click)="duplicateForm(form)"
+                matTooltip="Duplicate form"
+                class="btn-duplicate">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                (click)="exportForm(form)"
+                matTooltip="Export as JSON"
+                class="btn-export">
+                <mat-icon>file_download</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                (click)="deleteForm(form)"
+                matTooltip="Delete Form"
+                class="btn-delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></tr>
+      </table>
+    } @else if (forms().length > 0) {
+      <div class="empty-state">
+        <mat-icon class="empty-icon">search_off</mat-icon>
+        <h3>No matches</h3>
+        <p>No forms match your search or filter.</p>
+        <button mat-stroked-button (click)="clearSearch(); setFilter('all')">Clear filters</button>
+      </div>
+    } @else {
+      <div class="empty-state">
+        <mat-icon class="empty-icon">description</mat-icon>
+        <h3>No Forms Found</h3>
+        <p>Create your first form to get started</p>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>

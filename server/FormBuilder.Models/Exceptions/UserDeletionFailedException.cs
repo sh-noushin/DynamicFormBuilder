@@ -1,6 +1,6 @@
 ﻿namespace FormBuilder.Models.Exceptions;
 
-public class UserDeletionFailedException : Exception
+public class UserDeletionFailedException : IdentityOperationFailedException
 {
     public UserDeletionFailedException() : base("Failed to delete user.")
     {

@@ -1,6 +1,6 @@
 ﻿namespace FormBuilder.Models.Exceptions;
 
-public class DuplicateEmailException : Exception
+public class DuplicateEmailException : DuplicateEntityException
 {
     public DuplicateEmailException() : base("Email already exists.")
     {

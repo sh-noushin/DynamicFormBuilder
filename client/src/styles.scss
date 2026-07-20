@@ -1,9 +1,9 @@
-
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
+// Angular Material 3 theming. We keep the mat.theme() invocation so
+// typography and density flow through, then override the color tokens
+// below to point at our own indigo palette. Overriding tokens (rather
+// than swapping the palette itself) sidesteps the internal palette-
+// generation math that produces the lavender/pink container hues we
+// don't want.
 @use '@angular/material' as mat;
 @use './app/styles/variables' as *;
 @use './app/styles/buttons';
@@ -13,74 +13,166 @@
 html {
   @include mat.theme((
     color: (
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
+      primary: mat.$violet-palette,
+      tertiary: mat.$azure-palette,
     ),
     typography: Roboto,
     density: 0,
   ));
 }
 
-body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light;
+// Design tokens — single source of truth for the visual language.
+// Every component style should reference these instead of hard-coding
+// hex values; changing the palette later becomes a one-line edit here.
+// Naming follows purpose (canvas / surface / border / text) rather than
+// hue so we can retint the app without renaming tokens.
+:root {
+  // -- Brand + status accents ------------------------------------------
+  --brand-primary: #6366f1;
+  --brand-primary-hover: #4f46e5;
+  --brand-primary-soft: rgba(99, 102, 241, 0.10);
+  --brand-primary-soft-hover: rgba(99, 102, 241, 0.16);
+  --brand-accent: #0ea5e9;
+  --brand-danger: #ef4444;
+  --brand-danger-soft: #fef2f2;
+  --brand-success: #10b981;
+  --brand-success-soft: #dcfce7;
+  --brand-warning: #f59e0b;
+  --brand-warning-soft: #fef3c7;
 
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
+  // -- Surface layers (from deepest background to top-of-app) ----------
+  --brand-canvas: #f8fafc;
+  --brand-surface: #ffffff;
+  --brand-surface-alt: #f1f5f9;
+
+  // -- Borders ---------------------------------------------------------
+  --brand-border: #e5e7eb;
+  --brand-border-subtle: #f1f5f9;
+  --brand-border-strong: #cbd5e1;
+
+  // -- Text (strongest to subtlest) ------------------------------------
+  --brand-text-strong: #0f172a;
+  --brand-text: #334155;
+  --brand-text-muted: #64748b;
+  --brand-text-subtle: #94a3b8;
+
+  // -- Shape -----------------------------------------------------------
+  --brand-radius-sm: 6px;
+  --brand-radius-md: 8px;
+  --brand-radius-lg: 12px;
+
+  // -- Elevation ------------------------------------------------------
+  --brand-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --brand-shadow-md: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --brand-shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.10), 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+// -- Angular Material system-token overrides ---------------------------
+// mat.theme() emits a full palette that bleeds into every mat-card,
+// mat-form-field, mat-select, mat-button, and mat-checkbox as lavender
+// surfaces and purple accents. Re-pointing the system tokens below at
+// our brand palette retints every Material component without us having
+// to touch each component's SCSS.
+html {
+  // Primary + secondary accents (focus rings, active tabs, ripple,
+  // spinner arcs, mat-select-arrow, checkbox tick).
+  --mat-sys-primary: var(--brand-primary);
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: var(--brand-primary-soft);
+  --mat-sys-on-primary-container: var(--brand-primary-hover);
+  --mat-sys-secondary: var(--brand-primary-hover);
+  --mat-sys-secondary-container: var(--brand-primary-soft);
+  --mat-sys-tertiary: var(--brand-accent);
+
+  // Surface tokens — every mat-card, mat-menu, mat-dialog background
+  // comes from these. Making them white removes the pink/lavender tint.
+  --mat-sys-surface: var(--brand-surface);
+  --mat-sys-surface-container: var(--brand-surface);
+  --mat-sys-surface-container-low: var(--brand-canvas);
+  --mat-sys-surface-container-high: var(--brand-surface);
+  --mat-sys-surface-container-highest: var(--brand-surface-alt);
+  --mat-sys-surface-bright: var(--brand-surface);
+  --mat-sys-surface-dim: var(--brand-canvas);
+  --mat-sys-surface-variant: var(--brand-canvas);
+  --mat-sys-background: var(--brand-canvas);
+  --mat-sys-inverse-surface: var(--brand-text-strong);
+  --mat-sys-inverse-on-surface: var(--brand-surface);
+
+  // Text + outline colors.
+  --mat-sys-on-surface: var(--brand-text-strong);
+  --mat-sys-on-surface-variant: var(--brand-text-muted);
+  --mat-sys-on-background: var(--brand-text-strong);
+  --mat-sys-outline: var(--brand-border);
+  --mat-sys-outline-variant: var(--brand-border-subtle);
+  --mat-sys-error: var(--brand-danger);
+  --mat-sys-error-container: var(--brand-danger-soft);
+
+  // MDC component-specific tokens that the system tokens above don't
+  // fully reach in Material 22 (form-field outlines, card fill).
+  --mdc-outlined-text-field-focus-outline-color: var(--brand-primary);
+  --mdc-outlined-text-field-focus-label-text-color: var(--brand-primary);
+  --mdc-outlined-text-field-caret-color: var(--brand-primary);
+  --mdc-outlined-text-field-outline-color: var(--brand-border);
+  --mdc-outlined-text-field-hover-outline-color: var(--brand-border-strong);
+  --mdc-elevated-card-container-color: var(--brand-surface);
+  --mdc-filled-card-container-color: var(--brand-surface);
+}
+
+body {
+  color-scheme: light;
   background-color: var(--mat-sys-surface);
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
   margin: 0;
 }
-/* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+// -- User-menu portal --------------------------------------------------
+// The Material overlay renders into cdk-overlay-container, which sits
+// outside the header component tree. Component-scoped styles don't
+// reach it, so the styling lives here in the global stylesheet.
 .cdk-overlay-container .user-menu.mat-mdc-menu-panel {
-  border-radius: 16px;
-  box-shadow: 0 16px 40px rgba(2, 6, 23, 0.35), 0 3px 10px rgba(2, 132, 199, 0.12);
+  border-radius: var(--brand-radius-md);
+  box-shadow: var(--brand-shadow-lg);
   overflow: hidden;
 }
 
 .cdk-overlay-container .user-menu .mat-mdc-menu-content {
-  background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
-  color: #e6f0ff;
-  padding: 10px 0;
+  background: var(--brand-surface);
+  color: var(--brand-text-strong);
+  padding: 6px 0;
   min-width: 200px;
-  border: 1px solid rgba(56, 189, 248, 0.14);
-  --mdc-list-list-item-label-text-color: #eaf2ff;
-  --mat-menu-item-label-text-color: #eaf2ff;
-  --mdc-list-list-item-leading-icon-color: #1ea7fd;
+  border: 1px solid var(--brand-border);
+  --mdc-list-list-item-label-text-color: var(--brand-text-strong);
+  --mat-menu-item-label-text-color: var(--brand-text-strong);
+  --mdc-list-list-item-leading-icon-color: var(--brand-primary);
 }
 
 .cdk-overlay-container .user-menu .mat-mdc-menu-item {
-  font-size: 0.97rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  margin: 4px 8px;
-  padding: 10px 14px;
-  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 2px 6px;
+  padding: 8px 12px;
+  border-radius: var(--brand-radius-sm);
   gap: 10px;
-  transition: background 160ms ease, color 160ms ease;
-  color: #eaf2ff;
+  transition: background 120ms ease, color 120ms ease;
+  color: var(--brand-text-strong);
 }
 
 .cdk-overlay-container .user-menu .mat-mdc-menu-item .mat-icon {
-  color: #1ea7fd;
+  color: var(--brand-text-muted);
 }
 
 .cdk-overlay-container .user-menu .mdc-list-item__primary-text {
-  color: #eaf2ff !important;
+  color: var(--brand-text-strong) !important;
 }
 
 .cdk-overlay-container .user-menu .mat-mdc-menu-item:hover,
 .cdk-overlay-container .user-menu .mat-mdc-menu-item:focus-visible {
-  background: rgba(56, 189, 248, 0.12);
-  color: #ffffff;
+  background: var(--brand-surface-alt);
+  color: var(--brand-text-strong);
+
+  .mat-icon { color: var(--brand-primary-hover); }
 }

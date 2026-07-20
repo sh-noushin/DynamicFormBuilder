@@ -1,0 +1,241 @@
+.forms-header {
+  margin-bottom: 24px;
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--brand-text-strong);
+    margin: 0 0 8px 0;
+  }
+
+  p {
+    color: var(--brand-text-muted);
+    font-size: 1rem;
+    margin: 0;
+  }
+}
+
+.list-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px 0;
+  flex-wrap: wrap;
+
+  .search-field {
+    flex: 1 1 240px;
+    max-width: 480px;
+
+    mat-icon[matPrefix] {
+      color: var(--brand-text-subtle);
+      margin-right: 6px;
+    }
+  }
+
+  .filter-chips {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    min-width: 0;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid var(--brand-border);
+    color: var(--brand-text);
+    background: var(--brand-surface);
+    font-weight: 500;
+
+    &:hover:not(.chip-active) {
+      background: var(--brand-surface-alt);
+    }
+
+    &.chip-active {
+      background: var(--brand-primary-soft);
+      border-color: rgba(99, 102, 241, 0.35);
+      color: var(--brand-primary-hover);
+    }
+  }
+}
+
+.forms-table-card {
+  margin-top: 48px;
+  box-shadow: var(--brand-shadow-md);
+  border-radius: var(--brand-radius-lg);
+  overflow: hidden;
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-border);
+
+  mat-card-header {
+    background: transparent;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--brand-border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    mat-card-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--brand-text-strong);
+    }
+
+    mat-card-subtitle {
+      color: var(--brand-text-muted);
+      font-size: 0.875rem;
+      margin-top: 4px;
+    }
+
+    .header-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+
+  mat-card-content {
+    padding: 0;
+    color: var(--brand-text-strong);
+  }
+}
+
+
+.submissions-cell {
+  .submissions-count {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--brand-radius-sm);
+    transition: background-color 120ms ease;
+
+    &:hover {
+      background: var(--brand-primary-soft);
+    }
+
+    .count-number {
+      font-weight: 600;
+      color: var(--brand-primary-hover);
+    }
+
+    .count-icon {
+      font-size: 18px;
+      color: var(--brand-primary-hover);
+    }
+  }
+}
+
+.status-cell {
+  .status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+
+    &.status-active {
+      background-color: var(--brand-success-soft);
+      color: #166534;
+    }
+    &.status-inactive {
+      background-color: var(--brand-warning-soft);
+      color: #92400e;
+    }
+  }
+}
+
+.actions-cell {
+  .action-buttons {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .btn-edit { color: #0284c7; }
+  .btn-delete { color: var(--brand-danger); }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+
+  .empty-icon {
+    font-size: 56px;
+    color: var(--brand-border-strong);
+    margin-bottom: 12px;
+  }
+
+  h3 {
+    color: var(--brand-text);
+    margin: 0 0 8px 0;
+    font-weight: 600;
+  }
+
+  p {
+    color: var(--brand-text-muted);
+    margin: 0;
+  }
+}
+
+.loading-state {
+  text-align: center;
+  padding: 48px 24px;
+
+  p {
+    color: var(--brand-text-muted);
+    font-size: 1rem;
+  }
+}
+
+.error-state {
+  text-align: center;
+  padding: 48px 24px;
+
+  .error-icon {
+    font-size: 48px;
+    color: var(--brand-danger);
+    margin-bottom: 12px;
+  }
+
+  h3 {
+    color: #b91c1c;
+    margin: 0 0 16px 0;
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 768px) {
+  .forms-table {
+    font-size: 0.85rem;
+
+    .header-cell,
+    td {
+      padding: 12px 8px;
+    }
+
+    .description-cell .description-text {
+      max-width: 200px;
+    }
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .mat-mdc-icon-button { width: 32px; height: 32px; }
+}
+
+.name-cell {
+  .form-name { display: flex; align-items: center; gap: 12px; }
+  .form-icon { color: var(--brand-primary); font-size: 20px; }
+  .name-text {
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: var(--brand-text-strong);
+  }
+}

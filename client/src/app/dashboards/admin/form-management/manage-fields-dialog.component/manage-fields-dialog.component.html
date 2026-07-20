@@ -1,0 +1,87 @@
+<h2 mat-dialog-title class="dialog-title">
+  <mat-icon>view_list</mat-icon>
+  <span>Manage Fields</span>
+  @if (reordering()) {
+    <span class="reorder-indicator">saving order&hellip;</span>
+  }
+  <span class="spacer"></span>
+  <button mat-stroked-button type="button" [matMenuTriggerFor]="tmplMenu" [disabled]="isSaving()">
+    <mat-icon>library_add</mat-icon>
+    <span>Templates</span>
+  </button>
+  <mat-menu #tmplMenu="matMenu">
+    @for (t of templates; track t.id) {
+      <button mat-menu-item type="button" (click)="applyTemplate(t)">
+        <mat-icon>{{ t.icon }}</mat-icon>
+        <span class="tmpl-name">{{ t.name }}</span>
+        <span class="tmpl-desc">{{ t.description }}</span>
+      </button>
+    }
+  </mat-menu>
+  <button mat-mini-fab color="primary" type="button" aria-label="Add Field" (click)="addField()">
+    <mat-icon>add</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content class="dialog-content">
+  @if (fields().length === 0) {
+    <div class="empty-state">
+      <mat-icon>list_alt</mat-icon>
+      <h3>No fields yet</h3>
+      <p>Click the + button to add your first field.</p>
+    </div>
+  } @else {
+    <p class="drag-hint">
+      <mat-icon>drag_indicator</mat-icon>
+      <span>Drag fields to reorder</span>
+    </p>
+    <div class="field-list" cdkDropList (cdkDropListDropped)="onDrop($event)">
+      @for (field of fields(); track field.id) {
+        <div class="field-card" cdkDrag>
+          <div class="drag-handle" cdkDragHandle>
+            <mat-icon>drag_indicator</mat-icon>
+          </div>
+          <div class="field-body">
+            <div class="field-primary">
+              <span class="field-label">{{ field.label }}</span>
+              @if (field.isRequired) {
+                <span class="required-badge">required</span>
+              }
+            </div>
+            <div class="field-secondary">
+              <span class="field-name">{{ field.name }}</span>
+              <span class="dot">&middot;</span>
+              <span class="field-type">{{ field.type }}</span>
+            </div>
+          </div>
+          <button
+            mat-icon-button
+            class="btn-edit"
+            matTooltip="Edit field"
+            (click)="editField(field)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            class="btn-duplicate"
+            matTooltip="Duplicate field"
+            [disabled]="isSaving()"
+            (click)="duplicateField(field)">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            class="btn-delete"
+            matTooltip="Delete field"
+            (click)="deleteField(field)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      }
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-raised-button type="button" class="btn-cancel" (click)="close()">Close</button>
+</mat-dialog-actions>

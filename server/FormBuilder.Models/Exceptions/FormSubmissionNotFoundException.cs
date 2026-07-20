@@ -1,6 +1,6 @@
 ﻿namespace FormBuilder.Models.Exceptions;
 
-public class FormSubmissionNotFoundException : Exception
+public class FormSubmissionNotFoundException : EntityNotFoundException
 {
     public FormSubmissionNotFoundException() : base("Form submission was not found.")
     {

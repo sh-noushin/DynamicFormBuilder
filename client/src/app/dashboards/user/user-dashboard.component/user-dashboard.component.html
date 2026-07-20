@@ -1,0 +1,340 @@
+<app-header title="User Dashboard"></app-header>
+
+<div class="user-dashboard">
+  <mat-tab-group class="dashboard-tabs" mat-stretch-tabs="false" mat-align-tabs="start">
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <div class="tab-label tab-label-primary">
+          <mat-icon class="tab-icon">edit</mat-icon>
+          <span>Fill Form</span>
+        </div>
+      </ng-template>
+
+      <div class="tab-content">
+        <mat-card class="filters-card">
+          <mat-card-content>
+            <div class="filters-row">
+              <mat-form-field appearance="outline" class="filter">
+                <mat-label>Form</mat-label>
+                <mat-select [value]="selectedForm()" (selectionChange)="selectForm($event.value)">
+                  @for (f of forms(); track f.id ?? $index) {
+                    <mat-option [value]="f">{{ f.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="filter">
+                <mat-label>Published Version</mat-label>
+                <mat-select [disabled]="!selectedForm() || !versions().length" [value]="selectedVersion()" (selectionChange)="selectVersion($event.value)">
+                  @for (v of versions(); track v.versionNumber ?? $index) {
+                    <mat-option [value]="v">v{{ v.versionNumber }} • {{ v.createdAt | date:'MMM d, y' }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        @if (selectedVersion()) {
+          <mat-card class="form-card">
+            <mat-card-content>
+              <div class="form-header-inline">
+                <h2 class="form-name">{{ selectedForm()?.name }}</h2>
+                @if (selectedForm()?.description) {
+                  <p class="form-description">{{ selectedForm()?.description }}</p>
+                }
+              </div>
+
+              @if (fields().length) {
+                <form [formGroup]="formGroup" class="dynamic-form">
+                  @for (f of fields(); track fieldName(f)) {
+                    @if (isFieldVisible(f)) {
+                    <div class="field-row">
+                      <div class="field-with-icon">
+                        @switch (f.type) {
+                          @case ('Text') {
+                            <mat-form-field appearance="outline" class="form-field small-field">
+                              <mat-label>{{ f.label }}</mat-label>
+                              <input matInput [formControlName]="fieldName(f)" />
+                              @if (f.helpText) {
+                                <mat-hint>{{ f.helpText }}</mat-hint>
+                              }
+                            </mat-form-field>
+                          }
+
+                          @case ('Email') {
+                            <mat-form-field appearance="outline" class="form-field small-field">
+                              <mat-label>{{ f.label }}</mat-label>
+                              <input type="email" matInput [formControlName]="fieldName(f)" />
+                              @if (f.helpText) {
+                                <mat-hint>{{ f.helpText }}</mat-hint>
+                              }
+                            </mat-form-field>
+                          }
+
+                          @case ('Number') {
+                            <mat-form-field appearance="outline" class="form-field small-field">
+                              <mat-label>{{ f.label }}</mat-label>
+                              <input type="number" matInput [formControlName]="fieldName(f)" />
+                              @if (f.helpText) {
+                                <mat-hint>{{ f.helpText }}</mat-hint>
+                              }
+                            </mat-form-field>
+                          }
+
+                          @case ('Textarea') {
+                            <mat-form-field appearance="outline" class="form-field small-field">
+                              <mat-label>{{ f.label }}</mat-label>
+                              <textarea matInput rows="3" [formControlName]="fieldName(f)"></textarea>
+                              @if (f.helpText) {
+                                <mat-hint>{{ f.helpText }}</mat-hint>
+                              }
+                            </mat-form-field>
+                          }
+
+                          @case ('Password') {
+                            <mat-form-field appearance="outline" class="form-field small-field">
+                              <mat-label>{{ f.label }}</mat-label>
+                              <input type="password" matInput [formControlName]="fieldName(f)" />
+                              @if (f.helpText) {
+                                <mat-hint>{{ f.helpText }}</mat-hint>
+                              }
+                            </mat-form-field>
+                          }
+
+                          @case ('File') {
+                            <div class="file-field">
+                              <label class="field-label">{{ f.label }}</label>
+                              <div class="file-input-row">
+                                <button mat-stroked-button type="button" (click)="fileInput.click()" [disabled]="fileUploading()[fieldName(f)]">
+                                  <mat-icon>attach_file</mat-icon>
+                                  <span>{{ fileMeta()[fieldName(f)]?.name || 'Choose file' }}</span>
+                                </button>
+                                <input #fileInput hidden type="file" (change)="uploadFile(f, $event)" />
+                                @if (fileUploading()[fieldName(f)]) { <span class="file-status">Uploading…</span> }
+                                @if (fileMeta()[fieldName(f)] && !fileUploading()[fieldName(f)]) {
+                                  <span class="file-status ok">Uploaded</span>
+                                }
+                              </div>
+                              @if (f.helpText) { <span class="help-text">{{ f.helpText }}</span> }
+                            </div>
+                          }
+
+                          @case ('Signature') {
+                            <app-signature-pad [label]="f.label || ''" (valueChange)="onSignatureChange(f, $event)"></app-signature-pad>
+                            @if (f.helpText) { <span class="help-text">{{ f.helpText }}</span> }
+                          }
+
+                          @case ('Rating') {
+                            <app-rating [label]="f.label || ''" (valueChange)="onRatingChange(f, $event)"></app-rating>
+                            @if (f.helpText) { <span class="help-text">{{ f.helpText }}</span> }
+                          }
+
+                          @case ('PageBreak') {
+                            @if (f.label) {
+                              <h3 class="page-section-heading">{{ f.label }}</h3>
+                            }
+                          }
+
+                          @case ('Phone') {
+                            <mat-form-field appearance="outline" class="form-field small-field">
+                              <mat-label>{{ f.label }}</mat-label>
+                              <input type="tel" matInput [formControlName]="fieldName(f)" />
+                              @if (f.helpText) {
+                                <mat-hint>{{ f.helpText }}</mat-hint>
+                              }
+                            </mat-form-field>
+                          }
+
+                          @case ('Date') {
+                            <mat-form-field appearance="outline" class="form-field small-field">
+                              <mat-label>{{ f.label }}</mat-label>
+                              <input type="date" matInput [formControlName]="fieldName(f)" />
+                              @if (f.helpText) {
+                                <mat-hint>{{ f.helpText }}</mat-hint>
+                              }
+                            </mat-form-field>
+                          }
+
+                          @case ('DateTime') {
+                            <mat-form-field appearance="outline" class="form-field small-field">
+                              <mat-label>{{ f.label }}</mat-label>
+                              <input type="datetime-local" matInput [formControlName]="fieldName(f)" />
+                              @if (f.helpText) {
+                                <mat-hint>{{ f.helpText }}</mat-hint>
+                              }
+                            </mat-form-field>
+                          }
+
+                          @case ('Select') {
+                            <mat-form-field appearance="outline" class="form-field small-field">
+                              <mat-label>{{ f.label }}</mat-label>
+                              <mat-select [formControlName]="fieldName(f)">
+                                @if (!formGroup.get(fieldName(f))?.value) {
+                                  <mat-option value="" disabled>-- select --</mat-option>
+                                }
+                                @for (opt of getOptions(f); track opt.value ?? $index) {
+                                  <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                                }
+                              </mat-select>
+                              @if (f.helpText) {
+                                <mat-hint>{{ f.helpText }}</mat-hint>
+                              }
+                            </mat-form-field>
+                          }
+
+                          @case ('Checkbox') {
+                            <div class="checkbox-row">
+                              <mat-checkbox [formControlName]="fieldName(f)">{{ f.label }}</mat-checkbox>
+                              @if (f.helpText) {
+                                <div class="help-text">{{ f.helpText }}</div>
+                              }
+                            </div>
+                          }
+
+                          @case ('Radio') {
+                            <div class="radio-row">
+                              <label class="field-label">{{ f.label }}</label>
+                              <mat-radio-group [formControlName]="fieldName(f)">
+                                @for (opt of getOptions(f); track opt.value ?? $index) {
+                                  <mat-radio-button [value]="opt.value">{{ opt.label }}</mat-radio-button>
+                                }
+                              </mat-radio-group>
+                              @if (f.helpText) {
+                                <div class="help-text">{{ f.helpText }}</div>
+                              }
+                            </div>
+                          }
+
+                          @default {
+                            <mat-form-field appearance="outline" class="form-field small-field">
+                              <mat-label>{{ f.label }}</mat-label>
+                              <input matInput [formControlName]="fieldName(f)" />
+                              @if (f.helpText) {
+                                <mat-hint>{{ f.helpText }}</mat-hint>
+                              }
+                            </mat-form-field>
+                          }
+                        }
+                      </div>
+
+                      @if (hasParsedValidation(f)) {
+                        <mat-icon class="validation-icon" [ngClass]="validationIconClass(formGroup.get(fieldName(f)))">
+                          {{ validationIconName(formGroup.get(fieldName(f))) }}
+                        </mat-icon>
+                      }
+                    </div>
+                    }
+                  }
+
+                  <div class="actions">
+                    <button mat-raised-button color="primary" class="btn-primary" type="button" (click)="submit()">Submit</button>
+                  </div>
+                </form>
+              } @else {
+                <div class="empty-state">
+                  <mat-icon class="empty-icon">description</mat-icon>
+                  <h3>No fields yet</h3>
+                  <p>The admin has not added any fields to this version.</p>
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    </mat-tab>
+
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <div class="tab-label tab-label-primary">
+          <mat-icon class="tab-icon">history</mat-icon>
+          <span>My Submissions</span>
+        </div>
+      </ng-template>
+
+      <div class="tab-content">
+        <mat-card class="filters-card">
+          <mat-card-content>
+            <div class="filters-row">
+              <mat-form-field appearance="outline" class="filter">
+                <mat-label>Form</mat-label>
+                <mat-select [value]="submissionForm()" (selectionChange)="selectSubmissionForm($event.value)">
+                  @for (f of forms(); track f.id ?? $index) {
+                    <mat-option [value]="f">{{ f.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="filter">
+                <mat-label>Published Version</mat-label>
+                <mat-select [disabled]="!submissionForm() || !submissionVersions().length" [value]="submissionVersion()" (selectionChange)="selectSubmissionVersion($event.value)">
+                  @for (v of submissionVersions(); track v.versionNumber ?? $index) {
+                    <mat-option [value]="v">v{{ v.versionNumber }} • {{ v.createdAt | date:'MMM d, y' }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        @if (submissionVersion()) {
+          <mat-card class="submissions-card">
+            <mat-card-content>
+              @if (submissionsLoading()) {
+                <div class="loading-block">
+                  <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+                  <p>Loading submissions&hellip;</p>
+                </div>
+              }
+              @if (!submissionsLoading() && submissionsError()) {
+                <div class="empty-state error">
+                  <mat-icon class="empty-icon">error_outline</mat-icon>
+                  <p>{{ submissionsError() }}</p>
+                </div>
+              }
+              @if (!submissionsLoading() && !submissionsError() && !submissions().length) {
+                <div class="empty-state">
+                  <mat-icon class="empty-icon">inbox</mat-icon>
+                  <h3>No submissions yet</h3>
+                  <p>Submissions you make against this version will appear here.</p>
+                </div>
+              }
+
+              @if (submissions().length) {
+                <div class="submissions-list">
+                  @for (submission of submissions(); track $index) {
+                    <div class="submission-entry">
+                      <div class="submission-header">
+                        <div class="meta-line">
+                          <mat-icon>schedule</mat-icon>
+                          <span>{{ submission.submittedAt | date:'medium' }}</span>
+                        </div>
+                        <div class="submission-actions">
+                          <button mat-icon-button type="button" (click)="openSubmissionEditDialog(submission)" class="btn-edit" matTooltip="Edit Submission">
+                            <mat-icon>edit</mat-icon>
+                          </button>
+                          <button mat-icon-button type="button" (click)="deleteSubmission(submission)" class="btn-delete" matTooltip="Delete Submission">
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="submission-values">
+                        @for (val of submission.values || []; track $index) {
+                          <div class="value-row">
+                            <div class="value-label">{{ submissionFieldLabel(val.fieldName) }}</div>
+                            <div class="value-content">{{ submissionValueLabel(val.fieldName, val.fieldValue) }}</div>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

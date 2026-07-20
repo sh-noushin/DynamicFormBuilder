@@ -1,0 +1,270 @@
+// Hides the honeypot field from real users. Off-screen positioning beats
+// display:none because some bots detect display:none and skip the field.
+.honeypot-field {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.resume-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.resume-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+
+  .resume-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+
+    mat-icon { color: #10b981; }
+    h3 { margin: 0; font-size: 18px; }
+  }
+
+  .resume-link {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px;
+    background: #f1f5f9;
+    padding: 10px 12px;
+    border-radius: 6px;
+    word-break: break-all;
+    margin: 12px 0;
+  }
+
+  .resume-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+
+  .resume-note {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 12px;
+  }
+}
+
+.public-form-page {
+  min-height: 100vh;
+  padding: 48px 16px;
+  background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+  display: flex;
+  justify-content: center;
+}
+
+.public-form-shell {
+  width: 100%;
+  max-width: 720px;
+}
+
+.state-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 96px 16px;
+  color: #475569;
+}
+
+.state-card {
+  text-align: center;
+  padding: 48px 24px;
+
+  h2 {
+    margin: 12px 0 6px;
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  p {
+    color: #475569;
+    margin: 0;
+  }
+
+  .state-icon {
+    font-size: 56px;
+    width: 56px;
+    height: 56px;
+
+    &.success {
+      color: #10b981;
+    }
+
+    &.error {
+      color: #ef4444;
+    }
+  }
+}
+
+.form-card {
+  padding: 32px 28px;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.08);
+
+  mat-card-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  mat-card-subtitle {
+    color: #64748b;
+    margin-top: 8px;
+    font-size: 15px;
+  }
+
+  mat-card-header {
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e2e8f0;
+    display: block;
+  }
+}
+
+.fields-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.checkbox-block,
+.radio-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.radio-block mat-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-label {
+  font-weight: 500;
+  color: #334155;
+}
+
+.help-text {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.field-error-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.field-error {
+  color: #ef4444;
+  font-size: 13px;
+}
+
+.section-divider {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 32px 0 20px;
+}
+
+.section-heading {
+  color: #334155;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.submit-error {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-top: 16px;
+}
+
+.submit-row {
+  margin-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+
+  button {
+    min-width: 120px;
+
+    mat-icon { margin-right: 4px; }
+    mat-icon[iconPositionEnd] { margin-left: 6px; margin-right: 0; }
+  }
+}
+
+.page-stepper {
+  margin-bottom: 24px;
+}
+
+.page-progress {
+  position: relative;
+  height: 6px;
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.page-progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: var(--brand-primary, #6366f1);
+  transition: width 0.3s ease;
+  border-radius: 999px;
+}
+
+.page-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 8px;
+  color: #475569;
+
+  .page-count {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+
+  .page-heading {
+    font-weight: 600;
+    color: #0f172a;
+  }
+}

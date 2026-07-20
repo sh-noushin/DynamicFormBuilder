@@ -1,5 +1,4 @@
-﻿using FormBuilder.Core.DTOs;
-using static FormBuilder.Core.DTOs.RegisterUserDto;
+using FormBuilder.Core.DTOs;
 
 namespace FormBuilder.Core.Interfaces;
 
@@ -10,5 +9,4 @@ public interface IUserService
     Task<UserDto> GetUserByIdAsync(string id);
     Task<UserDto> UpdateUserAsync(string id, UpdateUserDto updateDto);
     Task<bool> DeleteUserAsync(string id);
-    Task ChangePasswordAsync(string userId, ChangePasswordDto changePasswordDto);
 }

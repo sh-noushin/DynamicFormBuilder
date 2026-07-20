@@ -5,6 +5,23 @@ public class FormDto
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
+    public string Slug { get; set; } = string.Empty;
+    public string? BrandColor { get; set; }
+    public string? AccessPassword { get; set; }
+    public string? ThankYouMessage { get; set; }
+    public string? RedirectUrl { get; set; }
+    public int? MaxSubmissions { get; set; }
+    public DateTime? ClosesAt { get; set; }
+    public string? WebhookUrl { get; set; }
+    public string? WebhookSecret { get; set; }
+    public bool WebhookSlackFormat { get; set; }
+    public bool OneResponsePerEmail { get; set; }
+    public bool OneResponsePerIp { get; set; }
+    public string? Locale { get; set; }
+    public string? FaviconUrl { get; set; }
+    public bool SendConfirmationEmail { get; set; }
+    public string? ConfirmationEmailSubject { get; set; }
+    public string? ConfirmationEmailBody { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public bool IsActive { get; set; } = true;
