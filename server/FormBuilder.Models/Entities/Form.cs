@@ -33,6 +33,10 @@ public class Form
     // has already submitted this form (checked case-insensitively across all
     // versions). Anonymous submissions - those without an email - always pass.
     public bool OneResponsePerEmail { get; set; }
+    // BCP 47 locale code (e.g. "en", "es", "fr") for the public form UI
+    // strings. Null falls back to English. Only client-side rendering uses
+    // this - the server never translates messages itself.
+    public string? Locale { get; set; }
     // When true, the submitter receives an email copy of their submission
     // after a successful submit (only if they provided an email address).
     public bool SendConfirmationEmail { get; set; }

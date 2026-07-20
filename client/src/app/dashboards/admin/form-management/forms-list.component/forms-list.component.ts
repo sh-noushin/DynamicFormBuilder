@@ -141,6 +141,7 @@ export class FormsListComponent implements OnInit {
         sendConfirmationEmail: !!result.sendConfirmationEmail,
         confirmationEmailSubject: result.confirmationEmailSubject || undefined,
         confirmationEmailBody: result.confirmationEmailBody || undefined,
+        locale: (result as any).locale || undefined,
       });
       this.isLoading.set(true);
       this.apiClient.formsPOST(payload).subscribe({

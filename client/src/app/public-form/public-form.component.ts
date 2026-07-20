@@ -16,6 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SignaturePadComponent } from '../shared/signature-pad/signature-pad.component';
 import { RatingComponent } from '../shared/rating/rating.component';
 import { environment } from '../../environments/environment';
+import { PublicStringKey, t } from './public-form-i18n';
 
 interface PublicField {
   id: string;
@@ -38,6 +39,7 @@ interface PublicForm {
   brandColor?: string;
   thankYouMessage?: string;
   redirectUrl?: string;
+  locale?: string;
   requiresPassword?: boolean;
   isClosed?: boolean;
   closedReason?: string;
@@ -130,6 +132,14 @@ export class PublicFormComponent {
   // buildFormControls so template code can resolve name -> control without a
   // linear scan on every re-render.
   private fieldByName = new Map<string, PublicField>();
+
+  // Template-facing translator. Reads the currently-loaded form's locale
+  // (falling back to English) and returns the string for `key`. Missing
+  // keys also fall back to English so a partial translation never blanks
+  // out a piece of UI.
+  t(key: PublicStringKey): string {
+    return t(this.form()?.locale, key);
+  }
 
   // Split the ordered field list into pages at every PageBreak marker.
   // The PageBreak itself is not rendered as an input; its label becomes the
@@ -246,7 +256,7 @@ export class PublicFormComponent {
         },
         error: () => {
           this.savingDraft.set(false);
-          this.errorMessage.set('Could not save your draft. Please try again.');
+          this.errorMessage.set(this.t('draftSaveError'));
         },
       });
   }
@@ -277,7 +287,7 @@ export class PublicFormComponent {
   private load(): void {
     const slug = this.slug();
     if (!slug) {
-      this.errorMessage.set('This link is not valid.');
+      this.errorMessage.set(this.t('linkNotValid'));
       this.loading.set(false);
       return;
     }
@@ -295,7 +305,7 @@ export class PublicFormComponent {
           this.passwordSubmitting.set(false);
           if (form.isClosed) {
             this.formClosed.set(true);
-            this.closedReason.set(form.closedReason ?? 'This form is no longer accepting responses.');
+            this.closedReason.set(form.closedReason ?? this.t('closedGeneric'));
             return;
           }
           this.formClosed.set(false);
@@ -303,7 +313,7 @@ export class PublicFormComponent {
           if (form.requiresPassword) {
             this.passwordRequired.set(true);
             if (this.passwordAttempted()) {
-              this.passwordError.set('Incorrect password. Please try again.');
+              this.passwordError.set(this.t('passwordIncorrect'));
             }
             return;
           }
@@ -333,7 +343,7 @@ export class PublicFormComponent {
     if (this.passwordSubmitting()) return;
     const value = this.passwordValue().trim();
     if (!value) {
-      this.passwordError.set('Please enter the password.');
+      this.passwordError.set(this.t('passwordRequired'));
       return;
     }
     this.passwordAttempted.set(true);
@@ -465,7 +475,7 @@ export class PublicFormComponent {
       }
     }
     if (anyInvalid) {
-      this.errorMessage.set('Please fix the highlighted fields to continue.');
+      this.errorMessage.set(this.t('fixHighlightedContinue'));
       return;
     }
     this.errorMessage.set(null);
@@ -553,22 +563,22 @@ export class PublicFormComponent {
           this.submitting.set(false);
           if (err?.status === 400 && err.error?.fieldErrors) {
             this.fieldErrors.set(err.error.fieldErrors as Record<string, string[]>);
-            this.errorMessage.set('Please fix the highlighted fields and submit again.');
+            this.errorMessage.set(this.t('fixHighlightedSubmit'));
           } else if (err?.status === 401) {
-            this.errorMessage.set('The form password has changed. Please reload and enter it again.');
+            this.errorMessage.set(this.t('passwordChanged'));
             this.passwordRequired.set(true);
             this.passwordValue.set('');
           } else if (err?.status === 410) {
             this.formClosed.set(true);
-            this.closedReason.set(err?.error?.message ?? err?.error?.detail ?? 'This form is no longer accepting responses.');
+            this.closedReason.set(err?.error?.message ?? err?.error?.detail ?? this.t('closedGeneric'));
           } else if (err?.status === 409) {
-            this.errorMessage.set(err?.error?.message ?? err?.error?.detail ?? 'A response has already been submitted from this email address.');
+            this.errorMessage.set(err?.error?.message ?? err?.error?.detail ?? this.t('duplicateEmail'));
           } else if (err?.status === 429) {
-            this.errorMessage.set('You are submitting too quickly. Please wait a moment and try again.');
+            this.errorMessage.set(this.t('submittingTooQuickly'));
           } else if (err?.status === 404) {
-            this.errorMessage.set('This form is no longer accepting responses.');
+            this.errorMessage.set(this.t('noLongerAcceptingResponses'));
           } else {
-            this.errorMessage.set('Something went wrong sending your response.');
+            this.errorMessage.set(this.t('submitGenericError'));
           }
         },
       });

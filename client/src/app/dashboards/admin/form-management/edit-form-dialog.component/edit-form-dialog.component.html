@@ -26,6 +26,16 @@
       </mat-slide-toggle>
     </div>
 
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Public form language</mat-label>
+      <mat-select [value]="locale()" (selectionChange)="locale.set($any($event).value)">
+        @for (opt of localeOptions; track opt.value) {
+          <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+        }
+      </mat-select>
+      <mat-hint>Language of the built-in strings (Next, Submit, error messages, ...). Field labels are not translated.</mat-hint>
+    </mat-form-field>
+
     <div class="brand-row">
       <label class="brand-label">
         <mat-icon>palette</mat-icon>

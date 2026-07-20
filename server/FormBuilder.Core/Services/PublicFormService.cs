@@ -83,6 +83,7 @@ public class PublicFormService : IPublicFormService
             BrandColor = form.BrandColor,
             ThankYouMessage = form.ThankYouMessage,
             RedirectUrl = form.RedirectUrl,
+            Locale = form.Locale,
             FormVersionId = version.Id,
             VersionNumber = version.VersionNumber,
             Fields = _mapper.Map<List<FormFieldDto>>(version.Fields)

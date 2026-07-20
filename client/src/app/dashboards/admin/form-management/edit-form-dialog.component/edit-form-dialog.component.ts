@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
@@ -38,7 +39,8 @@ export type EditFormDialogData = {
 		MatCardModule,
 		MatTooltipModule,
 		MatSlideToggleModule,
-		MatSnackBarModule
+		MatSnackBarModule,
+		MatSelectModule
 	],
 	templateUrl: './edit-form-dialog.component.html',
 	changeDetection: ChangeDetectionStrategy.Eager,
@@ -62,6 +64,13 @@ export class EditFormDialogComponent implements OnInit {
 	sendConfirmationEmail = signal<boolean>(false);
 	confirmationEmailSubject = signal<string>('');
 	confirmationEmailBody = signal<string>('');
+	locale = signal<string>('');
+	readonly localeOptions = [
+		{ value: '', label: 'English (default)' },
+		{ value: 'en', label: 'English' },
+		{ value: 'es', label: 'Español' },
+		{ value: 'fr', label: 'Français' },
+	];
 
 	nameTouched = signal<boolean>(false);
 	isSaving = signal(false);
@@ -92,6 +101,7 @@ export class EditFormDialogComponent implements OnInit {
 			this.sendConfirmationEmail.set(!!(src as any).sendConfirmationEmail);
 			this.confirmationEmailSubject.set((src as any).confirmationEmailSubject ?? '');
 			this.confirmationEmailBody.set((src as any).confirmationEmailBody ?? '');
+			this.locale.set((src as any).locale ?? '');
 		}
 
 		setConfirmationSubjectFromEvent(ev: Event) {
@@ -216,6 +226,7 @@ export class EditFormDialogComponent implements OnInit {
 			sendConfirmationEmail: this.sendConfirmationEmail(),
 			confirmationEmailSubject: this.confirmationEmailSubject().trim() || undefined,
 			confirmationEmailBody: this.confirmationEmailBody().trim() || undefined,
+			locale: this.locale() || undefined,
 		});
 		this.api.formsPUT(this.data.form.id, payload).subscribe({
 			next: updated => {

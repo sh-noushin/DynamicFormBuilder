@@ -13,24 +13,19 @@
     @if (loading()) {
       <div class="state-block">
         <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
-        <p>Loading form&hellip;</p>
+        <p>{{ t('loading') }}</p>
       </div>
     } @else if (errorMessage() && !form()) {
       <mat-card class="state-card">
         <mat-icon class="state-icon error">error_outline</mat-icon>
-        <h2>Form unavailable</h2>
+        <h2>{{ t('unavailable') }}</h2>
         <p>{{ errorMessage() }}</p>
       </mat-card>
     } @else if (submitted()) {
       <mat-card class="state-card">
         <mat-icon class="state-icon success">check_circle</mat-icon>
-        @if (form()?.thankYouMessage) {
-          <h2>Thanks for your response!</h2>
-          <p>{{ form()?.thankYouMessage }}</p>
-        } @else {
-          <h2>Thanks for your response!</h2>
-          <p>Your submission has been recorded.</p>
-        }
+        <h2>{{ t('thanksTitle') }}</h2>
+        <p>{{ form()?.thankYouMessage || t('thanksBody') }}</p>
       </mat-card>
     } @else if (formClosed() && form(); as f) {
       <mat-card class="state-card">
@@ -43,12 +38,12 @@
         <mat-card-header>
           <mat-icon class="state-icon">lock</mat-icon>
           <mat-card-title>{{ f.name }}</mat-card-title>
-          <mat-card-subtitle>This form is password protected. Enter the password to continue.</mat-card-subtitle>
+          <mat-card-subtitle>{{ t('passwordGateSubtitle') }}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
           <form (ngSubmit)="unlockForm()" novalidate>
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Password</mat-label>
+              <mat-label>{{ t('passwordLabel') }}</mat-label>
               <input matInput
                      type="password"
                      autocomplete="current-password"
@@ -58,7 +53,7 @@
             </mat-form-field>
             <div class="submit-row">
               <button mat-flat-button color="primary" type="submit" [disabled]="passwordSubmitting()">
-                @if (passwordSubmitting()) { <span>Checking&hellip;</span> } @else { <span>Unlock</span> }
+                @if (passwordSubmitting()) { <span>{{ t('passwordChecking') }}</span> } @else { <span>{{ t('passwordUnlock') }}</span> }
               </button>
             </div>
           </form>
@@ -231,14 +226,14 @@
 
             @if (isLastPage()) {
               <hr class="section-divider" />
-              <h3 class="section-heading">Your details (optional)</h3>
+              <h3 class="section-heading">{{ t('yourDetails') }}</h3>
               <div class="fields-grid">
                 <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>Your name</mat-label>
+                  <mat-label>{{ t('yourName') }}</mat-label>
                   <input matInput formControlName="submitterName" />
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>Your email</mat-label>
+                  <mat-label>{{ t('yourEmail') }}</mat-label>
                   <input matInput type="email" formControlName="submitterEmail" />
                 </mat-form-field>
               </div>
@@ -252,21 +247,21 @@
               @if (!isFirstPage()) {
                 <button mat-stroked-button type="button" (click)="previousPage()">
                   <mat-icon>arrow_back</mat-icon>
-                  <span>Previous</span>
+                  <span>{{ t('previous') }}</span>
                 </button>
               }
               <button mat-stroked-button type="button" (click)="saveDraft()" [disabled]="savingDraft()">
                 <mat-icon>bookmark</mat-icon>
-                @if (savingDraft()) { <span>Saving&hellip;</span> } @else { <span>Save &amp; continue later</span> }
+                @if (savingDraft()) { <span>{{ t('savingDraft') }}</span> } @else { <span>{{ t('saveForLater') }}</span> }
               </button>
               @if (!isLastPage()) {
                 <button mat-flat-button color="primary" type="button" (click)="nextPage()">
-                  <span>Next</span>
+                  <span>{{ t('next') }}</span>
                   <mat-icon iconPositionEnd>arrow_forward</mat-icon>
                 </button>
               } @else {
                 <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
-                  @if (submitting()) { <span>Submitting&hellip;</span> } @else { <span>Submit</span> }
+                  @if (submitting()) { <span>{{ t('submitting') }}</span> } @else { <span>{{ t('submit') }}</span> }
                 </button>
               }
             </div>
@@ -276,18 +271,18 @@
                 <div class="resume-card" (click)="$event.stopPropagation()">
                   <div class="resume-header">
                     <mat-icon>bookmark_added</mat-icon>
-                    <h3>Your progress is saved</h3>
+                    <h3>{{ t('draftSavedTitle') }}</h3>
                   </div>
-                  <p>Return using this link to pick up where you left off:</p>
+                  <p>{{ t('draftSavedBody') }}</p>
                   <div class="resume-link">{{ resumeUrl() }}</div>
                   <div class="resume-actions">
                     <button mat-stroked-button type="button" (click)="copyResumeUrl()">
                       <mat-icon>content_copy</mat-icon>
-                      <span>Copy link</span>
+                      <span>{{ t('copyLink') }}</span>
                     </button>
-                    <button mat-flat-button color="primary" type="button" (click)="closeResumeDialog()">Done</button>
+                    <button mat-flat-button color="primary" type="button" (click)="closeResumeDialog()">{{ t('done') }}</button>
                   </div>
-                  <p class="resume-note">The link is valid for 30 days. Keep it safe &mdash; anyone with the link can view or edit your response.</p>
+                  <p class="resume-note">{{ t('draftNote') }}</p>
                 </div>
               </div>
             }

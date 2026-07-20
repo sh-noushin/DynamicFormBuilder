@@ -15,6 +15,7 @@ public class FormDto
     public string? WebhookUrl { get; set; }
     public string? WebhookSecret { get; set; }
     public bool OneResponsePerEmail { get; set; }
+    public string? Locale { get; set; }
     public bool SendConfirmationEmail { get; set; }
     public string? ConfirmationEmailSubject { get; set; }
     public string? ConfirmationEmailBody { get; set; }

@@ -35,6 +35,9 @@ public class CreateFormDto
 
     public bool OneResponsePerEmail { get; set; }
 
+    [StringLength(10)]
+    public string? Locale { get; set; }
+
     public bool SendConfirmationEmail { get; set; }
 
     [StringLength(200)]
