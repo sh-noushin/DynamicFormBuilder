@@ -1,0 +1,85 @@
+# Continuous integration for FormBuilder.
+#
+# Runs on every push to main and every pull request. Two independent jobs
+# (backend + frontend) so a broken SPA doesn't mask a passing test suite
+# and vice-versa. Both jobs cache their package managers so subsequent
+# runs finish in under a minute.
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+# Cancel in-flight runs when a new commit lands on the same branch so we
+# don't pile up jobs for a rapidly-updated PR.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (.NET 10)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # NuGet package cache. The key includes hashes of every csproj so a
+      # dependency change invalidates the cache; restore-keys let us reuse
+      # older caches when the exact set has moved on.
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore server/FormBuilder.slnx
+
+      - name: Build
+        run: dotnet build server/FormBuilder.slnx --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test server/FormBuilder.slnx --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
+
+      # Upload test results so a failing run's TRX file is easy to grab
+      # from the workflow page without re-running locally.
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: '**/test-results.trx'
+          retention-days: 14
+
+  frontend:
+    name: Frontend (Angular 22)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          # Built-in npm cache keyed off the lockfile hash.
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Build (production)
+        run: npx ng build --configuration=production
