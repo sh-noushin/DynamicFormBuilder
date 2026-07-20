@@ -14,11 +14,25 @@ interface DailyCount {
   count: number;
 }
 
+interface BreakdownBucket {
+  label: string;
+  count: number;
+}
+
+interface FieldBreakdown {
+  fieldName: string;
+  fieldLabel: string;
+  fieldType: string;
+  totalAnswered: number;
+  buckets: BreakdownBucket[];
+}
+
 interface FormAnalytics {
   totalSubmissions: number;
   last7Days: number;
   last30Days: number;
   dailyCounts: DailyCount[];
+  fieldBreakdowns?: FieldBreakdown[];
 }
 
 // Layout constants for the inline SVG chart. All in unitless SVG "user units"
@@ -114,6 +128,17 @@ export class FormAnalyticsComponent {
   yBottom = computed(() => CHART_HEIGHT - CHART_PAD_BOTTOM);
   chartInnerLeft = CHART_PAD_LEFT;
   chartInnerRight = CHART_WIDTH - CHART_PAD_RIGHT;
+
+  fieldBreakdowns = computed<FieldBreakdown[]>(() => this.analytics()?.fieldBreakdowns ?? []);
+
+  // Layout is a compact horizontal-bar list per field: label on the left,
+  // bar in the middle, count/percent on the right. Percent uses each field's
+  // own totalAnswered so a bucket that's 3 of 5 answers reads as 60% even if
+  // the form has more total submissions overall.
+  bucketWidthPct(bucket: BreakdownBucket, field: FieldBreakdown): number {
+    if (!field.totalAnswered) return 0;
+    return Math.round((bucket.count / field.totalAnswered) * 100);
+  }
 
   constructor() {
     this.load();

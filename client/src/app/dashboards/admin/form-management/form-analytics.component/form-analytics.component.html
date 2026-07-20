@@ -60,5 +60,38 @@
         </svg>
       </mat-card-content>
     </mat-card>
+
+    @if (fieldBreakdowns().length > 0) {
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Answer breakdowns</mat-card-title>
+          <mat-card-subtitle>Distribution across choice fields on the current version</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="breakdown-grid">
+          @for (field of fieldBreakdowns(); track field.fieldName) {
+            <div class="breakdown-block">
+              <div class="breakdown-head">
+                <span class="breakdown-label">{{ field.fieldLabel || field.fieldName }}</span>
+                <span class="breakdown-meta">{{ field.fieldType }} &middot; {{ field.totalAnswered | number }} answered</span>
+              </div>
+              <div class="breakdown-rows">
+                @for (b of field.buckets; track b.label) {
+                  <div class="breakdown-row">
+                    <div class="row-label" [title]="b.label">{{ b.label }}</div>
+                    <div class="row-bar-wrap">
+                      <div class="row-bar" [style.width.%]="bucketWidthPct(b, field)"></div>
+                    </div>
+                    <div class="row-count">
+                      <span class="count">{{ b.count | number }}</span>
+                      <span class="percent">{{ bucketWidthPct(b, field) }}%</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    }
   }
 </div>
