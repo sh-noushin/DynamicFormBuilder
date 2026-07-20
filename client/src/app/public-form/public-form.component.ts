@@ -108,6 +108,11 @@ export class PublicFormComponent {
   // top-level submitter details.
   private prefill = new Map<string, string>();
 
+  // Fast lookup for answer-piping tokens like {{field_name}}. Populated in
+  // buildFormControls so template code can resolve name -> control without a
+  // linear scan on every re-render.
+  private fieldByName = new Map<string, PublicField>();
+
   // Split the ordered field list into pages at every PageBreak marker.
   // The PageBreak itself is not rendered as an input; its label becomes the
   // heading for the page AFTER the break (page[i+1]).
@@ -234,12 +239,31 @@ export class PublicFormComponent {
   }
 
   private buildFormControls(form: PublicForm): void {
+    this.fieldByName.clear();
     for (const field of form.fields) {
+      this.fieldByName.set(field.name, field);
       const validators = field.isRequired && field.type !== 'Checkbox' ? [Validators.required] : [];
       if (field.type === 'Email') validators.push(Validators.email);
       const initial = this.initialValueFor(field);
       this.formGroup.addControl(this.controlName(field), this.fb.control(initial, validators));
     }
+  }
+
+  // Answer piping: replaces {{field_name}} tokens with the current value of
+  // the referenced field control. Referenced fields whose value is empty or
+  // opaque (File / Signature) become "..." so a label like "Thanks {{name}},"
+  // reads naturally before the user types.
+  pipeText(text: string | null | undefined): string {
+    if (!text) return text ?? '';
+    return text.replace(/\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g, (_match, name) => {
+      const target = this.fieldByName.get(name);
+      if (!target) return '';
+      if (target.type === 'File' || target.type === 'Signature' || target.type === 'PageBreak') return '';
+      const value = this.formGroup.get(this.controlName(target))?.value;
+      if (value == null || value === '') return '...';
+      if (target.type === 'Checkbox') return value ? 'Yes' : 'No';
+      return String(value);
+    });
   }
 
   private initialValueFor(field: PublicField): unknown {
