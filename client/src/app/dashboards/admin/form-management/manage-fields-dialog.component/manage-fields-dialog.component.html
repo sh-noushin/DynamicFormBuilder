@@ -5,6 +5,19 @@
     <span class="reorder-indicator">saving order&hellip;</span>
   }
   <span class="spacer"></span>
+  <button mat-stroked-button type="button" [matMenuTriggerFor]="tmplMenu" [disabled]="isSaving()">
+    <mat-icon>library_add</mat-icon>
+    <span>Templates</span>
+  </button>
+  <mat-menu #tmplMenu="matMenu">
+    @for (t of templates; track t.id) {
+      <button mat-menu-item type="button" (click)="applyTemplate(t)">
+        <mat-icon>{{ t.icon }}</mat-icon>
+        <span class="tmpl-name">{{ t.name }}</span>
+        <span class="tmpl-desc">{{ t.description }}</span>
+      </button>
+    }
+  </mat-menu>
   <button mat-mini-fab color="primary" type="button" aria-label="Add Field" (click)="addField()">
     <mat-icon>add</mat-icon>
   </button>

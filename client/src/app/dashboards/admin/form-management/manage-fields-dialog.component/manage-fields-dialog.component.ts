@@ -8,9 +8,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
 import { Client, CreateFormFieldDto, FormFieldDto, UpdateFormFieldDto } from '../../../../core/services/api-service';
 import { AddFieldDialogComponent } from '../add-field-dialog.component/add-field-dialog.component';
 import { DeleteDialogComponent, DeleteDialogData } from '../../../../shared/delete-dialog.component/delete-dialog.component';
+import { FIELD_TEMPLATES, FieldTemplate, uniquifyName } from '../field-templates';
 
 export type ManageFieldsDialogData = {
   formId: string;
@@ -30,7 +32,8 @@ export type ManageFieldsDialogData = {
     MatIconModule,
     MatButtonModule,
     MatTooltipModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatMenuModule
   ],
   templateUrl: './manage-fields-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -40,6 +43,7 @@ export class ManageFieldsDialogComponent implements OnInit {
   fields = signal<FormFieldDto[]>([]);
   isSaving = signal(false);
   reordering = signal(false);
+  templates: FieldTemplate[] = FIELD_TEMPLATES;
 
   constructor(
     private api: Client,
@@ -189,4 +193,49 @@ export class ManageFieldsDialogComponent implements OnInit {
   }
 
   close() { this.dialogRef.close(); }
+
+  // Applies a curated template by POSTing each of its fields sequentially.
+  // Sequential (not parallel) preserves the intended order because Order is
+  // assigned from the current field-count baseline. Name collisions are
+  // resolved client-side via suffix so a duplicate name never breaks a batch
+  // half-way through.
+  applyTemplate(template: FieldTemplate) {
+    if (this.isSaving()) return;
+    const existing = new Set(this.fields().map(f => String(f.name ?? '').toLowerCase()));
+    const baseOrder = this.fields().length;
+    const queue = template.fields.map((tf, i) => new CreateFormFieldDto({
+      name: uniquifyName(tf.name, existing),
+      label: tf.label,
+      type: tf.type,
+      order: baseOrder + i + 1,
+      isRequired: !!tf.isRequired,
+      isVisible: true,
+      isReadOnly: false,
+      placeholder: tf.placeholder || '',
+      helpText: tf.helpText || '',
+      defaultValue: '',
+      validation: tf.validation || '',
+      options: tf.options || '',
+    }));
+
+    this.isSaving.set(true);
+    let failures = 0;
+    const runNext = (index: number) => {
+      if (index >= queue.length) {
+        this.isSaving.set(false);
+        this.loadFields();
+        const added = queue.length - failures;
+        const msg = failures === 0
+          ? `Added ${added} field${added === 1 ? '' : 's'} from "${template.name}"`
+          : `Added ${added} of ${queue.length} fields from "${template.name}"`;
+        this.snack.open(msg, 'Close', { duration: 2500 });
+        return;
+      }
+      this.api.fieldsPOST(this.data.formId, this.data.versionNumber, queue[index]).subscribe({
+        next: () => runNext(index + 1),
+        error: () => { failures++; runNext(index + 1); },
+      });
+    };
+    runNext(0);
+  }
 }
