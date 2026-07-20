@@ -9,6 +9,9 @@ public class Form
     // Hex color like "#6366f1" used to theme the public /f/:slug page and
     // admin preview. Null falls back to the app-wide indigo palette.
     public string? BrandColor { get; set; }
+    // Optional password required to view + submit the public /f/:slug form.
+    // Null means anyone with the link can submit.
+    public string? AccessPassword { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public bool IsActive { get; set; } = true;

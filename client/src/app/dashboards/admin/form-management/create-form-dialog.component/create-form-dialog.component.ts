@@ -32,6 +32,8 @@ export class CreateFormDialogComponent {
   name = signal('');
   description = signal('');
   brandColor = signal('');
+  accessPassword = signal('');
+  showPassword = signal<boolean>(false);
   touched = {
     name: signal(false),
     description: signal(false)
@@ -63,12 +65,18 @@ export class CreateFormDialogComponent {
     const result = {
       name: this.name(),
       description: this.description(),
-      brandColor: this.brandColor().trim() || undefined
+      brandColor: this.brandColor().trim() || undefined,
+      accessPassword: this.accessPassword().trim() || undefined
     };
     this.dialogRef.close(result);
   }
 
   clearBrandColor() { this.brandColor.set(''); }
+  setAccessPasswordFromEvent(ev: Event) {
+    const val = (ev.target as HTMLInputElement)?.value ?? '';
+    this.accessPassword.set(val);
+  }
+  clearAccessPassword() { this.accessPassword.set(''); }
 
   cancel() {
     this.dialogRef.close(null);

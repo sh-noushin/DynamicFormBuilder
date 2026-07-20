@@ -11,6 +11,9 @@ public class PublicFormDto
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string? BrandColor { get; set; }
+    // True when the form has an AccessPassword and the caller has not yet
+    // supplied it. When true, Fields is empty and FormVersionId is Guid.Empty.
+    public bool RequiresPassword { get; set; }
     public Guid FormVersionId { get; set; }
     public int VersionNumber { get; set; }
     public List<FormFieldDto> Fields { get; set; } = new List<FormFieldDto>();

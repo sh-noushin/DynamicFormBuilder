@@ -49,7 +49,9 @@ export class EditFormDialogComponent implements OnInit {
 	description = signal<string>('');
 	isActive = signal<boolean>(true);
 	brandColor = signal<string>('');
-	
+	accessPassword = signal<string>('');
+	showPassword = signal<boolean>(false);
+
 	nameTouched = signal<boolean>(false);
 	isSaving = signal(false);
 	versions = signal<FormVersionDto[]>([]);
@@ -67,9 +69,15 @@ export class EditFormDialogComponent implements OnInit {
 			this.description.set(src.description ?? '');
 			this.isActive.set(!!src.isActive);
 			this.brandColor.set((src as any).brandColor ?? '');
+			this.accessPassword.set((src as any).accessPassword ?? '');
 		}
 
 		clearBrandColor() { this.brandColor.set(''); }
+		setAccessPasswordFromEvent(ev: Event) {
+			const val = (ev.target as HTMLInputElement)?.value ?? '';
+			this.accessPassword.set(val);
+		}
+		clearAccessPassword() { this.accessPassword.set(''); }
 
 
 	ngOnInit(): void {
@@ -95,6 +103,7 @@ export class EditFormDialogComponent implements OnInit {
 			description: this.description(),
 			isActive: this.isActive(),
 			brandColor: this.brandColor().trim() || undefined,
+			accessPassword: this.accessPassword().trim() || undefined,
 		});
 		this.api.formsPUT(this.data.form.id, payload).subscribe({
 			next: updated => {

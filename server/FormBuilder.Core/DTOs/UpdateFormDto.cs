@@ -13,5 +13,8 @@ public class UpdateFormDto
     [StringLength(9)]
     public string? BrandColor { get; set; }
 
+    [StringLength(200)]
+    public string? AccessPassword { get; set; }
+
     public bool IsActive { get; set; } = true;
 }

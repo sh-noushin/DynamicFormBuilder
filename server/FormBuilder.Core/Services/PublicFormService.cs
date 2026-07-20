@@ -29,30 +29,54 @@ public class PublicFormService : IPublicFormService
         _notifier = notifier;
     }
 
-    public async Task<PublicFormDto> GetBySlugAsync(string slug)
+    public async Task<PublicFormDto> GetBySlugAsync(string slug, string? accessPassword)
     {
         if (string.IsNullOrWhiteSpace(slug))
             throw new ArgumentException("Slug cannot be null or empty.", nameof(slug));
 
         var (form, version) = await ResolvePublishedCurrentVersionAsync(slug);
 
+        // If the form is password-protected and the caller has not supplied the
+        // matching password, return a stub response that reveals only the name
+        // and description so the client can render its unlock gate. Fields are
+        // NOT returned.
+        if (!string.IsNullOrEmpty(form.AccessPassword) && !PasswordMatches(form.AccessPassword, accessPassword))
+        {
+            return new PublicFormDto
+            {
+                Slug = form.Slug,
+                Name = form.Name,
+                Description = form.Description,
+                BrandColor = form.BrandColor,
+                RequiresPassword = true
+            };
+        }
+
         return new PublicFormDto
         {
             Slug = form.Slug,
             Name = form.Name,
             Description = form.Description,
+            BrandColor = form.BrandColor,
             FormVersionId = version.Id,
             VersionNumber = version.VersionNumber,
             Fields = _mapper.Map<List<FormFieldDto>>(version.Fields)
         };
     }
 
-    public async Task<FormSubmissionDto> SubmitAsync(string slug, PublicFormSubmissionDto submission)
+    public async Task<FormSubmissionDto> SubmitAsync(string slug, PublicFormSubmissionDto submission, string? accessPassword)
     {
         if (submission == null)
             throw new ArgumentNullException(nameof(submission));
 
         var (form, version) = await ResolvePublishedCurrentVersionAsync(slug);
+
+        // Enforce the password gate on submit too - the client sends the same
+        // header on both GET and POST.
+        if (!string.IsNullOrEmpty(form.AccessPassword) && !PasswordMatches(form.AccessPassword, accessPassword))
+        {
+            throw new InvalidCredentialsException("Incorrect form password.");
+        }
 
         var validationErrors = await _validator.ValidateAsync(version.Id, submission.FieldValues);
         if (validationErrors != null && validationErrors.Count > 0)
@@ -81,6 +105,21 @@ public class PublicFormService : IPublicFormService
         var dto = _mapper.Map<FormSubmissionDto>(created);
         await _notifier.NotifyAsync(form.Name, dto);
         return dto;
+    }
+
+    // Constant-time-ish comparison. AccessPassword is stored plaintext (form-
+    // level shared secret, not user auth), but we still avoid an early-exit
+    // string compare so basic timing side channels do not leak the length.
+    private static bool PasswordMatches(string expected, string? supplied)
+    {
+        if (supplied == null) return false;
+        if (expected.Length != supplied.Length) return false;
+        var diff = 0;
+        for (var i = 0; i < expected.Length; i++)
+        {
+            diff |= expected[i] ^ supplied[i];
+        }
+        return diff == 0;
     }
 
     // A missing form, an inactive form, or a form without a published current

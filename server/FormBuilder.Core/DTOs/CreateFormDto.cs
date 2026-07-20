@@ -13,5 +13,8 @@ public class CreateFormDto
     [StringLength(9)]
     public string? BrandColor { get; set; }
 
+    [StringLength(200)]
+    public string? AccessPassword { get; set; }
+
     public List<CreateFormFieldDto> Fields { get; set; } = new List<CreateFormFieldDto>();
 }

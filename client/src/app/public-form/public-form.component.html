@@ -27,6 +27,32 @@
         <h2>Thanks for your response!</h2>
         <p>Your submission has been recorded.</p>
       </mat-card>
+    } @else if (passwordRequired() && form(); as f) {
+      <mat-card class="form-card password-gate-card">
+        <mat-card-header>
+          <mat-icon class="state-icon">lock</mat-icon>
+          <mat-card-title>{{ f.name }}</mat-card-title>
+          <mat-card-subtitle>This form is password protected. Enter the password to continue.</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <form (ngSubmit)="unlockForm()" novalidate>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Password</mat-label>
+              <input matInput
+                     type="password"
+                     autocomplete="current-password"
+                     [value]="passwordValue()"
+                     (input)="setPasswordFromEvent($event)" />
+              @if (passwordError()) { <mat-error>{{ passwordError() }}</mat-error> }
+            </mat-form-field>
+            <div class="submit-row">
+              <button mat-flat-button color="primary" type="submit" [disabled]="passwordSubmitting()">
+                @if (passwordSubmitting()) { <span>Checking&hellip;</span> } @else { <span>Unlock</span> }
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
     } @else if (form(); as f) {
       <mat-card class="form-card">
         <mat-card-header>

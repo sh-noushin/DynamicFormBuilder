@@ -28,6 +28,7 @@ public class FormBuilderDbContext : IdentityDbContext<User>
             entity.Property(e => e.Slug).IsRequired().HasMaxLength(16);
             entity.HasIndex(e => e.Slug).IsUnique();
             entity.Property(e => e.BrandColor).HasMaxLength(9);
+            entity.Property(e => e.AccessPassword).HasMaxLength(200);
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.Property(e => e.UpdatedAt).IsRequired();
             entity.HasMany(e => e.Versions)

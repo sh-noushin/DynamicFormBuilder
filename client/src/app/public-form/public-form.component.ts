@@ -35,10 +35,13 @@ interface PublicForm {
   name: string;
   description?: string;
   brandColor?: string;
+  requiresPassword?: boolean;
   formVersionId: string;
   versionNumber: number;
   fields: PublicField[];
 }
+
+const PASSWORD_HEADER = 'X-Form-Password';
 
 @Component({
   selector: 'app-public-form',
@@ -73,6 +76,11 @@ export class PublicFormComponent {
   submitting = signal(false);
   submitted = signal(false);
   errorMessage = signal<string | null>(null);
+  passwordRequired = signal(false);
+  passwordValue = signal('');
+  passwordAttempted = signal(false);
+  passwordError = signal<string | null>(null);
+  passwordSubmitting = signal(false);
   fieldErrors = signal<Record<string, string[]>>({});
   fileUploading = signal<Record<string, boolean>>({});
   fileMeta = signal<Record<string, { token: string; name: string; size: number } | undefined>>({});
@@ -132,13 +140,27 @@ export class PublicFormComponent {
       return;
     }
 
+    const headers = this.passwordValue()
+      ? { [PASSWORD_HEADER]: this.passwordValue() }
+      : undefined;
+
     this.http
-      .get<PublicForm>(`${environment.apiBaseUrl}/api/public/forms/${encodeURIComponent(slug)}`)
+      .get<PublicForm>(`${environment.apiBaseUrl}/api/public/forms/${encodeURIComponent(slug)}`, { headers })
       .subscribe({
         next: (form) => {
           this.form.set(form);
-          this.buildFormControls(form);
           this.loading.set(false);
+          this.passwordSubmitting.set(false);
+          if (form.requiresPassword) {
+            this.passwordRequired.set(true);
+            if (this.passwordAttempted()) {
+              this.passwordError.set('Incorrect password. Please try again.');
+            }
+            return;
+          }
+          this.passwordRequired.set(false);
+          this.passwordError.set(null);
+          this.buildFormControls(form);
         },
         error: (err) => {
           this.errorMessage.set(
@@ -147,8 +169,29 @@ export class PublicFormComponent {
               : 'We could not load this form. Please try again.'
           );
           this.loading.set(false);
+          this.passwordSubmitting.set(false);
         },
       });
+  }
+
+  setPasswordFromEvent(ev: Event): void {
+    const val = (ev.target as HTMLInputElement)?.value ?? '';
+    this.passwordValue.set(val);
+    if (this.passwordError()) this.passwordError.set(null);
+  }
+
+  unlockForm(): void {
+    if (this.passwordSubmitting()) return;
+    const value = this.passwordValue().trim();
+    if (!value) {
+      this.passwordError.set('Please enter the password.');
+      return;
+    }
+    this.passwordAttempted.set(true);
+    this.passwordSubmitting.set(true);
+    this.passwordError.set(null);
+    this.loading.set(true);
+    this.load();
   }
 
   private buildFormControls(form: PublicForm): void {
@@ -240,12 +283,16 @@ export class PublicFormComponent {
       fieldValues[field.name] = value === undefined || value === null ? null : String(value);
     }
 
+    const headers = this.passwordValue()
+      ? { [PASSWORD_HEADER]: this.passwordValue() }
+      : undefined;
+
     this.http
       .post(`${environment.apiBaseUrl}/api/public/forms/${encodeURIComponent(form.slug)}/submissions`, {
         submitterName: (raw['submitterName'] as string | null) || null,
         submitterEmail: (raw['submitterEmail'] as string | null) || null,
         fieldValues,
-      })
+      }, { headers })
       .subscribe({
         next: () => {
           this.submitting.set(false);
@@ -256,6 +303,10 @@ export class PublicFormComponent {
           if (err?.status === 400 && err.error?.fieldErrors) {
             this.fieldErrors.set(err.error.fieldErrors as Record<string, string[]>);
             this.errorMessage.set('Please fix the highlighted fields and submit again.');
+          } else if (err?.status === 401) {
+            this.errorMessage.set('The form password has changed. Please reload and enter it again.');
+            this.passwordRequired.set(true);
+            this.passwordValue.set('');
           } else if (err?.status === 404) {
             this.errorMessage.set('This form is no longer accepting responses.');
           } else {
