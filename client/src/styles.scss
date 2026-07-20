@@ -118,6 +118,36 @@ html {
   --mdc-filled-card-container-color: var(--brand-surface);
 }
 
+// -- Outlined text field: floating label clipping --------------------
+// The floating label sits ABOVE the form field's bounding box (negative
+// Y transform), so any ancestor with `overflow: hidden` clips the top
+// half of the letters. Angular Material 22 sets that on .mdc-text-field
+// itself; the dialog surface also uses overflow:hidden for its rounded
+// corners. We open up every likely ancestor and mask the outline behind
+// the floated label with a white background.
+.mat-mdc-form-field,
+.mat-mdc-form-field .mdc-text-field,
+.mat-mdc-form-field .mat-mdc-text-field-wrapper,
+.mat-mdc-form-field .mat-mdc-form-field-flex,
+.mat-mdc-form-field .mat-mdc-form-field-infix {
+  overflow: visible !important;
+}
+
+.mat-mdc-form-field .mdc-floating-label--float-above {
+  background-color: #ffffff !important;
+  padding: 0 4px !important;
+  z-index: 2 !important;
+}
+
+// Give dialogs enough top padding on their content area so the FIRST
+// form field's floating label has vertical room to render above the
+// input's top border. Without this, the dialog surface's overflow:hidden
+// (needed for its rounded corners) chops the label in half.
+.mat-mdc-dialog-panel .dialog-content,
+.mat-mdc-dialog-panel .mat-mdc-dialog-content {
+  padding-top: 20px !important;
+}
+
 body {
   color-scheme: light;
   background-color: var(--mat-sys-surface);
