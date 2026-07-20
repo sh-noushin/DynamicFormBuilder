@@ -131,15 +131,23 @@ table {
 
 .submissions-toolbar {
   padding: 4px 4px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
 
   .search-field {
-    width: 100%;
+    flex: 1 1 320px;
     max-width: 480px;
 
     mat-icon[matPrefix] {
       color: #94a3b8;
       margin-right: 6px;
     }
+  }
+
+  .date-field {
+    width: 160px;
   }
 }
 

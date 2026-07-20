@@ -10,7 +10,7 @@
           {{ form()?.name || 'Submissions' }}
         </mat-card-title>
         <mat-card-subtitle>
-          @if (searchQuery()) {
+          @if (searchQuery() || hasDateFilter()) {
             {{ filteredSubmissions().length }} of {{ submissions().length }} submissions
           } @else {
             {{ submissions().length }} submissions
@@ -77,6 +77,23 @@
             </button>
           }
         </mat-form-field>
+
+        <mat-form-field appearance="outline" class="date-field">
+          <mat-label>From</mat-label>
+          <input matInput type="date" [value]="fromDate()" (input)="setFromDate($any($event.target).value)" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="date-field">
+          <mat-label>To</mat-label>
+          <input matInput type="date" [value]="toDate()" (input)="setToDate($any($event.target).value)" />
+        </mat-form-field>
+
+        @if (hasDateFilter()) {
+          <button mat-stroked-button (click)="clearDateRange()">
+            <mat-icon>event_busy</mat-icon>
+            <span>Clear dates</span>
+          </button>
+        }
       </div>
 
       <div class="table-scroll">

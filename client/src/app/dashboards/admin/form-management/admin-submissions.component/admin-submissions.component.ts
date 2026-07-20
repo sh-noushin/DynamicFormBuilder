@@ -55,6 +55,11 @@ export class AdminSubmissionsComponent {
   downloading = signal(false);
   errorMessage = signal<string | null>(null);
   searchQuery = signal<string>('');
+  // yyyy-MM-dd strings taken directly from <input type="date">. Empty means
+  // "no bound on this side". Used to filter SubmittedAt after the search
+  // filter has run.
+  fromDate = signal<string>('');
+  toDate = signal<string>('');
   pageIndex = signal(0);
   pageSize = signal(25);
   // Submission ids the admin has ticked. Kept as a Set for O(1) membership
@@ -66,8 +71,19 @@ export class AdminSubmissionsComponent {
 
   filteredSubmissions = computed<FormSubmissionDto[]>(() => {
     const q = this.searchQuery().trim().toLowerCase();
-    if (!q) return this.submissions();
+    // Interpret the date inputs in local time. The From bound is inclusive at
+    // 00:00 of that day; the To bound is inclusive through 23:59:59.999.
+    const from = this.fromDate() ? new Date(this.fromDate() + 'T00:00:00').getTime() : null;
+    const to = this.toDate() ? new Date(this.toDate() + 'T23:59:59.999').getTime() : null;
+
     return this.submissions().filter(s => {
+      if (from != null || to != null) {
+        const ts = s.submittedAt ? new Date(s.submittedAt as any).getTime() : NaN;
+        if (Number.isNaN(ts)) return false;
+        if (from != null && ts < from) return false;
+        if (to != null && ts > to) return false;
+      }
+      if (!q) return true;
       if ((s.submitterName ?? '').toLowerCase().includes(q)) return true;
       if ((s.submitterEmail ?? '').toLowerCase().includes(q)) return true;
       for (const v of (s.values ?? [])) {
@@ -258,6 +274,21 @@ export class AdminSubmissionsComponent {
     this.pageIndex.set(0);
   }
   clearSearch(): void { this.setSearch(''); }
+
+  setFromDate(value: string): void {
+    this.fromDate.set(value);
+    this.pageIndex.set(0);
+  }
+  setToDate(value: string): void {
+    this.toDate.set(value);
+    this.pageIndex.set(0);
+  }
+  clearDateRange(): void {
+    this.fromDate.set('');
+    this.toDate.set('');
+    this.pageIndex.set(0);
+  }
+  hasDateFilter(): boolean { return !!this.fromDate() || !!this.toDate(); }
   onPage(event: PageEvent): void {
     this.pageIndex.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
