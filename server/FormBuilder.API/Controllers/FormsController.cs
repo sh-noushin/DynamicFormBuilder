@@ -86,4 +86,26 @@ public class FormsController : ControllerBase
         var duplicated = await _formService.DuplicateFormAsync(id);
         return CreatedAtAction(nameof(GetForm), new { id = duplicated.Id }, duplicated);
     }
+
+    [HttpGet("{id}/export")]
+    [Authorize(AuthenticationSchemes = "Bearer,ApiKey", Roles = Roles.Admin)]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(FormExportDto), 200)]
+    [ProducesResponseType(typeof(void), 404)]
+    public async Task<IActionResult> ExportForm(Guid id)
+    {
+        var export = await _formService.ExportFormAsync(id);
+        return Ok(export);
+    }
+
+    [HttpPost("import")]
+    [Authorize(AuthenticationSchemes = "Bearer", Roles = Roles.Admin)]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(FormDto), 201)]
+    [ProducesResponseType(typeof(void), 400)]
+    public async Task<IActionResult> ImportForm([FromBody] FormExportDto payload)
+    {
+        var created = await _formService.ImportFormAsync(payload);
+        return CreatedAtAction(nameof(GetForm), new { id = created.Id }, created);
+    }
 }

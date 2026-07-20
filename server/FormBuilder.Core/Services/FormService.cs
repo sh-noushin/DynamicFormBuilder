@@ -149,6 +149,138 @@ public class FormService : IFormService
         return _mapper.Map<FormDto>(created);
     }
 
+    public async Task<FormExportDto> ExportFormAsync(Guid id)
+    {
+        if (id == Guid.Empty)
+            throw new ArgumentException("Form ID cannot be empty.", nameof(id));
+
+        var source = await _formRepository.GetByIdAsync(id)
+            ?? throw new FormNotFoundException(id);
+
+        var version = source.Versions.FirstOrDefault(v => v.IsCurrentVersion)
+                      ?? source.Versions.LastOrDefault();
+
+        var body = new FormExportBodyDto
+        {
+            Name = source.Name,
+            Description = source.Description,
+            BrandColor = source.BrandColor,
+            ThankYouMessage = source.ThankYouMessage,
+            RedirectUrl = source.RedirectUrl,
+            MaxSubmissions = source.MaxSubmissions,
+            ClosesAt = source.ClosesAt,
+            WebhookUrl = source.WebhookUrl,
+            OneResponsePerEmail = source.OneResponsePerEmail,
+            SendConfirmationEmail = source.SendConfirmationEmail,
+            ConfirmationEmailSubject = source.ConfirmationEmailSubject,
+            ConfirmationEmailBody = source.ConfirmationEmailBody,
+            Fields = version == null
+                ? new List<FormExportFieldDto>()
+                : version.Fields
+                    .OrderBy(f => f.Order)
+                    .Select(f => new FormExportFieldDto
+                    {
+                        Name = f.Name,
+                        Label = f.Label,
+                        Type = f.Type.ToString(),
+                        Order = f.Order,
+                        IsRequired = f.IsRequired,
+                        IsVisible = f.IsVisible,
+                        IsReadOnly = f.IsReadOnly,
+                        Placeholder = f.Placeholder,
+                        HelpText = f.HelpText,
+                        DefaultValue = f.DefaultValue,
+                        Validation = f.Validation,
+                        Options = f.Options,
+                        ShowIfCondition = f.ShowIfCondition,
+                    })
+                    .ToList(),
+        };
+
+        return new FormExportDto
+        {
+            FormatVersion = 1,
+            ExportedAt = DateTime.UtcNow,
+            Form = body,
+        };
+    }
+
+    public async Task<FormDto> ImportFormAsync(FormExportDto payload)
+    {
+        if (payload == null)
+            throw new ArgumentNullException(nameof(payload));
+        if (payload.FormatVersion != 1)
+            throw new InvalidFormExportException($"Unsupported formatVersion {payload.FormatVersion}; this server understands version 1.");
+        if (payload.Form == null || string.IsNullOrWhiteSpace(payload.Form.Name))
+            throw new InvalidFormExportException("Import payload is missing 'form.name'.");
+
+        ValidateRedirectUrl(payload.Form.RedirectUrl);
+        ValidateWebhookUrl(payload.Form.WebhookUrl);
+
+        var now = DateTime.UtcNow;
+        var fields = new List<FormBuilder.Models.Entities.FormVersionField>();
+        var order = 0;
+        foreach (var f in payload.Form.Fields ?? new List<FormExportFieldDto>())
+        {
+            if (string.IsNullOrWhiteSpace(f.Name) || string.IsNullOrWhiteSpace(f.Label))
+                throw new InvalidFormExportException("Every field must carry both 'name' and 'label'.");
+            if (!Enum.TryParse<FormBuilder.Models.Entities.FieldType>(f.Type, ignoreCase: true, out var parsedType))
+                throw new InvalidFormExportException($"Unknown field type '{f.Type}' on field '{f.Name}'.");
+            fields.Add(new FormBuilder.Models.Entities.FormVersionField
+            {
+                Name = f.Name,
+                Label = f.Label,
+                Type = parsedType,
+                Order = f.Order > 0 ? f.Order : ++order,
+                IsRequired = f.IsRequired,
+                IsVisible = f.IsVisible,
+                IsReadOnly = f.IsReadOnly,
+                Placeholder = f.Placeholder,
+                HelpText = f.HelpText,
+                DefaultValue = f.DefaultValue,
+                Validation = f.Validation,
+                Options = f.Options,
+                ShowIfCondition = f.ShowIfCondition,
+            });
+        }
+
+        var entity = new FormBuilder.Models.Entities.Form
+        {
+            Name = payload.Form.Name,
+            Description = payload.Form.Description,
+            BrandColor = payload.Form.BrandColor,
+            ThankYouMessage = payload.Form.ThankYouMessage,
+            RedirectUrl = payload.Form.RedirectUrl,
+            MaxSubmissions = payload.Form.MaxSubmissions,
+            ClosesAt = payload.Form.ClosesAt,
+            WebhookUrl = payload.Form.WebhookUrl,
+            OneResponsePerEmail = payload.Form.OneResponsePerEmail,
+            SendConfirmationEmail = payload.Form.SendConfirmationEmail,
+            ConfirmationEmailSubject = payload.Form.ConfirmationEmailSubject,
+            ConfirmationEmailBody = payload.Form.ConfirmationEmailBody,
+            Slug = SlugGenerator.Generate(),
+            IsActive = false,
+            CreatedAt = now,
+            UpdatedAt = now,
+            Versions = new List<FormBuilder.Models.Entities.FormVersion>
+            {
+                new()
+                {
+                    VersionNumber = 1,
+                    Description = "Imported version",
+                    CreatedAt = now,
+                    UpdatedAt = now,
+                    IsPublished = true,
+                    IsCurrentVersion = true,
+                    Fields = fields,
+                },
+            },
+        };
+
+        var created = await _formRepository.CreateAsync(entity);
+        return _mapper.Map<FormDto>(created);
+    }
+
     // Only accept absolute http/https redirects. Blocks javascript:, data:,
     // file:, and relative URLs that would otherwise let the admin construct
     // an open-redirect or client-side XSS trap on the public form page.

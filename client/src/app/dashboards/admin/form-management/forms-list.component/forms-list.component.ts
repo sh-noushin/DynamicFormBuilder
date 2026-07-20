@@ -248,4 +248,62 @@ export class FormsListComponent implements OnInit {
       data: { formName: form.name ?? '', publicUrl } as QrCodeDialogData,
     });
   }
+
+  exportForm(form: FormDto) {
+    if (!form.id) return;
+    const token = typeof localStorage !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
+    this.http.get(`${environment.apiBaseUrl}/api/forms/${form.id}/export`, { headers, responseType: 'json' })
+      .subscribe({
+        next: (payload) => {
+          const safeName = (form.name ?? 'form').replace(/[^a-z0-9-_ ]/gi, '_').trim() || 'form';
+          const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${safeName}.form.json`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          this.snack.open('Form exported', 'Close', { duration: 2000 });
+        },
+        error: () => this.snack.open('Failed to export form', 'Close', { duration: 3000 }),
+      });
+  }
+
+  onImportFile(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    // Reset so the same file can be picked again to retry after an error.
+    input.value = '';
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      let payload: unknown = null;
+      try {
+        payload = JSON.parse(String(reader.result ?? ''));
+      } catch {
+        this.snack.open('That file is not valid JSON', 'Close', { duration: 3000 });
+        return;
+      }
+      const token = typeof localStorage !== 'undefined' ? localStorage.getItem('auth_token') : null;
+      const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
+      this.isLoading.set(true);
+      this.http.post<FormDto>(`${environment.apiBaseUrl}/api/forms/import`, payload, { headers })
+        .subscribe({
+          next: () => {
+            this.snack.open('Form imported', 'Close', { duration: 2500 });
+            this.loadForms();
+          },
+          error: (err) => {
+            this.isLoading.set(false);
+            const msg = err?.error?.message ?? err?.error?.detail ?? 'Import failed';
+            this.snack.open(msg, 'Close', { duration: 4000 });
+          },
+        });
+    };
+    reader.readAsText(file);
+  }
 }
