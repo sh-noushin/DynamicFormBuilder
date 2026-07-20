@@ -147,6 +147,28 @@
 
     <div class="toggle-row">
       <mat-slide-toggle color="primary"
+                        [checked]="webhookSlackFormat()"
+                        (change)="webhookSlackFormat.set($any($event).checked)">
+        Post as Slack incoming webhook
+      </mat-slide-toggle>
+      <mat-slide-toggle color="primary"
+                        [checked]="oneResponsePerIp()"
+                        (change)="oneResponsePerIp.set($any($event).checked)">
+        One response per IP
+      </mat-slide-toggle>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Custom favicon URL (optional)</mat-label>
+      <input matInput type="url"
+             [value]="faviconUrl()"
+             (input)="faviconUrl.set($any($event.target).value)"
+             placeholder="https://example.com/favicon.ico" />
+      <mat-hint>Overrides the tab icon on /f/&lt;slug&gt;. Must start with http:// or https://.</mat-hint>
+    </mat-form-field>
+
+    <div class="toggle-row">
+      <mat-slide-toggle color="primary"
                         [checked]="sendConfirmationEmail()"
                         (change)="sendConfirmationEmail.set($any($event).checked)">
         Email confirmation to submitter

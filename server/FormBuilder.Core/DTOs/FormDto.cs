@@ -14,8 +14,11 @@ public class FormDto
     public DateTime? ClosesAt { get; set; }
     public string? WebhookUrl { get; set; }
     public string? WebhookSecret { get; set; }
+    public bool WebhookSlackFormat { get; set; }
     public bool OneResponsePerEmail { get; set; }
+    public bool OneResponsePerIp { get; set; }
     public string? Locale { get; set; }
+    public string? FaviconUrl { get; set; }
     public bool SendConfirmationEmail { get; set; }
     public string? ConfirmationEmailSubject { get; set; }
     public string? ConfirmationEmailBody { get; set; }

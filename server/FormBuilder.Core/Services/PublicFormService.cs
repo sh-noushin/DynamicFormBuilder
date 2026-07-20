@@ -90,7 +90,7 @@ public class PublicFormService : IPublicFormService
         };
     }
 
-    public async Task<FormSubmissionDto> SubmitAsync(string slug, PublicFormSubmissionDto submission, string? accessPassword)
+    public async Task<FormSubmissionDto> SubmitAsync(string slug, PublicFormSubmissionDto submission, string? accessPassword, string? ipAddress)
     {
         if (submission == null)
             throw new ArgumentNullException(nameof(submission));
@@ -137,12 +137,24 @@ public class PublicFormService : IPublicFormService
             }
         }
 
+        // IP-based dedupe is more aggressive (blocks anyone behind a shared
+        // NAT gateway too) so admins opt in per form. Skipped when we can't
+        // observe an IP - some proxies strip the header entirely.
+        if (form.OneResponsePerIp && !string.IsNullOrWhiteSpace(ipAddress))
+        {
+            if (await _submissionRepository.HasSubmissionFromIpAsync(form.Id, ipAddress))
+            {
+                throw new DuplicateSubmissionException();
+            }
+        }
+
         var entity = new FormSubmission
         {
             FormVersionId = version.Id,
             SubmittedAt = DateTime.UtcNow,
             SubmitterName = submission.SubmitterName,
             SubmitterEmail = submission.SubmitterEmail,
+            SubmitterIpAddress = ipAddress,
             Values = submission.FieldValues
                 .Select(kv => new FormSubmissionValue
                 {

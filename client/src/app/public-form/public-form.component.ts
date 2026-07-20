@@ -40,6 +40,7 @@ interface PublicForm {
   thankYouMessage?: string;
   redirectUrl?: string;
   locale?: string;
+  faviconUrl?: string;
   requiresPassword?: boolean;
   isClosed?: boolean;
   closedReason?: string;
@@ -141,6 +142,19 @@ export class PublicFormComponent {
     return t(this.form()?.locale, key);
   }
 
+  // Swaps or inserts <link rel="icon"> in the document head so the browser
+  // tab reflects the form's brand. Only accepts absolute http(s) URLs so a
+  // malformed favicon field can't inject anything weird (data:, javascript:).
+  private applyFavicon(url: string | null | undefined): void {
+    if (!url) return;
+    if (!/^https?:\/\//i.test(url)) return;
+    const existing = document.querySelector<HTMLLinkElement>('link[rel~="icon"]');
+    const link = existing ?? document.createElement('link');
+    link.rel = 'icon';
+    link.href = url;
+    if (!existing) document.head.appendChild(link);
+  }
+
   // Split the ordered field list into pages at every PageBreak marker.
   // The PageBreak itself is not rendered as an input; its label becomes the
   // heading for the page AFTER the break (page[i+1]).
@@ -151,6 +165,10 @@ export class PublicFormComponent {
     for (const f of fields) {
       if (f.type === 'PageBreak') {
         result.push([]);
+      } else if (f.type === 'HiddenField') {
+        // Skip on the page grid but the control still exists so its
+        // (prefilled) value ships with the submission payload.
+        continue;
       } else {
         result[result.length - 1].push(f);
       }
@@ -301,6 +319,7 @@ export class PublicFormComponent {
       .subscribe({
         next: (form) => {
           this.form.set(form);
+          this.applyFavicon(form.faviconUrl);
           this.loading.set(false);
           this.passwordSubmitting.set(false);
           if (form.isClosed) {

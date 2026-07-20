@@ -29,14 +29,25 @@ public class Form
     // Shared secret used to compute an HMAC-SHA256 signature over the
     // webhook body, sent as X-Webhook-Signature. Null means unsigned.
     public string? WebhookSecret { get; set; }
+    // When true, the webhook body is reshaped into Slack incoming-webhook
+    // JSON (text + attachment fields) so the admin can wire a webhook URL
+    // straight to a Slack channel without any glue code.
+    public bool WebhookSlackFormat { get; set; }
     // When true, a submission is rejected if the submitter's email address
     // has already submitted this form (checked case-insensitively across all
     // versions). Anonymous submissions - those without an email - always pass.
     public bool OneResponsePerEmail { get; set; }
+    // Same rule as OneResponsePerEmail but keyed off the submitter's IP.
+    // Anti-abuse companion for public surveys that don't collect email.
+    public bool OneResponsePerIp { get; set; }
     // BCP 47 locale code (e.g. "en", "es", "fr") for the public form UI
     // strings. Null falls back to English. Only client-side rendering uses
     // this - the server never translates messages itself.
     public string? Locale { get; set; }
+    // http/https URL to a favicon that overrides the tab icon on the public
+    // /f/:slug page. Null keeps the app-wide default. Validated in the
+    // service layer with the same http(s)-only rule as RedirectUrl.
+    public string? FaviconUrl { get; set; }
     // When true, the submitter receives an email copy of their submission
     // after a successful submit (only if they provided an email address).
     public bool SendConfirmationEmail { get; set; }

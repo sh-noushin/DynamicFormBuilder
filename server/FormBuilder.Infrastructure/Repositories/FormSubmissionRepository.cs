@@ -72,6 +72,15 @@ public class FormSubmissionRepository : IFormSubmissionRepository
                         && s.SubmitterEmail.ToLower() == normalized);
     }
 
+    public async Task<bool> HasSubmissionFromIpAsync(Guid formId, string ipAddress)
+    {
+        var normalized = ipAddress.Trim();
+        if (normalized.Length == 0) return false;
+        return await _context.FormSubmissions
+            .AnyAsync(s => s.FormVersion.FormId == formId
+                        && s.SubmitterIpAddress == normalized);
+    }
+
     public async Task<IReadOnlyList<DateTime>> GetSubmittedAtByFormIdSinceAsync(Guid formId, DateTime since)
     {
         return await _context.FormSubmissions

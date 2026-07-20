@@ -14,6 +14,7 @@ public class PublicFormDto
     public string? ThankYouMessage { get; set; }
     public string? RedirectUrl { get; set; }
     public string? Locale { get; set; }
+    public string? FaviconUrl { get; set; }
     // True when the form has an AccessPassword and the caller has not yet
     // supplied it. When true, Fields is empty and FormVersionId is Guid.Empty.
     public bool RequiresPassword { get; set; }

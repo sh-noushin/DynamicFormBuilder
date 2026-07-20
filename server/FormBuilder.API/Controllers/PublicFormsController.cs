@@ -71,7 +71,8 @@ public class PublicFormsController : ControllerBase
     public async Task<ActionResult<FormSubmissionDto>> Submit(string slug, PublicFormSubmissionDto submission)
     {
         var password = Request.Headers.TryGetValue(PasswordHeader, out var v) ? v.ToString() : null;
-        var created = await _publicFormService.SubmitAsync(slug, submission, password);
+        var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+        var created = await _publicFormService.SubmitAsync(slug, submission, password, ip);
         return CreatedAtAction(nameof(GetForm), new { slug }, created);
     }
 }

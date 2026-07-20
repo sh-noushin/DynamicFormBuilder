@@ -60,7 +60,10 @@ export class EditFormDialogComponent implements OnInit {
 	webhookUrl = signal<string>('');
 	webhookSecret = signal<string>('');
 	showWebhookSecret = signal<boolean>(false);
+	webhookSlackFormat = signal<boolean>(false);
 	oneResponsePerEmail = signal<boolean>(false);
+	oneResponsePerIp = signal<boolean>(false);
+	faviconUrl = signal<string>('');
 	sendConfirmationEmail = signal<boolean>(false);
 	confirmationEmailSubject = signal<string>('');
 	confirmationEmailBody = signal<string>('');
@@ -97,7 +100,10 @@ export class EditFormDialogComponent implements OnInit {
 			this.closesAtInput.set(this.dateToLocalInput((src as any).closesAt));
 			this.webhookUrl.set((src as any).webhookUrl ?? '');
 			this.webhookSecret.set((src as any).webhookSecret ?? '');
+			this.webhookSlackFormat.set(!!(src as any).webhookSlackFormat);
 			this.oneResponsePerEmail.set(!!(src as any).oneResponsePerEmail);
+			this.oneResponsePerIp.set(!!(src as any).oneResponsePerIp);
+			this.faviconUrl.set((src as any).faviconUrl ?? '');
 			this.sendConfirmationEmail.set(!!(src as any).sendConfirmationEmail);
 			this.confirmationEmailSubject.set((src as any).confirmationEmailSubject ?? '');
 			this.confirmationEmailBody.set((src as any).confirmationEmailBody ?? '');
@@ -222,7 +228,10 @@ export class EditFormDialogComponent implements OnInit {
 			closesAt: this.closesAtInput() ? new Date(this.closesAtInput()) : undefined,
 			webhookUrl: this.webhookUrl().trim() || undefined,
 			webhookSecret: this.webhookSecret().trim() || undefined,
+			webhookSlackFormat: this.webhookSlackFormat(),
 			oneResponsePerEmail: this.oneResponsePerEmail(),
+			oneResponsePerIp: this.oneResponsePerIp(),
+			faviconUrl: this.faviconUrl().trim() || undefined,
 			sendConfirmationEmail: this.sendConfirmationEmail(),
 			confirmationEmailSubject: this.confirmationEmailSubject().trim() || undefined,
 			confirmationEmailBody: this.confirmationEmailBody().trim() || undefined,

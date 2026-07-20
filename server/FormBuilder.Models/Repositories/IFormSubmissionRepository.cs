@@ -11,6 +11,7 @@ public interface IFormSubmissionRepository
     Task<int> GetSubmissionCountByFormVersionIdAsync(Guid formVersionId);
     Task<int> GetSubmissionCountByFormIdAsync(Guid formId);
     Task<bool> HasSubmissionFromEmailAsync(Guid formId, string email);
+    Task<bool> HasSubmissionFromIpAsync(Guid formId, string ipAddress);
     // Returns only the SubmittedAt timestamps for the form since 'since',
     // ordered ascending. Skips the payload/values so analytics queries stay
     // cheap even on high-volume forms.

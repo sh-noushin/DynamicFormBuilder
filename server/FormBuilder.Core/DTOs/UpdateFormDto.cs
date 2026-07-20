@@ -33,10 +33,17 @@ public class UpdateFormDto
     [StringLength(128)]
     public string? WebhookSecret { get; set; }
 
+    public bool WebhookSlackFormat { get; set; }
+
     public bool OneResponsePerEmail { get; set; }
+
+    public bool OneResponsePerIp { get; set; }
 
     [StringLength(10)]
     public string? Locale { get; set; }
+
+    [StringLength(500)]
+    public string? FaviconUrl { get; set; }
 
     public bool SendConfirmationEmail { get; set; }
 

@@ -46,21 +46,28 @@ public class HttpWebhookSender : IWebhookSender
 
         try
         {
-            var payload = new WebhookPayload
+            byte[] body;
+            if (form.WebhookSlackFormat)
             {
-                FormId = form.Id,
-                FormName = form.Name,
-                FormSlug = form.Slug,
-                SubmissionId = submission.Id,
-                SubmittedAt = submission.SubmittedAt,
-                SubmitterName = submission.SubmitterName,
-                SubmitterEmail = submission.SubmitterEmail,
-                Values = submission.Values.ToDictionary(
-                    v => v.FieldName ?? string.Empty,
-                    v => v.FieldValue)
-            };
-
-            var body = JsonSerializer.SerializeToUtf8Bytes(payload, JsonOptions);
+                body = BuildSlackPayload(form, submission);
+            }
+            else
+            {
+                var payload = new WebhookPayload
+                {
+                    FormId = form.Id,
+                    FormName = form.Name,
+                    FormSlug = form.Slug,
+                    SubmissionId = submission.Id,
+                    SubmittedAt = submission.SubmittedAt,
+                    SubmitterName = submission.SubmitterName,
+                    SubmitterEmail = submission.SubmitterEmail,
+                    Values = submission.Values.ToDictionary(
+                        v => v.FieldName ?? string.Empty,
+                        v => v.FieldValue)
+                };
+                body = JsonSerializer.SerializeToUtf8Bytes(payload, JsonOptions);
+            }
             var request = new HttpRequestMessage(HttpMethod.Post, form.WebhookUrl)
             {
                 Content = new ByteArrayContent(body)
@@ -90,6 +97,43 @@ public class HttpWebhookSender : IWebhookSender
                 "Webhook delivery to {WebhookUrl} for form {FormId} failed",
                 form.WebhookUrl, form.Id);
         }
+    }
+
+    // Slack incoming-webhook payload shape:
+    //   { text, attachments: [ { color, fields: [ { title, value, short } ] } ] }
+    // Slack ignores unknown keys, so we omit metadata (formId, submissionId)
+    // that the plain JSON payload includes.
+    private static byte[] BuildSlackPayload(Form form, FormSubmissionDto submission)
+    {
+        var attachmentFields = new List<object>();
+        if (!string.IsNullOrWhiteSpace(submission.SubmitterName))
+            attachmentFields.Add(new { title = "Name", value = submission.SubmitterName, @short = true });
+        if (!string.IsNullOrWhiteSpace(submission.SubmitterEmail))
+            attachmentFields.Add(new { title = "Email", value = submission.SubmitterEmail, @short = true });
+        foreach (var v in submission.Values)
+        {
+            if (string.IsNullOrWhiteSpace(v.FieldName)) continue;
+            attachmentFields.Add(new
+            {
+                title = v.FieldName,
+                value = string.IsNullOrEmpty(v.FieldValue) ? "—" : v.FieldValue,
+                @short = (v.FieldValue?.Length ?? 0) < 40,
+            });
+        }
+
+        var payload = new
+        {
+            text = $"New submission for *{form.Name}*",
+            attachments = new[]
+            {
+                new
+                {
+                    color = form.BrandColor ?? "#6366f1",
+                    fields = attachmentFields,
+                }
+            }
+        };
+        return JsonSerializer.SerializeToUtf8Bytes(payload, JsonOptions);
     }
 
     private static string ComputeSignature(string secret, byte[] body)

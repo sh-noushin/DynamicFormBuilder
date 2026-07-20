@@ -65,8 +65,11 @@ public class FormRepository : IFormRepository
         existingForm.ClosesAt = form.ClosesAt;
         existingForm.WebhookUrl = form.WebhookUrl;
         existingForm.WebhookSecret = form.WebhookSecret;
+        existingForm.WebhookSlackFormat = form.WebhookSlackFormat;
         existingForm.OneResponsePerEmail = form.OneResponsePerEmail;
+        existingForm.OneResponsePerIp = form.OneResponsePerIp;
         existingForm.Locale = form.Locale;
+        existingForm.FaviconUrl = form.FaviconUrl;
         existingForm.SendConfirmationEmail = form.SendConfirmationEmail;
         existingForm.ConfirmationEmailSubject = form.ConfirmationEmailSubject;
         existingForm.ConfirmationEmailBody = form.ConfirmationEmailBody;
