@@ -51,6 +51,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFormFieldService, FormFieldService>();
         services.AddScoped<IFormSubmissionService, FormSubmissionService>();
         services.AddScoped<IPublicFormService, PublicFormService>();
+        services.AddScoped<IFormAnalyticsService, FormAnalyticsService>();
         services.AddScoped<IEmailSender, FormBuilder.Infrastructure.Services.SmtpEmailSender>();
         services.AddScoped<ISubmissionNotifier, SubmissionNotifier>();
         services.AddScoped<IFieldRule, RequiredRule>();

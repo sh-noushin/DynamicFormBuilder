@@ -1,0 +1,106 @@
+.analytics-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+  }
+  .form-name {
+    color: var(--mat-sys-on-surface-variant, #64748b);
+    font-size: 14px;
+  }
+}
+
+.state-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px;
+}
+
+.state-card {
+  padding: 32px;
+  text-align: center;
+}
+
+.state-icon {
+  font-size: 40px;
+  height: 40px;
+  width: 40px;
+  color: #ef4444;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: var(--mat-sys-on-surface-variant, #64748b);
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--mat-sys-primary, #6366f1);
+}
+
+.chart-card {
+  padding: 8px 16px 16px;
+}
+
+.chart {
+  width: 100%;
+  height: auto;
+  max-height: 260px;
+}
+
+.axis {
+  stroke: currentColor;
+  stroke-opacity: 0.2;
+  stroke-width: 1;
+}
+
+.bar {
+  fill: var(--mat-sys-primary, #6366f1);
+  fill-opacity: 0.85;
+  rx: 2;
+
+  &:hover {
+    fill-opacity: 1;
+  }
+}
+
+.x-tick, .y-tick {
+  font-size: 11px;
+  fill: var(--mat-sys-on-surface-variant, #64748b);
+}

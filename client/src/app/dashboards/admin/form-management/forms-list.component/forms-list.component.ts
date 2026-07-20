@@ -216,4 +216,9 @@ export class FormsListComponent implements OnInit {
     if (!form.id) return;
     this.router.navigate(['/admin/forms', form.id, 'submissions']);
   }
+
+  viewAnalytics(form: FormDto) {
+    if (!form.id) return;
+    this.router.navigate(['/admin/forms', form.id, 'analytics']);
+  }
 }

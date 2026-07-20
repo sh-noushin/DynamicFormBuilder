@@ -97,6 +97,14 @@
 
               <button
                 mat-icon-button
+                (click)="viewAnalytics(form)"
+                matTooltip="Analytics"
+                class="btn-analytics">
+                <mat-icon>bar_chart</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
                 (click)="copyShareLink(form)"
                 [matTooltip]="canShare(form) ? 'Copy public link' : 'Publish a version to share'"
                 [disabled]="!canShare(form)"

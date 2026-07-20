@@ -61,6 +61,16 @@ public class FormSubmissionRepository : IFormSubmissionRepository
             .CountAsync(s => s.FormVersion.FormId == formId);
     }
 
+    public async Task<IReadOnlyList<DateTime>> GetSubmittedAtByFormIdSinceAsync(Guid formId, DateTime since)
+    {
+        return await _context.FormSubmissions
+            .AsNoTracking()
+            .Where(s => s.FormVersion.FormId == formId && s.SubmittedAt >= since)
+            .OrderBy(s => s.SubmittedAt)
+            .Select(s => s.SubmittedAt)
+            .ToListAsync();
+    }
+
     public async Task<FormSubmission?> UpdateAsync(Guid id, FormSubmission source)
     {
         var submission = await _context.FormSubmissions

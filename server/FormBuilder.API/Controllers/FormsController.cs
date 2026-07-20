@@ -12,10 +12,12 @@ namespace FormBuilder.API.Controllers;
 public class FormsController : ControllerBase
 {
     private readonly IFormService _formService;
+    private readonly IFormAnalyticsService _analyticsService;
 
-    public FormsController(IFormService formService)
+    public FormsController(IFormService formService, IFormAnalyticsService analyticsService)
     {
         _formService = formService;
+        _analyticsService = analyticsService;
     }
 
     [HttpGet]
@@ -58,6 +60,17 @@ public class FormsController : ControllerBase
     {
         var updatedForm = await _formService.UpdateFormAsync(id, updateFormDto);
         return Ok(updatedForm);
+    }
+
+    [HttpGet("{id}/analytics")]
+    [Authorize(Roles = Roles.AdminOrUser)]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(FormAnalyticsDto), 200)]
+    [ProducesResponseType(typeof(void), 404)]
+    public async Task<IActionResult> GetFormAnalytics(Guid id, [FromQuery] int days = 30)
+    {
+        var analytics = await _analyticsService.GetFormAnalyticsAsync(id, days);
+        return Ok(analytics);
     }
 
     [HttpPost("{id}/duplicate")]
