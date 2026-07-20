@@ -15,6 +15,52 @@
   }
 }
 
+.list-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px 0;
+  flex-wrap: wrap;
+
+  .search-field {
+    flex: 1 1 240px;
+    max-width: 480px;
+
+    mat-icon[matPrefix] {
+      color: #94a3b8;
+      margin-right: 6px;
+    }
+  }
+
+  .filter-chips {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    min-width: 0;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    color: #cbd5e1;
+    background: transparent;
+    font-weight: 500;
+
+    &:hover:not(.chip-active) {
+      background: rgba(148, 163, 184, 0.08);
+    }
+
+    &.chip-active {
+      background: rgba(99, 102, 241, 0.22);
+      border-color: rgba(99, 102, 241, 0.6);
+      color: #e0e7ff;
+    }
+  }
+}
+
 .forms-table-card {
   margin-top: 48px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);

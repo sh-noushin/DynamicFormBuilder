@@ -1,5 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,7 +31,10 @@ import { DeleteDialogComponent, DeleteDialogData } from '../../../../shared/dele
     MatChipsModule,
     MatTooltipModule,
     MatDialogModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   templateUrl: './forms-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -40,6 +46,26 @@ export class FormsListComponent implements OnInit {
   isLoading = signal<boolean>(false);
   error = signal<string>('');
   copiedSlug = signal<string | null>(null);
+
+  searchQuery = signal<string>('');
+  activeFilter = signal<'all' | 'active' | 'inactive'>('all');
+
+  filteredForms = computed<FormDto[]>(() => {
+    const q = this.searchQuery().trim().toLowerCase();
+    const status = this.activeFilter();
+    return this.forms().filter(f => {
+      if (status === 'active' && !f.isActive) return false;
+      if (status === 'inactive' && f.isActive) return false;
+      if (!q) return true;
+      const name = (f.name ?? '').toLowerCase();
+      const desc = (f.description ?? '').toLowerCase();
+      return name.includes(q) || desc.includes(q);
+    });
+  });
+
+  setSearch(value: string): void { this.searchQuery.set(value); }
+  clearSearch(): void { this.searchQuery.set(''); }
+  setFilter(value: 'all' | 'active' | 'inactive'): void { this.activeFilter.set(value); }
 
   private router = inject(Router);
   private http = inject(HttpClient);
