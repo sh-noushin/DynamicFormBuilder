@@ -178,26 +178,22 @@ export class AdminSubmissionsComponent {
 
   openDetail(submission: FormSubmissionDto): void {
     const fields = this.currentVersion()?.fields ?? [];
+    // Pass the current filtered slice as the navigable list so the dialog's
+    // prev/next arrows walk the same set the admin is looking at (search +
+    // date + tag filters applied). The dialog mutates entries in place; we
+    // just re-broadcast the array on close so signal consumers refresh.
+    const list = this.filteredSubmissions();
+    const initialIndex = Math.max(0, list.findIndex(s => String(s.id) === String(submission.id)));
     const ref = this.dialog.open(SubmissionDetailDialogComponent, {
       width: 'min(760px, 95vw)',
       panelClass: 'elevated-dialog-panel',
-      data: { submission, fields } as SubmissionDetailDialogData,
+      data: { submissions: list, initialIndex, fields } as SubmissionDetailDialogData,
     });
-    ref.afterClosed().subscribe((result?: { updated?: FormSubmissionDto }) => {
-      // Merge admin-notes updates back into the local list so the surrounding
-      // table reflects the change without a full refetch.
-      if (result?.updated?.id) {
-        const updatedId = String(result.updated.id);
-        // Patch the AdminNotes value in-place on the existing instance so we
-        // stay type-compatible with the generated FormSubmissionDto class.
-        const patched = this.submissions().map(s => {
-          if (String(s.id) === updatedId) {
-            (s as any).adminNotes = (result.updated as any).adminNotes;
-            (s as any).tags = (result.updated as any).tags;
-          }
-          return s;
-        });
-        this.submissions.set(patched);
+    ref.afterClosed().subscribe((result?: { updatedIds?: string[] }) => {
+      if (result?.updatedIds?.length) {
+        // Rows were mutated in place inside the dialog. Force a signal
+        // refresh so filteredSubmissions / availableTags recompute.
+        this.submissions.set([...this.submissions()]);
       }
     });
   }

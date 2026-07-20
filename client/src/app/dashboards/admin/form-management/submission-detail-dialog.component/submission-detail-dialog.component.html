@@ -1,10 +1,29 @@
 <h2 mat-dialog-title class="dialog-title">
   <mat-icon>description</mat-icon>
   <span>Submission detail</span>
+  @if (count() > 1) {
+    <span class="position">{{ positionLabel() }}</span>
+  }
   <span class="spacer"></span>
   @if (submission()?.submittedAt) {
     <span class="timestamp">{{ submission()?.submittedAt | date:'medium' }}</span>
   }
+  <button mat-icon-button
+          type="button"
+          matTooltip="Previous submission"
+          [disabled]="!hasPrev()"
+          (click)="prev()"
+          aria-label="Previous submission">
+    <mat-icon>chevron_left</mat-icon>
+  </button>
+  <button mat-icon-button
+          type="button"
+          matTooltip="Next submission"
+          [disabled]="!hasNext()"
+          (click)="next()"
+          aria-label="Next submission">
+    <mat-icon>chevron_right</mat-icon>
+  </button>
 </h2>
 
 <mat-dialog-content class="dialog-content">
