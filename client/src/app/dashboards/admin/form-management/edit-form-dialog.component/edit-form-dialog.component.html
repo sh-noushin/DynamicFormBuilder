@@ -208,7 +208,7 @@
       </div>
     </mat-card-header>
     <mat-card-content>
-  <table mat-table [dataSource]="versions()" class="table-base">
+  <table mat-table [dataSource]="pagedVersions()" class="table-base">
         <ng-container matColumnDef="versionNumber">
           <th mat-header-cell *matHeaderCellDef class="header-cell">Version</th>
           <td mat-cell *matCellDef="let v" class="cell">v{{ v.versionNumber }}</td>
@@ -265,6 +265,15 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></tr>
       </table>
+
+      <mat-paginator
+        [length]="versions().length"
+        [pageSize]="versionPageSize()"
+        [pageIndex]="versionPageIndex()"
+        [pageSizeOptions]="[5, 10, 25]"
+        showFirstLastButtons
+        (page)="onVersionPage($event)">
+      </mat-paginator>
     </mat-card-content>
   </mat-card>
 </mat-dialog-content>

@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy, computed } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { Client, UserDto, UserRole } from '../../../../core/services/api-service';
 import { UserDialogComponent } from '../user-dialog.component/user-dialog.component';
@@ -20,7 +21,8 @@ import { DeleteDialogComponent, DeleteDialogData } from '../../../../shared/dele
     MatIconModule,
     MatCardModule,
     MatChipsModule,
-    MatDialogModule
+    MatDialogModule,
+    MatPaginatorModule
   ],
   templateUrl: './users-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -31,8 +33,21 @@ export class UsersListComponent implements OnInit {
   displayedColumns = ['username', 'email', 'roles', 'createdAt', 'actions'];
   isLoading = signal<boolean>(false);
   error = signal<string>('');
-  
+
   UserRole = UserRole;
+
+  pageIndex = signal(0);
+  pageSize = signal(10);
+
+  pagedUsers = computed<UserDto[]>(() => {
+    const start = this.pageIndex() * this.pageSize();
+    return this.users().slice(start, start + this.pageSize());
+  });
+
+  onPage(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+  }
 
   constructor(private apiClient: Client, private dialog: MatDialog) {}
 

@@ -10,6 +10,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -36,7 +37,8 @@ import { DeleteDialogComponent, DeleteDialogData } from '../../../../shared/dele
     MatSnackBarModule,
     FormsModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatPaginatorModule
   ],
   templateUrl: './forms-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -65,9 +67,22 @@ export class FormsListComponent implements OnInit {
     });
   });
 
-  setSearch(value: string): void { this.searchQuery.set(value); }
-  clearSearch(): void { this.searchQuery.set(''); }
-  setFilter(value: 'all' | 'active' | 'inactive'): void { this.activeFilter.set(value); }
+  pageIndex = signal(0);
+  pageSize = signal(10);
+
+  pagedForms = computed<FormDto[]>(() => {
+    const start = this.pageIndex() * this.pageSize();
+    return this.filteredForms().slice(start, start + this.pageSize());
+  });
+
+  onPage(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+  }
+
+  setSearch(value: string): void { this.searchQuery.set(value); this.pageIndex.set(0); }
+  clearSearch(): void { this.searchQuery.set(''); this.pageIndex.set(0); }
+  setFilter(value: 'all' | 'active' | 'inactive'): void { this.activeFilter.set(value); this.pageIndex.set(0); }
 
   private router = inject(Router);
   private http = inject(HttpClient);

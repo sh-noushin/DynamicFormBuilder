@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Inject, OnInit, signal, ChangeDetectionStrategy, computed } from '@angular/core';
 import { Client, FormDto, UpdateFormDto, FormVersionDto, CreateFormVersionDto, UpdateFormVersionDto, CreateFormFieldDto } from '../../../../core/services/api-service';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -8,6 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -36,6 +37,7 @@ export type EditFormDialogData = {
 		MatIconModule,
 		MatButtonModule,
 		MatTableModule,
+		MatPaginatorModule,
 		MatChipsModule,
 		MatCardModule,
 		MatTooltipModule,
@@ -80,6 +82,17 @@ export class EditFormDialogComponent implements OnInit {
 	isSaving = signal(false);
 	versions = signal<FormVersionDto[]>([]);
 	displayedColumns = ['versionNumber','description','createdAt','isPublished','isCurrent','actions'];
+
+	versionPageIndex = signal(0);
+	versionPageSize = signal(5);
+	pagedVersions = computed<FormVersionDto[]>(() => {
+		const start = this.versionPageIndex() * this.versionPageSize();
+		return this.versions().slice(start, start + this.versionPageSize());
+	});
+	onVersionPage(event: PageEvent): void {
+		this.versionPageIndex.set(event.pageIndex);
+		this.versionPageSize.set(event.pageSize);
+	}
 
 		constructor(
 			private api: Client,
