@@ -1,7 +1,10 @@
 .submissions-card {
   margin: 24px;
   padding: 24px;
-  border-radius: 12px;
+  border-radius: var(--brand-radius-lg);
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-border);
+  box-shadow: var(--brand-shadow-md);
 
   .header-row {
     display: flex;
@@ -19,19 +22,20 @@
   }
 
   mat-card-title {
-    font-size: 26px;
+    font-size: 22px;
     font-weight: 600;
     margin: 0;
+    color: var(--brand-text-strong);
   }
 
   mat-card-subtitle {
-    color: #64748b;
+    color: var(--brand-text-muted);
     font-size: 14px;
   }
 
   mat-card-header {
     padding-bottom: 16px;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.24);
+    border-bottom: 1px solid var(--brand-border);
     margin-bottom: 16px;
     display: block;
   }
@@ -41,9 +45,10 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #64b5f6;
+  color: var(--brand-primary-hover);
   text-decoration: none;
   font-size: 13px;
+  font-weight: 500;
   margin-bottom: 6px;
   width: fit-content;
 
@@ -58,22 +63,33 @@
   }
 }
 
-.actions button mat-icon {
-  margin-right: 6px;
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+
+  button mat-icon { margin-right: 6px; }
+
+  .selection-count {
+    font-size: 13px;
+    color: var(--brand-text-muted);
+    padding-right: 4px;
+  }
 }
 
+// -- Empty / loading / error states -----------------------------------
 .state-block {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
   padding: 64px 16px;
-  color: #94a3b8;
+  color: var(--brand-text-muted);
   text-align: center;
 
   h3 {
     margin: 4px 0 0;
-    color: #cbd5e1;
+    color: var(--brand-text);
     font-weight: 600;
   }
 
@@ -83,36 +99,48 @@
   }
 
   &.error {
-    color: #fca5a5;
+    color: var(--brand-danger);
   }
 
   .empty-icon {
-    font-size: 48px;
-    width: 48px;
-    height: 48px;
-    color: #64748b;
+    font-size: 56px;
+    width: 56px;
+    height: 56px;
+    color: var(--brand-border-strong);
   }
 }
 
+// -- Table -----------------------------------------------------------
 .table-scroll {
   overflow-x: auto;
-  border-radius: 8px;
+  border-radius: var(--brand-radius-md);
+  border: 1px solid var(--brand-border);
 }
 
 table {
   width: 100%;
   min-width: 720px;
+  background: var(--brand-surface);
 
   th {
     font-weight: 600;
-    color: #cbd5e1;
-    background: rgba(15, 23, 42, 0.4);
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--brand-text-muted);
+    background: var(--brand-canvas);
     white-space: nowrap;
+    border-bottom: 1px solid var(--brand-border);
   }
 
   td {
-    color: #0f172a;
+    color: var(--brand-text-strong);
     padding: 12px 16px;
+    border-bottom: 1px solid var(--brand-border-subtle);
+  }
+
+  tr:hover td {
+    background: var(--brand-canvas);
   }
 
   .value-cell {
@@ -127,8 +155,20 @@ table {
       vertical-align: middle;
     }
   }
+
+  .select-cell {
+    width: 40px;
+    padding-left: 16px;
+    padding-right: 0;
+  }
+
+  .actions-cell {
+    width: 56px;
+    text-align: right;
+  }
 }
 
+// -- Toolbar (search + date range + tag filter) ----------------------
 .submissions-toolbar {
   padding: 4px 4px 12px;
   display: flex;
@@ -141,7 +181,7 @@ table {
     max-width: 480px;
 
     mat-icon[matPrefix] {
-      color: #94a3b8;
+      color: var(--brand-text-subtle);
       margin-right: 6px;
     }
   }
@@ -155,30 +195,35 @@ table {
   }
 }
 
+// -- Tag chip cell ---------------------------------------------------
 .tags-cell {
   mat-chip-set { display: inline-flex; }
   mat-chip {
     font-size: 12px !important;
     min-height: 22px !important;
+    background: var(--brand-primary-soft) !important;
+    color: var(--brand-primary-hover) !important;
   }
 }
 
+// -- Paginator -------------------------------------------------------
 mat-paginator {
   background: transparent;
-  color: #cbd5e1;
+  color: var(--brand-text);
   margin-top: 8px;
 }
 
-.muted { color: #64748b; }
+.muted { color: var(--brand-text-subtle); }
 
+// -- Signature / file / rating cells --------------------------------
 .signature-thumb {
   display: block;
   height: 40px;
   width: auto;
   max-width: 140px;
-  background: #ffffff;
-  border-radius: 6px;
-  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: var(--brand-surface);
+  border-radius: var(--brand-radius-sm);
+  border: 1px solid var(--brand-border);
   object-fit: contain;
   padding: 2px;
 }
@@ -187,11 +232,11 @@ mat-paginator {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #93c5fd;
+  color: var(--brand-primary-hover);
   text-decoration: none;
   font-weight: 500;
 
-  &:hover { color: #bfdbfe; text-decoration: underline; }
+  &:hover { color: var(--brand-primary); text-decoration: underline; }
 
   mat-icon {
     font-size: 18px;
@@ -209,8 +254,10 @@ mat-paginator {
     font-size: 18px;
     width: 18px;
     height: 18px;
-    color: #64748b;
+    color: var(--brand-border-strong);
 
+    // Amber is a widely-recognised "star / rating" hue that doesn't
+    // change with the brand palette; kept as a semantic constant.
     &.filled { color: #facc15; }
   }
 }
