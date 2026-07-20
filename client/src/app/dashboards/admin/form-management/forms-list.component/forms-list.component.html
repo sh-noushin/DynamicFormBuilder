@@ -88,6 +88,14 @@
 
               <button
                 mat-icon-button
+                (click)="duplicateForm(form)"
+                matTooltip="Duplicate form"
+                class="btn-duplicate">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
                 (click)="deleteForm(form)"
                 matTooltip="Delete Form"
                 class="btn-delete">

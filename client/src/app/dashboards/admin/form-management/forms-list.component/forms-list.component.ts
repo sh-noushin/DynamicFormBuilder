@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal, ChangeDetectionStrategy, inject } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -10,6 +11,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Client, CreateFormDto, FormDto } from '../../../../core/services/api-service';
+import { environment } from '../../../../../environments/environment';
 import { CreateFormDialogComponent } from '../create-form-dialog.component/create-form-dialog.component';
 import { EditFormDialogComponent } from '../edit-form-dialog.component/edit-form-dialog.component';
 import { DeleteDialogComponent, DeleteDialogData } from '../../../../shared/delete-dialog.component/delete-dialog.component';
@@ -40,8 +42,26 @@ export class FormsListComponent implements OnInit {
   copiedSlug = signal<string | null>(null);
 
   private router = inject(Router);
+  private http = inject(HttpClient);
 
   constructor(private apiClient: Client, private dialog: MatDialog, private snack: MatSnackBar) {}
+
+  duplicateForm(form: FormDto) {
+    if (!form.id) return;
+    const token = typeof localStorage !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
+    this.isLoading.set(true);
+    this.http.post<FormDto>(`${environment.apiBaseUrl}/api/forms/${form.id}/duplicate`, {}, { headers }).subscribe({
+      next: () => {
+        this.snack.open(`Duplicated "${form.name}"`, 'Close', { duration: 2500 });
+        this.loadForms();
+      },
+      error: () => {
+        this.snack.open('Failed to duplicate form', 'Close', { duration: 3000 });
+        this.isLoading.set(false);
+      }
+    });
+  }
 
   canShare(form: FormDto): boolean {
     if (!form.slug || !form.isActive) return false;

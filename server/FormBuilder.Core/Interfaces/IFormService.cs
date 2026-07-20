@@ -11,4 +11,5 @@ public interface IFormService
     Task<bool> DeleteFormAsync(Guid id);
     Task<bool> ActivateFormAsync(Guid id);
     Task<bool> DeactivateFormAsync(Guid id);
+    Task<FormDto> DuplicateFormAsync(Guid id);
 }

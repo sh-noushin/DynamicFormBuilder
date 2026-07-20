@@ -84,6 +84,67 @@ public class FormService : IFormService
 
     public async Task<bool> DeactivateFormAsync(Guid id) => await SetFormActiveStateAsync(id, false);
 
+    public async Task<FormDto> DuplicateFormAsync(Guid id)
+    {
+        if (id == Guid.Empty)
+            throw new ArgumentException("Form ID cannot be empty.", nameof(id));
+
+        var source = await _formRepository.GetByIdAsync(id);
+        if (source == null)
+            throw new FormNotFoundException(id);
+
+        var now = DateTime.UtcNow;
+        var currentVersion = source.Versions.FirstOrDefault(v => v.IsCurrentVersion) ?? source.Versions.LastOrDefault();
+
+        var clone = new FormBuilder.Models.Entities.Form
+        {
+            Name = $"Copy of {source.Name}",
+            Description = source.Description,
+            BrandColor = source.BrandColor,
+            Slug = SlugGenerator.Generate(),
+            IsActive = false,
+            CreatedAt = now,
+            UpdatedAt = now,
+            Versions = new List<FormBuilder.Models.Entities.FormVersion>()
+        };
+
+        if (currentVersion != null)
+        {
+            var newVersion = new FormBuilder.Models.Entities.FormVersion
+            {
+                VersionNumber = 1,
+                Description = currentVersion.Description,
+                CreatedAt = now,
+                UpdatedAt = now,
+                IsPublished = false,
+                IsCurrentVersion = true,
+                Fields = currentVersion.Fields
+                    .OrderBy(f => f.Order)
+                    .Select(f => new FormBuilder.Models.Entities.FormVersionField
+                    {
+                        Name = f.Name,
+                        Label = f.Label,
+                        Type = f.Type,
+                        IsRequired = f.IsRequired,
+                        Validation = f.Validation,
+                        DefaultValue = f.DefaultValue,
+                        Options = f.Options,
+                        Placeholder = f.Placeholder,
+                        HelpText = f.HelpText,
+                        ShowIfCondition = f.ShowIfCondition,
+                        Order = f.Order,
+                        IsVisible = f.IsVisible,
+                        IsReadOnly = f.IsReadOnly
+                    })
+                    .ToList()
+            };
+            clone.Versions.Add(newVersion);
+        }
+
+        var created = await _formRepository.CreateAsync(clone);
+        return _mapper.Map<FormDto>(created);
+    }
+
     private async Task<bool> SetFormActiveStateAsync(Guid id, bool isActive)
     {
         if (id == Guid.Empty)

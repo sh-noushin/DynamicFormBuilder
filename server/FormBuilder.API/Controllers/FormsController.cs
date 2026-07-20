@@ -59,4 +59,15 @@ public class FormsController : ControllerBase
         var updatedForm = await _formService.UpdateFormAsync(id, updateFormDto);
         return Ok(updatedForm);
     }
+
+    [HttpPost("{id}/duplicate")]
+    [Authorize(Roles = Roles.Admin)]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(FormDto), 201)]
+    [ProducesResponseType(typeof(void), 404)]
+    public async Task<IActionResult> DuplicateForm(Guid id)
+    {
+        var duplicated = await _formService.DuplicateFormAsync(id);
+        return CreatedAtAction(nameof(GetForm), new { id = duplicated.Id }, duplicated);
+    }
 }
