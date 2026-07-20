@@ -17,6 +17,7 @@ import { Client, CreateFormDto, FormDto } from '../../../../core/services/api-se
 import { environment } from '../../../../../environments/environment';
 import { CreateFormDialogComponent } from '../create-form-dialog.component/create-form-dialog.component';
 import { EditFormDialogComponent } from '../edit-form-dialog.component/edit-form-dialog.component';
+import { EmbedFormDialogComponent, EmbedFormDialogData } from '../embed-form-dialog.component/embed-form-dialog.component';
 import { DeleteDialogComponent, DeleteDialogData } from '../../../../shared/delete-dialog.component/delete-dialog.component';
 
 @Component({
@@ -222,5 +223,15 @@ export class FormsListComponent implements OnInit {
   viewAnalytics(form: FormDto) {
     if (!form.id) return;
     this.router.navigate(['/admin/forms', form.id, 'analytics']);
+  }
+
+  openEmbedDialog(form: FormDto) {
+    if (!this.canShare(form) || !form.slug) return;
+    const publicUrl = `${window.location.origin}/f/${form.slug}`;
+    this.dialog.open(EmbedFormDialogComponent, {
+      width: 'min(720px, 95vw)',
+      panelClass: 'elevated-dialog-panel',
+      data: { formName: form.name ?? '', publicUrl } as EmbedFormDialogData,
+    });
   }
 }

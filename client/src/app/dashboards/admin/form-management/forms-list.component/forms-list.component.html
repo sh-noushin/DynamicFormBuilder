@@ -114,6 +114,15 @@
 
               <button
                 mat-icon-button
+                (click)="openEmbedDialog(form)"
+                [matTooltip]="canShare(form) ? 'Embed on another site' : 'Publish a version to embed'"
+                [disabled]="!canShare(form)"
+                class="btn-embed">
+                <mat-icon>code</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
                 (click)="editForm(form)"
                 matTooltip="Edit Form"
                 class="btn-edit">
