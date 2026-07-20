@@ -6,6 +6,18 @@
   padding: 8px 4px;
 }
 
+// Groups multiple <mat-slide-toggle> elements onto one line with enough
+// spacing that the second toggle's thumb doesn't kiss the previous label.
+// 32px matches the horizontal rhythm used elsewhere in the dialog.
+.toggle-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+  padding: 4px 2px;
+  margin: 4px 0;
+}
+
 .brand-label {
   display: inline-flex;
   align-items: center;
