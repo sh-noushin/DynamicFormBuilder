@@ -136,8 +136,7 @@
   gap: 2px;
 }
 
-.recent-item,
-.top-item {
+.recent-item {
   padding: 10px 12px;
   border-radius: var(--brand-radius-sm);
   cursor: pointer;
@@ -148,12 +147,36 @@
   }
 }
 
-.recent-primary,
-.top-primary {
+// Top-form row is a single horizontal line: icon + name on the left,
+// count chip on the right. The .top-item needs its own flex layout
+// because .top-primary + .top-count are siblings, not nested.
+.top-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--brand-radius-sm);
+  cursor: pointer;
+  transition: background 0.12s ease;
+
+  &:hover {
+    background: var(--brand-surface-alt);
+  }
+}
+
+.recent-primary {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+}
+
+.top-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
 }
 
 .recent-form {
@@ -173,32 +196,35 @@
   margin-top: 2px;
 }
 
-.top-primary {
-  gap: 8px;
-}
-
 .top-icon {
   color: var(--brand-text-subtle);
   font-size: 20px;
   width: 20px;
   height: 20px;
+  flex-shrink: 0;
 }
 
 .top-name {
   flex: 1;
+  min-width: 0;
   font-weight: 500;
   color: var(--brand-text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .top-count {
+  flex-shrink: 0;
   padding: 2px 10px;
   border-radius: 999px;
   background: var(--brand-primary-soft);
   color: var(--brand-primary-hover);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  min-width: 32px;
+  min-width: 28px;
   text-align: center;
+  line-height: 1.5;
 }
 
 .quick-actions {

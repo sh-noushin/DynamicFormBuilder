@@ -1,64 +1,54 @@
+<div class="login-container">
+  <div class="login-card">
+    <h1 class="login-title">FormBuilder</h1>
+    <p class="login-subtitle">Sign in to your workspace</p>
 
-<div class="login-container dark">
-	<mat-card class="login-card">
-		<mat-card-header>
-			<mat-card-title class="login-title">FormBuilder</mat-card-title>
-		</mat-card-header>
-		<mat-card-content>
-			<mat-tab-group>
-				<mat-tab label="Login">
-					<div class="login-fields">
-						<mat-form-field appearance="outline" class="full-width">
-							<mat-label>Username</mat-label>
-							<input matInput type="text" [value]="username()" (input)="username.set($event.target.value)" placeholder="Username">
-						</mat-form-field>
-						<mat-form-field appearance="outline" class="full-width">
-							<mat-label>Password</mat-label>
-							<input matInput type="password" [value]="password()" (input)="password.set($event.target.value)" placeholder="Password">
-						</mat-form-field>
-						<button mat-raised-button color="primary" class="full-width login-button" (click)="login()">
-							@if (isLoading()) {
-								<span>Logging in...</span>
-							} @else {
-								<span>Login</span>
-							}
-						</button>
-						@if (error()) {
-							<div class="error-message">{{ error() }}</div>
-						}
-					</div>
-				</mat-tab>
-				<mat-tab label="Register">
-					<div class="register-fields">
-						<mat-form-field appearance="outline" class="full-width">
-							<mat-label>Username</mat-label>
-							<input matInput type="text" [value]="regUsername()" (input)="regUsername.set($event.target.value)" placeholder="Username">
-						</mat-form-field>
-						<mat-form-field appearance="outline" class="full-width">
-							<mat-label>Email</mat-label>
-							<input matInput type="email" [value]="regEmail()" (input)="regEmail.set($event.target.value)" placeholder="Email">
-						</mat-form-field>
-						<mat-form-field appearance="outline" class="full-width">
-							<mat-label>Password</mat-label>
-							<input matInput type="password" [value]="regPassword()" (input)="regPassword.set($event.target.value)" placeholder="Password">
-						</mat-form-field>
-						<mat-form-field appearance="outline" class="full-width">
-							<mat-label>Confirm Password</mat-label>
-							<input matInput type="password" [value]="regConfirmPassword()" (input)="regConfirmPassword.set($event.target.value)" placeholder="Confirm Password">
-						</mat-form-field>
-						<button mat-raised-button color="accent" class="full-width register-button" (click)="register()">
-							@if (isLoading()) {
-								<span>Registering...</span>
-							} @else {
-								<span>Register</span>
-							}
-						</button>
-						@if (error()) {
-							<div class="error-message">{{ error() }}</div>
-						}
-					</div>
-				</mat-tab>
-			</mat-tab-group>
-		</mat-card-content>
-	</mat-card>
+    <mat-tab-group class="login-tabs" mat-stretch-tabs="true" mat-align-tabs="center">
+      <mat-tab label="Login">
+        <div class="login-fields">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Username</mat-label>
+            <input matInput type="text" [value]="username()" (input)="username.set($event.target.value)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" [value]="password()" (input)="password.set($event.target.value)" />
+          </mat-form-field>
+          <button class="primary-button" [disabled]="isLoading()" (click)="login()">
+            @if (isLoading()) { <span>Logging in&hellip;</span> } @else { <span>Login</span> }
+          </button>
+          @if (error()) {
+            <div class="error-message">{{ error() }}</div>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Register">
+        <div class="register-fields">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Username</mat-label>
+            <input matInput type="text" [value]="regUsername()" (input)="regUsername.set($event.target.value)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" [value]="regEmail()" (input)="regEmail.set($event.target.value)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" [value]="regPassword()" (input)="regPassword.set($event.target.value)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Confirm Password</mat-label>
+            <input matInput type="password" [value]="regConfirmPassword()" (input)="regConfirmPassword.set($event.target.value)" />
+          </mat-form-field>
+          <button class="primary-button" [disabled]="isLoading()" (click)="register()">
+            @if (isLoading()) { <span>Registering&hellip;</span> } @else { <span>Create account</span> }
+          </button>
+          @if (error()) {
+            <div class="error-message">{{ error() }}</div>
+          }
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
 </div>

@@ -1,28 +1,27 @@
-// Landing / login page. Light-mode Linear/Notion aesthetic: soft off-white
-// canvas with a subtle indigo tint, single white card, indigo primary
-// accent, no dark chrome anywhere.
+// Login page — Google Forms aesthetic: single card centered on a soft
+// canvas, generous spacing, indigo primary, no chrome. No fixed heights
+// anywhere so the card grows with its contents and never scrolls internally.
 
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  padding: 20px;
-  // Two-tone gradient — pure canvas at top-left, indigo-tinted at bottom-
-  // right. Keeps the page from looking sterile without going full brand.
+  padding: 24px;
   background: linear-gradient(135deg, var(--brand-canvas) 0%, #eef2ff 100%);
+  box-sizing: border-box;
 }
 
 .login-card {
   width: 100%;
   max-width: 420px;
   border-radius: var(--brand-radius-lg);
-  overflow: hidden;
-  box-shadow: var(--brand-shadow-lg);
   background: var(--brand-surface);
   border: 1px solid var(--brand-border);
-  padding: 28px;
+  box-shadow: var(--brand-shadow-lg);
+  padding: 32px 32px 28px;
   color: var(--brand-text-strong);
+  // No fixed height, no overflow rules — the card sizes to its content.
 }
 
 .login-title {
@@ -30,57 +29,85 @@
   font-size: 1.75rem;
   font-weight: 700;
   color: var(--brand-text-strong);
-  margin: 0 0 6px 0;
-  letter-spacing: -0.5px;
+  margin: 0 0 4px;
+  letter-spacing: -0.02em;
+  // Plain solid text on a white background. The old gradient-text with
+  // background-clip:text was leaving a visible solid-color block behind
+  // when the clip failed to apply.
 }
 
 .login-subtitle {
   text-align: center;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: var(--brand-text-muted);
-  margin-bottom: 12px;
+  margin: 0 0 20px;
   font-weight: 400;
+}
+
+// -- Tabs --------------------------------------------------------------
+// Reset Angular Material's opinionated tab palette so the tab bar reads
+// as "Login | Register" with an indigo underline on the active one.
+.login-tabs {
+  --mat-tab-header-active-label-text-color: var(--brand-primary-hover);
+  --mat-tab-header-active-focus-label-text-color: var(--brand-primary-hover);
+  --mat-tab-header-active-hover-label-text-color: var(--brand-primary-hover);
+  --mat-tab-header-active-ripple-color: var(--brand-primary);
+  --mat-tab-header-inactive-label-text-color: var(--brand-text-muted);
+  --mat-tab-header-inactive-focus-label-text-color: var(--brand-text);
+  --mat-tab-header-inactive-hover-label-text-color: var(--brand-text);
+  --mdc-tab-indicator-active-indicator-color: var(--brand-primary);
+  --mat-tab-header-divider-color: var(--brand-border);
+
+  margin-bottom: 20px;
 }
 
 .login-fields,
 .register-fields {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-top: 12px;
+  gap: 14px;
+  padding-top: 20px;
 }
 
 .full-width { width: 100%; }
 
-.login-button, .register-button {
+// -- Primary button ----------------------------------------------------
+// Native <button> (not mat-raised-button) so nothing overrides the
+// background via Material's --mdc-protected-button-container-color token.
+.primary-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   height: 44px;
   width: 100%;
+  font-family: inherit;
   font-size: 15px;
   font-weight: 500;
-  border-radius: var(--brand-radius-md);
   color: var(--brand-surface);
   background: var(--brand-primary);
   border: none;
-  text-transform: none;
-  padding: 0;
+  border-radius: var(--brand-radius-md);
+  cursor: pointer;
   transition: background 120ms ease, transform 120ms ease;
-}
 
-.login-button:hover, .register-button:hover {
-  background: var(--brand-primary-hover);
-}
+  &:hover:not(:disabled) {
+    background: var(--brand-primary-hover);
+  }
 
-.login-button:active, .register-button:active {
-  transform: translateY(1px);
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    background: var(--brand-border-strong);
+    color: var(--brand-surface);
+    cursor: not-allowed;
+  }
 }
 
 .error-message {
   color: #dc2626;
-  font-size: 0.9rem;
-  margin-top: 8px;
+  font-size: 0.85rem;
   text-align: center;
   font-weight: 500;
   padding: 8px 12px;
@@ -89,32 +116,8 @@
   border-radius: var(--brand-radius-sm);
 }
 
-.demo-credentials {
-  margin-top: 20px;
-  padding: 12px 14px;
-  background: var(--brand-canvas);
-  border-radius: var(--brand-radius-md);
-  border: 1px solid var(--brand-border);
-  color: var(--brand-text);
-
-  h4 {
-    color: var(--brand-text);
-    margin: 0 0 6px 0;
-    font-weight: 600;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  p {
-    margin: 3px 0;
-    font-size: 12px;
-    color: var(--brand-text);
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  }
-}
-
 @media (max-width: 480px) {
   .login-container { padding: 12px; }
-  .login-card { max-width: 100%; padding: 20px; }
+  .login-card { padding: 24px 20px 20px; }
   .login-title { font-size: 1.5rem; }
 }
