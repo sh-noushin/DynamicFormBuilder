@@ -152,5 +152,55 @@
 .submit-row {
   margin-top: 24px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+
+  button {
+    min-width: 120px;
+
+    mat-icon { margin-right: 4px; }
+    mat-icon[iconPositionEnd] { margin-left: 6px; margin-right: 0; }
+  }
+}
+
+.page-stepper {
+  margin-bottom: 24px;
+}
+
+.page-progress {
+  position: relative;
+  height: 6px;
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.page-progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: var(--brand-primary, #6366f1);
+  transition: width 0.3s ease;
+  border-radius: 999px;
+}
+
+.page-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 8px;
+  color: #475569;
+
+  .page-count {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+
+  .page-heading {
+    font-weight: 600;
+    color: #0f172a;
+  }
 }

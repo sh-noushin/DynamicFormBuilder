@@ -38,8 +38,22 @@
 
         <mat-card-content>
           <form [formGroup]="formGroup" (ngSubmit)="submit()" novalidate>
+            @if (totalPages() > 1) {
+              <div class="page-stepper">
+                <div class="page-progress">
+                  <div class="page-progress-fill" [style.width.%]="progressPercent()"></div>
+                </div>
+                <div class="page-meta">
+                  <span class="page-count">Step {{ currentPage() + 1 }} of {{ totalPages() }}</span>
+                  @if (pageHeadings()[currentPage()]) {
+                    <span class="page-heading">{{ pageHeadings()[currentPage()] }}</span>
+                  }
+                </div>
+              </div>
+            }
+
             <div class="fields-grid">
-              @for (field of f.fields; track field.id) {
+              @for (field of currentPageFields(); track field.id) {
                 @if (isFieldVisible(field)) {
                 <div class="field-block">
                   @switch (field.type) {
@@ -173,28 +187,42 @@
               }
             </div>
 
-            <hr class="section-divider" />
-
-            <h3 class="section-heading">Your details (optional)</h3>
-            <div class="fields-grid">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Your name</mat-label>
-                <input matInput formControlName="submitterName" />
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Your email</mat-label>
-                <input matInput type="email" formControlName="submitterEmail" />
-              </mat-form-field>
-            </div>
+            @if (isLastPage()) {
+              <hr class="section-divider" />
+              <h3 class="section-heading">Your details (optional)</h3>
+              <div class="fields-grid">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Your name</mat-label>
+                  <input matInput formControlName="submitterName" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Your email</mat-label>
+                  <input matInput type="email" formControlName="submitterEmail" />
+                </mat-form-field>
+              </div>
+            }
 
             @if (errorMessage()) {
               <div class="submit-error">{{ errorMessage() }}</div>
             }
 
             <div class="submit-row">
-              <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
-                @if (submitting()) { <span>Submitting&hellip;</span> } @else { <span>Submit</span> }
-              </button>
+              @if (!isFirstPage()) {
+                <button mat-stroked-button type="button" (click)="previousPage()">
+                  <mat-icon>arrow_back</mat-icon>
+                  <span>Previous</span>
+                </button>
+              }
+              @if (!isLastPage()) {
+                <button mat-flat-button color="primary" type="button" (click)="nextPage()">
+                  <span>Next</span>
+                  <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+                </button>
+              } @else {
+                <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
+                  @if (submitting()) { <span>Submitting&hellip;</span> } @else { <span>Submit</span> }
+                </button>
+              }
             </div>
           </form>
         </mat-card-content>

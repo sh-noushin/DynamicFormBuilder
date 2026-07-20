@@ -56,10 +56,43 @@ export class AdminPreviewComponent {
   errorMessage = signal<string | null>(null);
   fileUploading = signal<Record<string, boolean>>({});
   fileMeta = signal<Record<string, { token: string; name: string; size: number } | undefined>>({});
+  currentPage = signal(0);
   formGroup: FormGroup = this.fb.group({});
 
   formId = computed(() => this.route.snapshot.paramMap.get('formId') ?? '');
   versionNumber = computed(() => Number(this.route.snapshot.paramMap.get('versionNumber') ?? '0'));
+
+  pages = computed<FormFieldDto[][]>(() => {
+    const list = this.fields();
+    if (list.length === 0) return [[]];
+    const result: FormFieldDto[][] = [[]];
+    for (const f of list) {
+      if (String(f.type) === 'PageBreak') {
+        result.push([]);
+      } else {
+        result[result.length - 1].push(f);
+      }
+    }
+    return result;
+  });
+
+  pageHeadings = computed<string[]>(() => {
+    const headings: string[] = [''];
+    for (const f of this.fields()) {
+      if (String(f.type) === 'PageBreak') headings.push(f.label ?? '');
+    }
+    return headings;
+  });
+
+  currentPageFields = computed<FormFieldDto[]>(() => this.pages()[this.currentPage()] ?? []);
+  totalPages = computed(() => this.pages().length);
+  isLastPage = computed(() => this.currentPage() >= this.totalPages() - 1);
+  isFirstPage = computed(() => this.currentPage() === 0);
+  progressPercent = computed(() => {
+    const t = this.totalPages();
+    if (t <= 1) return 100;
+    return Math.round(((this.currentPage() + 1) / t) * 100);
+  });
 
   constructor() {
     this.load();
@@ -111,6 +144,8 @@ export class AdminPreviewComponent {
 
   private buildFormControls(fields: FormFieldDto[]): void {
     for (const f of fields) {
+      // Page breaks have no input control; skip.
+      if (String(f.type) === 'PageBreak') continue;
       const validators = f.isRequired && f.type !== 'Checkbox' ? [Validators.required] : [];
       if (f.type === 'Email') validators.push(Validators.email);
       const initial = f.type === 'Checkbox' ? false : (f.defaultValue ?? '');
@@ -179,6 +214,33 @@ export class AdminPreviewComponent {
         input.value = '';
       },
     });
+  }
+
+  nextPage(): void {
+    const visible = this.currentPageFields().filter(f => this.isFieldVisible(f));
+    let anyInvalid = false;
+    for (const f of visible) {
+      const ctrl = this.formGroup.get(this.controlName(f));
+      if (ctrl) {
+        ctrl.markAsTouched();
+        if (ctrl.invalid) anyInvalid = true;
+      }
+    }
+    if (anyInvalid) {
+      this.snack.open('Preview: fix the highlighted fields to continue', 'Close', { duration: 3000 });
+      return;
+    }
+    if (!this.isLastPage()) {
+      this.currentPage.update(p => p + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  previousPage(): void {
+    if (!this.isFirstPage()) {
+      this.currentPage.update(p => p - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   testSubmit(): void {

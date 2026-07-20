@@ -130,6 +130,12 @@
                             @if (f.helpText) { <span class="help-text">{{ f.helpText }}</span> }
                           }
 
+                          @case ('PageBreak') {
+                            @if (f.label) {
+                              <h3 class="page-section-heading">{{ f.label }}</h3>
+                            }
+                          }
+
                           @case ('Phone') {
                             <mat-form-field appearance="outline" class="form-field small-field">
                               <mat-label>{{ f.label }}</mat-label>

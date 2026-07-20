@@ -76,12 +76,49 @@ export class PublicFormComponent {
   fieldErrors = signal<Record<string, string[]>>({});
   fileUploading = signal<Record<string, boolean>>({});
   fileMeta = signal<Record<string, { token: string; name: string; size: number } | undefined>>({});
+  currentPage = signal(0);
   formGroup: FormGroup = this.fb.group({
     submitterName: [''],
     submitterEmail: [''],
   });
 
   slug = computed(() => this.route.snapshot.paramMap.get('slug') ?? '');
+
+  // Split the ordered field list into pages at every PageBreak marker.
+  // The PageBreak itself is not rendered as an input; its label becomes the
+  // heading for the page AFTER the break (page[i+1]).
+  pages = computed<PublicField[][]>(() => {
+    const fields = this.form()?.fields ?? [];
+    if (fields.length === 0) return [[]];
+    const result: PublicField[][] = [[]];
+    for (const f of fields) {
+      if (f.type === 'PageBreak') {
+        result.push([]);
+      } else {
+        result[result.length - 1].push(f);
+      }
+    }
+    return result;
+  });
+
+  pageHeadings = computed<string[]>(() => {
+    const fields = this.form()?.fields ?? [];
+    const headings: string[] = [''];
+    for (const f of fields) {
+      if (f.type === 'PageBreak') headings.push(f.label || '');
+    }
+    return headings;
+  });
+
+  currentPageFields = computed<PublicField[]>(() => this.pages()[this.currentPage()] ?? []);
+  totalPages = computed(() => this.pages().length);
+  isLastPage = computed(() => this.currentPage() >= this.totalPages() - 1);
+  isFirstPage = computed(() => this.currentPage() === 0);
+  progressPercent = computed(() => {
+    const t = this.totalPages();
+    if (t <= 1) return 100;
+    return Math.round(((this.currentPage() + 1) / t) * 100);
+  });
 
   constructor() {
     this.load();
@@ -151,6 +188,38 @@ export class PublicFormComponent {
       .map((s) => s.trim())
       .filter(Boolean)
       .map((s) => ({ value: s, label: s }));
+  }
+
+  nextPage(): void {
+    // Only advance if the visible fields on the current page validate.
+    const currentControls = this.currentPageFields()
+      .filter(f => this.isFieldVisible(f))
+      .map(f => this.controlName(f));
+    let anyInvalid = false;
+    for (const name of currentControls) {
+      const ctrl = this.formGroup.get(name);
+      if (ctrl) {
+        ctrl.markAsTouched();
+        if (ctrl.invalid) anyInvalid = true;
+      }
+    }
+    if (anyInvalid) {
+      this.errorMessage.set('Please fix the highlighted fields to continue.');
+      return;
+    }
+    this.errorMessage.set(null);
+    if (!this.isLastPage()) {
+      this.currentPage.update(p => p + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  previousPage(): void {
+    if (!this.isFirstPage()) {
+      this.errorMessage.set(null);
+      this.currentPage.update(p => p - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   submit(): void {

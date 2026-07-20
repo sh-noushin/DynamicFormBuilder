@@ -15,5 +15,6 @@ public enum FieldType
     Password,
     File,
     Signature,
-    Rating
+    Rating,
+    PageBreak
 }
