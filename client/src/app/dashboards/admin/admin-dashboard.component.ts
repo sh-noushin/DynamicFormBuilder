@@ -31,7 +31,7 @@ export class AdminDashboardComponent {
   selectedMenuItem = signal<string>('overview');
   selectedIndex = signal<number>(0);
 
-  private tabs = ['overview', 'forms', 'users'] as const;
+  private tabs = ['overview', 'forms', 'users', 'api-keys'] as const;
 
   constructor(private router: Router) {
     this.syncTabWithRoute(this.router.url);
@@ -55,7 +55,10 @@ export class AdminDashboardComponent {
   }
 
   private syncTabWithRoute(url: string) {
-    if (url.includes('/admin/users')) {
+    if (url.includes('/admin/api-keys')) {
+      this.selectedMenuItem.set('api-keys');
+      this.selectedIndex.set(3);
+    } else if (url.includes('/admin/users')) {
       this.selectedMenuItem.set('users');
       this.selectedIndex.set(2);
     } else if (url.includes('/admin/forms')) {
