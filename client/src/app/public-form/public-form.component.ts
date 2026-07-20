@@ -388,24 +388,68 @@ export class PublicFormComponent {
     if (!file) return;
     const name = this.controlName(field);
 
+    // Client-side pre-check against the field's Validation JSON. The server
+    // enforces the same rules; this just gives immediate feedback without
+    // waiting for a round trip.
+    const localError = this.checkFileAgainstField(field, file);
+    if (localError) {
+      this.errorMessage.set(localError);
+      input.value = '';
+      return;
+    }
+
     this.fileUploading.update(m => ({ ...m, [name]: true }));
     const data = new FormData();
     data.append('file', file);
 
-    this.http.post<{ token: string; originalFileName: string; sizeBytes: number }>(
-      `${environment.apiBaseUrl}/api/uploads`,
-      data
-    ).subscribe({
+    // Pass slug + field name so the server can enforce per-field constraints.
+    const slug = encodeURIComponent(this.slug());
+    const fieldName = encodeURIComponent(field.name);
+    const url = `${environment.apiBaseUrl}/api/uploads?slug=${slug}&fieldName=${fieldName}`;
+
+    this.http.post<{ token: string; originalFileName: string; sizeBytes: number }>(url, data).subscribe({
       next: r => {
         this.fileUploading.update(m => ({ ...m, [name]: false }));
         this.fileMeta.update(m => ({ ...m, [name]: { token: r.token, name: r.originalFileName, size: r.sizeBytes } }));
         this.formGroup.get(name)?.setValue(r.token);
       },
-      error: () => {
+      error: (err) => {
         this.fileUploading.update(m => ({ ...m, [name]: false }));
-        this.errorMessage.set('File upload failed. Please try a smaller file.');
+        const serverMessage = err?.error?.message ?? err?.error?.detail;
+        this.errorMessage.set(serverMessage ?? 'File upload failed. Please try a smaller file.');
         input.value = '';
       }
     });
+  }
+
+  // Reads maxFileSizeMb and allowedFileExtensions from the field's Validation
+  // JSON and returns a user-facing error string when the file violates either.
+  private checkFileAgainstField(field: PublicField, file: File): string | null {
+    if (!field.validation) return null;
+    let rules: { maxFileSizeMb?: number; allowedFileExtensions?: string[] } | null = null;
+    try {
+      rules = JSON.parse(field.validation);
+    } catch {
+      return null;
+    }
+    if (!rules) return null;
+
+    if (typeof rules.maxFileSizeMb === 'number' && rules.maxFileSizeMb > 0) {
+      const maxBytes = rules.maxFileSizeMb * 1024 * 1024;
+      if (file.size > maxBytes) {
+        return `File exceeds the maximum size of ${rules.maxFileSizeMb} MB for this field.`;
+      }
+    }
+    if (Array.isArray(rules.allowedFileExtensions) && rules.allowedFileExtensions.length > 0) {
+      const allowed = rules.allowedFileExtensions
+        .map(s => String(s).trim().replace(/^\./, '').toLowerCase())
+        .filter(Boolean);
+      const dot = file.name.lastIndexOf('.');
+      const ext = dot >= 0 ? file.name.slice(dot + 1).toLowerCase() : '';
+      if (!allowed.includes(ext)) {
+        return `File type '.${ext}' is not allowed. Allowed: ${allowed.map(a => '.' + a).join(', ')}.`;
+      }
+    }
+    return null;
   }
 }

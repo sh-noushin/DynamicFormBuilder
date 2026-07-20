@@ -48,10 +48,30 @@
       <input matInput [value]="defaultValue()" (input)="defaultValue.set($event.target.value)" />
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width span-2">
-      <mat-label>Validation</mat-label>
-      <input matInput [value]="validation()" (input)="validation.set($event.target.value)" />
-    </mat-form-field>
+    @if (!showFileConstraints) {
+      <mat-form-field appearance="outline" class="full-width span-2">
+        <mat-label>Validation</mat-label>
+        <input matInput [value]="validation()" (input)="validation.set($event.target.value)" />
+      </mat-form-field>
+    } @else {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Max file size (MB)</mat-label>
+        <input matInput type="number" min="1" max="1024" step="1"
+               [value]="fileMaxSizeMb()"
+               (input)="fileMaxSizeMb.set($any($event.target).value)"
+               placeholder="e.g. 5" />
+        @if (fileMaxSizeError()) { <mat-error>{{ fileMaxSizeError() }}</mat-error> }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Allowed extensions</mat-label>
+        <input matInput
+               [value]="fileAllowedExts()"
+               (input)="fileAllowedExts.set($any($event.target).value)"
+               placeholder="pdf, png, jpg" />
+        <mat-hint>Comma-separated, leave blank to allow any type.</mat-hint>
+      </mat-form-field>
+    }
 
     <div class="show-if-builder span-2">
       <div class="show-if-header">

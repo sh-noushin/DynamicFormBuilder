@@ -1,5 +1,7 @@
+using System.Text.Json;
 using FormBuilder.Core.DTOs;
 using FormBuilder.Core.Options;
+using FormBuilder.Models.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -14,15 +16,18 @@ public class UploadsController : ControllerBase
     private readonly FileUploadOptions _options;
     private readonly IWebHostEnvironment _env;
     private readonly ILogger<UploadsController> _logger;
+    private readonly IFormRepository _formRepository;
 
     public UploadsController(
         IOptions<FileUploadOptions> options,
         IWebHostEnvironment env,
-        ILogger<UploadsController> logger)
+        ILogger<UploadsController> logger,
+        IFormRepository formRepository)
     {
         _options = options.Value;
         _env = env;
         _logger = logger;
+        _formRepository = formRepository;
     }
 
     [HttpPost]
@@ -30,7 +35,10 @@ public class UploadsController : ControllerBase
     [ProducesResponseType(typeof(void), 400)]
     [ProducesResponseType(typeof(void), 413)]
     [RequestSizeLimit(64 * 1024 * 1024)]
-    public async Task<ActionResult<FileUploadResultDto>> Upload(IFormFile file)
+    public async Task<ActionResult<FileUploadResultDto>> Upload(
+        IFormFile file,
+        [FromQuery] string? slug = null,
+        [FromQuery] string? fieldName = null)
     {
         if (file == null || file.Length == 0)
             return BadRequest(new { message = "No file was provided." });
@@ -45,6 +53,18 @@ public class UploadsController : ControllerBase
                 contentType.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
             if (!allowed)
                 return BadRequest(new { message = $"Content type '{contentType}' is not allowed." });
+        }
+
+        // Per-field constraints layer on top of the system-wide limits. When the
+        // client tells us which form+field this upload belongs to, we can reject
+        // based on the field's own size and extension allowlist encoded in the
+        // Validation JSON blob. Missing / bad references fall through silently
+        // so the system-wide check is still the floor.
+        if (!string.IsNullOrWhiteSpace(slug) && !string.IsNullOrWhiteSpace(fieldName))
+        {
+            var perFieldError = await ValidateAgainstFieldAsync(slug, fieldName, file);
+            if (perFieldError is not null)
+                return BadRequest(new { message = perFieldError });
         }
 
         var storageDir = Path.IsPathRooted(_options.StoragePath)
@@ -97,6 +117,56 @@ public class UploadsController : ControllerBase
 
         var stream = System.IO.File.OpenRead(path);
         return File(stream, contentType, originalName);
+    }
+
+    // Returns a user-facing error string if the file violates a per-field
+    // constraint, or null when it is acceptable (or the field lookup fails,
+    // which we treat as "no per-field constraint applies").
+    private async Task<string?> ValidateAgainstFieldAsync(string slug, string fieldName, IFormFile file)
+    {
+        var form = await _formRepository.GetBySlugAsync(slug);
+        if (form is null) return null;
+
+        var currentVersion = form.Versions.FirstOrDefault(v => v.IsCurrentVersion && v.IsPublished);
+        var field = currentVersion?.Fields.FirstOrDefault(f => f.Name == fieldName);
+        if (field is null || string.IsNullOrWhiteSpace(field.Validation)) return null;
+
+        try
+        {
+            using var doc = JsonDocument.Parse(field.Validation);
+            var root = doc.RootElement;
+
+            if (root.TryGetProperty("maxFileSizeMb", out var maxProp) &&
+                maxProp.TryGetInt32(out var maxMb) && maxMb > 0)
+            {
+                var maxBytes = (long)maxMb * 1024L * 1024L;
+                if (file.Length > maxBytes)
+                    return $"File exceeds the maximum size of {maxMb} MB for this field.";
+            }
+
+            if (root.TryGetProperty("allowedFileExtensions", out var extProp) &&
+                extProp.ValueKind == JsonValueKind.Array)
+            {
+                var allowed = extProp.EnumerateArray()
+                    .Where(e => e.ValueKind == JsonValueKind.String)
+                    .Select(e => (e.GetString() ?? string.Empty).TrimStart('.').Trim().ToLowerInvariant())
+                    .Where(s => s.Length > 0)
+                    .ToArray();
+                if (allowed.Length > 0)
+                {
+                    var ext = Path.GetExtension(file.FileName).TrimStart('.').ToLowerInvariant();
+                    if (!allowed.Contains(ext))
+                        return $"File type '.{ext}' is not allowed. Allowed: {string.Join(", ", allowed.Select(a => "." + a))}.";
+                }
+            }
+        }
+        catch (JsonException)
+        {
+            // A malformed Validation JSON should not prevent the upload -
+            // the admin will see the config error via the field validator
+            // when the submission comes in.
+        }
+        return null;
     }
 
     private static string SanitizeFileName(string name)

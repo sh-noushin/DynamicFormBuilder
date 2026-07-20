@@ -37,6 +37,10 @@ export class AddFieldDialogComponent {
   helpText = signal('');
   defaultValue = signal('');
   validation = signal('');
+  // File-only typed constraints; serialized to/from the Validation JSON blob
+  // so we don't need a schema migration for these.
+  fileMaxSizeMb = signal<string>('');
+  fileAllowedExts = signal<string>('');
 
   // Show If builder state - selected trigger field name + expected value.
   showIfField = signal<string>('');
@@ -82,6 +86,22 @@ export class AddFieldDialogComponent {
     this.helpText.set(String(f.helpText ?? ''));
     this.defaultValue.set(String(f.defaultValue ?? ''));
     this.validation.set(String(f.validation ?? ''));
+
+    // Pull file-specific constraints out of the Validation JSON when editing a
+    // File field so the typed inputs reflect what is currently stored.
+    if (String(f.type) === 'File' && f.validation) {
+      try {
+        const parsed = JSON.parse(String(f.validation));
+        if (parsed && typeof parsed === 'object') {
+          if (typeof parsed.maxFileSizeMb === 'number' && parsed.maxFileSizeMb > 0) {
+            this.fileMaxSizeMb.set(String(parsed.maxFileSizeMb));
+          }
+          if (Array.isArray(parsed.allowedFileExtensions)) {
+            this.fileAllowedExts.set(parsed.allowedFileExtensions.join(', '));
+          }
+        }
+      } catch { /* leave typed fields blank on malformed JSON */ }
+    }
 
     if (f.options) {
       try {
@@ -154,6 +174,37 @@ export class AddFieldDialogComponent {
     return this.type() === 'Select' || this.type() === 'Radio';
   }
 
+  get showFileConstraints(): boolean {
+    return this.type() === 'File';
+  }
+
+  fileMaxSizeError(): string | null {
+    const v = this.fileMaxSizeMb().trim();
+    if (!v) return null;
+    const n = Number(v);
+    if (!Number.isInteger(n) || n < 1 || n > 1024) return 'Between 1 and 1024 MB';
+    return null;
+  }
+
+  // Serializes the typed File constraints into the Validation JSON blob.
+  // Empty inputs = no constraint, no key. Called from save().
+  private buildFileValidationJson(): string {
+    const maxRaw = this.fileMaxSizeMb().trim();
+    const extsRaw = this.fileAllowedExts().trim();
+    const payload: Record<string, unknown> = {};
+    if (maxRaw) {
+      const n = Number(maxRaw);
+      if (Number.isInteger(n) && n > 0) payload['maxFileSizeMb'] = n;
+    }
+    if (extsRaw) {
+      const list = extsRaw.split(',')
+        .map(s => s.trim().replace(/^\./, '').toLowerCase())
+        .filter(Boolean);
+      if (list.length > 0) payload['allowedFileExtensions'] = list;
+    }
+    return Object.keys(payload).length ? JSON.stringify(payload) : '';
+  }
+
   private ensureInitialOptionRow() {
     if (this.showOptions && this.optionItems().length === 0) {
       this.optionItems.set([{ label: '', value: '' }]);
@@ -202,7 +253,7 @@ export class AddFieldDialogComponent {
   }
 
   get invalid(): boolean {
-    return !!(this.nameError() || this.labelError() || this.optionsInvalid());
+    return !!(this.nameError() || this.labelError() || this.optionsInvalid() || this.fileMaxSizeError());
   }
 
   private buildShowIfJson(): string | undefined {
@@ -221,6 +272,11 @@ export class AddFieldDialogComponent {
     const optionJson = this.showOptions
       ? JSON.stringify(this.optionItems().map(o => ({ label: o.label.trim(), value: o.value.trim() })))
       : '';
+    // For File fields, the typed constraint inputs take precedence over the
+    // raw Validation textbox; other field types keep the raw JSON as-is.
+    const validationOut = this.showFileConstraints
+      ? this.buildFileValidationJson()
+      : this.validation();
     const value = {
       name: this.name(),
       label: this.label(),
@@ -231,7 +287,7 @@ export class AddFieldDialogComponent {
       placeholder: this.placeholder(),
       helpText: this.helpText(),
       defaultValue: this.defaultValue(),
-      validation: this.validation(),
+      validation: validationOut,
       showIfCondition: this.buildShowIfJson(),
       options: optionJson
     };
