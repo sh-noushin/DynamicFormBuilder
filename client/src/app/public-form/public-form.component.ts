@@ -94,6 +94,10 @@ export class PublicFormComponent {
   formGroup: FormGroup = this.fb.group({
     submitterName: [''],
     submitterEmail: [''],
+    // Honeypot: real users never see or type in this control. Any non-empty
+    // value on submit is treated as bot traffic by the server (400) and by
+    // the client as a silent no-op.
+    _hp: [''],
   });
 
   slug = computed(() => this.route.snapshot.paramMap.get('slug') ?? '');
@@ -305,6 +309,7 @@ export class PublicFormComponent {
         submitterName: (raw['submitterName'] as string | null) || null,
         submitterEmail: (raw['submitterEmail'] as string | null) || null,
         fieldValues,
+        honeypotValue: (raw['_hp'] as string | null) || null,
       }, { headers })
       .subscribe({
         next: () => {
@@ -331,6 +336,8 @@ export class PublicFormComponent {
             this.closedReason.set(err?.error?.message ?? err?.error?.detail ?? 'This form is no longer accepting responses.');
           } else if (err?.status === 409) {
             this.errorMessage.set(err?.error?.message ?? err?.error?.detail ?? 'A response has already been submitted from this email address.');
+          } else if (err?.status === 429) {
+            this.errorMessage.set('You are submitting too quickly. Please wait a moment and try again.');
           } else if (err?.status === 404) {
             this.errorMessage.set('This form is no longer accepting responses.');
           } else {

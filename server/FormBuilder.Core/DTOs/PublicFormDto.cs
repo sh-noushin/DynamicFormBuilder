@@ -38,4 +38,10 @@ public class PublicFormSubmissionDto
     public string? SubmitterEmail { get; set; }
 
     public Dictionary<string, string?> FieldValues { get; set; } = new Dictionary<string, string?>();
+
+    // Hidden honeypot value. Real users can't see or type into the honeypot
+    // field, so any non-empty value here is treated as bot traffic and the
+    // submission is rejected. Named generically so bot fingerprints on the
+    // property name are less useful.
+    public string? HoneypotValue { get; set; }
 }

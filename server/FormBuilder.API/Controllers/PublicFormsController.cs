@@ -2,6 +2,7 @@ using FormBuilder.Core.DTOs;
 using FormBuilder.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace FormBuilder.API.Controllers;
 
@@ -35,11 +36,13 @@ public class PublicFormsController : ControllerBase
     }
 
     [HttpPost("{slug}/submissions")]
+    [EnableRateLimiting("public-submit")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(FormSubmissionDto), 201)]
     [ProducesResponseType(typeof(void), 400)]
     [ProducesResponseType(typeof(void), 401)]
     [ProducesResponseType(typeof(void), 404)]
+    [ProducesResponseType(typeof(void), 429)]
     public async Task<ActionResult<FormSubmissionDto>> Submit(string slug, PublicFormSubmissionDto submission)
     {
         var password = Request.Headers.TryGetValue(PasswordHeader, out var v) ? v.ToString() : null;

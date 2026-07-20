@@ -29,6 +29,7 @@ public sealed class DomainExceptionHandler : IExceptionHandler
             FormSubmissionValidationException => (StatusCodes.Status400BadRequest, "Validation Failed"),
             FormClosedException => (StatusCodes.Status410Gone, "Form Closed"),
             DuplicateSubmissionException => (StatusCodes.Status409Conflict, "Duplicate Submission"),
+            HoneypotTriggeredException => (StatusCodes.Status400BadRequest, "Submission Blocked"),
             ArgumentException => (StatusCodes.Status400BadRequest, "Bad Request"),
             _ => (0, string.Empty)
         };

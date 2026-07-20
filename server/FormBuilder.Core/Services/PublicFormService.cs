@@ -94,6 +94,13 @@ public class PublicFormService : IPublicFormService
         if (submission == null)
             throw new ArgumentNullException(nameof(submission));
 
+        // Honeypot check runs before everything else. If a bot filled the
+        // hidden field we don't want to waste DB/SMTP/webhook cycles on it.
+        if (!string.IsNullOrWhiteSpace(submission.HoneypotValue))
+        {
+            throw new HoneypotTriggeredException();
+        }
+
         var (form, version) = await ResolvePublishedCurrentVersionAsync(slug);
 
         // Same ordering as GetBySlugAsync: closed check first, then password.

@@ -75,6 +75,11 @@
 
         <mat-card-content>
           <form [formGroup]="formGroup" (ngSubmit)="submit()" novalidate>
+            <div class="honeypot-field" aria-hidden="true">
+              <label>Do not fill in this field</label>
+              <input type="text" formControlName="_hp" tabindex="-1" autocomplete="off" />
+            </div>
+
             @if (totalPages() > 1) {
               <div class="page-stepper">
                 <div class="page-progress">

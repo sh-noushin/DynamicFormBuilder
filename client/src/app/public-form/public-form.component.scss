@@ -1,3 +1,14 @@
+// Hides the honeypot field from real users. Off-screen positioning beats
+// display:none because some bots detect display:none and skip the field.
+.honeypot-field {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 .public-form-page {
   min-height: 100vh;
   padding: 48px 16px;

@@ -1,9 +1,11 @@
+using System.Threading.RateLimiting;
 using FormBuilder.API.Extensions;
 using FormBuilder.API.Middleware;
 using FormBuilder.Core.Options;
 using FormBuilder.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.AspNetCore.RateLimiting;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,6 +52,25 @@ builder.Services.AddFormBuilderServices();
 builder.Services.Configure<FormBuilder.Core.Options.FileUploadOptions>(
     builder.Configuration.GetSection(FormBuilder.Core.Options.FileUploadOptions.SectionName));
 
+// Per-IP rate limit on the public submission endpoint. Anonymous, so IP is
+// the best cheap-and-cheerful partition key we have. 10 req/min per IP is
+// generous for a real filler and painful for a naive bot flood.
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("public-submit", context =>
+    {
+        var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(ip, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 10,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0,
+            AutoReplenishment = true,
+        });
+    });
+});
+
 // Add global exception handling
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 builder.Services.AddProblemDetails();
@@ -74,6 +95,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors(CorsOptions.AngularPolicyName);
 
 app.UseHttpsRedirection();
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
