@@ -16,6 +16,10 @@ public interface IFormSubmissionRepository
     // cheap even on high-volume forms.
     Task<IReadOnlyList<DateTime>> GetSubmittedAtByFormIdSinceAsync(Guid formId, DateTime since);
     Task<FormSubmission?> UpdateAsync(Guid id, FormSubmission source);
+    // Notes-only update path so the caller doesn't have to round-trip the
+    // full submission (SubmitterName / Email / all field values) just to
+    // change a private admin annotation.
+    Task<FormSubmission?> UpdateAdminNotesAsync(Guid id, string? adminNotes);
     Task<bool> DeleteAsync(Guid id);
     // Deletes every submission whose id is in ids AND whose parent form has
     // Id == formId. The formId scoping is a defense-in-depth guard so a

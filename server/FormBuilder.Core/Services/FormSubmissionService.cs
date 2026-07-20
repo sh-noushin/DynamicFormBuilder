@@ -149,6 +149,17 @@ public class FormSubmissionService : IFormSubmissionService
         return result;
     }
 
+    public async Task<FormSubmissionDto> UpdateAdminNotesAsync(Guid id, string? adminNotes)
+    {
+        if (id == Guid.Empty)
+            throw new ArgumentException("Submission ID cannot be empty.", nameof(id));
+
+        var updated = await _repository.UpdateAdminNotesAsync(id, adminNotes);
+        if (updated == null)
+            throw new FormSubmissionNotFoundException(id);
+        return _mapper.Map<FormSubmissionDto>(updated);
+    }
+
     public async Task<int> BulkDeleteSubmissionsAsync(Guid formId, IReadOnlyList<Guid> ids)
     {
         if (formId == Guid.Empty)

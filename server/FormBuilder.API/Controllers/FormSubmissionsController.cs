@@ -207,6 +207,17 @@ public class FormSubmissionsController : ControllerBase
         return NoContent();
     }
 
+    [HttpPatch("{id}/notes")]
+    [Authorize(Roles = Roles.AdminOrUser)]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(FormSubmissionDto), 200)]
+    [ProducesResponseType(typeof(void), 404)]
+    public async Task<ActionResult<FormSubmissionDto>> UpdateAdminNotes(Guid id, [FromBody] UpdateSubmissionNotesDto payload)
+    {
+        var updated = await _submissionService.UpdateAdminNotesAsync(id, payload.AdminNotes);
+        return Ok(updated);
+    }
+
     [HttpPost("form/{formId}/bulk-delete")]
     [Authorize(Roles = Roles.Admin)]
     [Produces("application/json")]

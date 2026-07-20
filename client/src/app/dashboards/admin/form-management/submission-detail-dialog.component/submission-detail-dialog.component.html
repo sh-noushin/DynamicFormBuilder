@@ -1,0 +1,84 @@
+<h2 mat-dialog-title class="dialog-title">
+  <mat-icon>description</mat-icon>
+  <span>Submission detail</span>
+  <span class="spacer"></span>
+  @if (submission()?.submittedAt) {
+    <span class="timestamp">{{ submission()?.submittedAt | date:'medium' }}</span>
+  }
+</h2>
+
+<mat-dialog-content class="dialog-content">
+  <div class="submitter-row">
+    <div class="submitter-block">
+      <span class="label">Name</span>
+      <span class="value">{{ submission()?.submitterName || '—' }}</span>
+    </div>
+    <div class="submitter-block">
+      <span class="label">Email</span>
+      <span class="value">{{ submission()?.submitterEmail || '—' }}</span>
+    </div>
+    @if (submission()?.submitterIpAddress) {
+      <div class="submitter-block">
+        <span class="label">IP</span>
+        <span class="value ip">{{ submission()?.submitterIpAddress }}</span>
+      </div>
+    }
+  </div>
+
+  <div class="answers-list">
+    @for (row of rows(); track row.name) {
+      <div class="answer-row">
+        <div class="answer-label">{{ row.label }}</div>
+        <div class="answer-value">
+          @if (!row.raw) {
+            <span class="muted">—</span>
+          } @else {
+            @switch (row.type) {
+              @case ('Signature') {
+                <img class="signature-thumb" [src]="row.raw" alt="Signature" />
+              }
+              @case ('File') {
+                <a class="file-link" [href]="fileDownloadUrl(row.raw)" target="_blank" rel="noopener">
+                  <mat-icon>attach_file</mat-icon>
+                  <span>{{ fileOriginalName(row.raw) }}</span>
+                </a>
+              }
+              @case ('Rating') {
+                <span class="rating-cell" [attr.aria-label]="row.raw + ' out of 5 stars'">
+                  @for (star of ratingStars(row.raw); track star.index) {
+                    <mat-icon [class.filled]="star.filled">{{ star.filled ? 'star' : 'star_border' }}</mat-icon>
+                  }
+                </span>
+              }
+              @case ('Checkbox') {
+                <span>{{ row.raw === 'true' ? 'Yes' : 'No' }}</span>
+              }
+              @default {
+                <span class="answer-text">{{ row.raw }}</span>
+              }
+            }
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="notes-section">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Private admin notes</mat-label>
+      <textarea matInput rows="4" maxlength="4000"
+                [value]="adminNotes()"
+                (input)="setNotesFromEvent($event)"
+                placeholder="Only visible to admins. Not shown to the submitter."></textarea>
+      <mat-hint>Max 4000 characters. Notes are saved separately from the response itself.</mat-hint>
+    </mat-form-field>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-raised-button type="button" (click)="close()">Close</button>
+  <button mat-raised-button color="primary" type="button" (click)="saveNotes()" [disabled]="savingNotes()">
+    <mat-icon>save</mat-icon>
+    @if (savingNotes()) { <span>Saving&hellip;</span> } @else { <span>Save notes</span> }
+  </button>
+</mat-dialog-actions>

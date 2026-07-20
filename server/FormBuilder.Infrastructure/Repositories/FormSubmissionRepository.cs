@@ -93,6 +93,7 @@ public class FormSubmissionRepository : IFormSubmissionRepository
 
         submission.SubmitterName = source.SubmitterName;
         submission.SubmitterEmail = source.SubmitterEmail;
+        submission.AdminNotes = source.AdminNotes;
         submission.SubmittedAt = DateTime.UtcNow;
 
         _context.FormSubmissionValues.RemoveRange(submission.Values);
@@ -122,6 +123,19 @@ public class FormSubmissionRepository : IFormSubmissionRepository
         _context.FormSubmissions.Remove(submission);
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<FormSubmission?> UpdateAdminNotesAsync(Guid id, string? adminNotes)
+    {
+        var submission = await _context.FormSubmissions
+            .Include(s => s.Values)
+            .FirstOrDefaultAsync(s => s.Id == id);
+
+        if (submission == null) return null;
+
+        submission.AdminNotes = adminNotes;
+        await _context.SaveChangesAsync();
+        return submission;
     }
 
     public async Task<int> DeleteManyByFormAsync(Guid formId, IReadOnlyList<Guid> ids)

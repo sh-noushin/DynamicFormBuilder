@@ -77,6 +77,7 @@ public class FormBuilderDbContext : IdentityDbContext<User>
             entity.Property(e => e.SubmitterName).HasMaxLength(200);
             entity.Property(e => e.SubmitterEmail).HasMaxLength(200);
             entity.Property(e => e.SubmitterIpAddress).HasMaxLength(45);
+            entity.Property(e => e.AdminNotes).HasMaxLength(4000);
             entity.HasOne(e => e.FormVersion)
                   .WithMany()
                   .HasForeignKey(e => e.FormVersionId)

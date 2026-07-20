@@ -17,6 +17,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Client, FormDto, FormFieldDto, FormSubmissionDto, FormVersionDto } from '../../../../core/services/api-service';
 import { environment } from '../../../../../environments/environment';
 import { DeleteDialogComponent, DeleteDialogData } from '../../../../shared/delete-dialog.component/delete-dialog.component';
+import { SubmissionDetailDialogComponent, SubmissionDetailDialogData } from '../submission-detail-dialog.component/submission-detail-dialog.component';
 
 @Component({
   selector: 'app-admin-submissions',
@@ -95,7 +96,7 @@ export class AdminSubmissionsComponent {
       .filter(Boolean)
   );
 
-  displayedColumns = computed(() => ['select', 'submittedAt', 'submitterName', 'submitterEmail', ...this.fieldColumns()]);
+  displayedColumns = computed(() => ['select', 'submittedAt', 'submitterName', 'submitterEmail', ...this.fieldColumns(), 'actions']);
 
   isSelected(id: string | undefined): boolean {
     return !!id && this.selectedIds().has(id);
@@ -133,6 +134,29 @@ export class AdminSubmissionsComponent {
   }
 
   clearSelection(): void { this.selectedIds.set(new Set()); }
+
+  openDetail(submission: FormSubmissionDto): void {
+    const fields = this.currentVersion()?.fields ?? [];
+    const ref = this.dialog.open(SubmissionDetailDialogComponent, {
+      width: 'min(760px, 95vw)',
+      panelClass: 'elevated-dialog-panel',
+      data: { submission, fields } as SubmissionDetailDialogData,
+    });
+    ref.afterClosed().subscribe((result?: { updated?: FormSubmissionDto }) => {
+      // Merge admin-notes updates back into the local list so the surrounding
+      // table reflects the change without a full refetch.
+      if (result?.updated?.id) {
+        const updatedId = String(result.updated.id);
+        // Patch the AdminNotes value in-place on the existing instance so we
+        // stay type-compatible with the generated FormSubmissionDto class.
+        const patched = this.submissions().map(s => {
+          if (String(s.id) === updatedId) (s as any).adminNotes = (result.updated as any).adminNotes;
+          return s;
+        });
+        this.submissions.set(patched);
+      }
+    });
+  }
 
   bulkDelete(): void {
     const id = this.formId();

@@ -1,0 +1,126 @@
+.dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .spacer { flex: 1; }
+  .timestamp {
+    font-size: 13px;
+    color: var(--mat-sys-on-surface-variant, #64748b);
+    font-weight: 400;
+  }
+}
+
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 520px;
+  max-width: 720px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.submitter-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  padding: 12px;
+  background: var(--mat-sys-surface-container, #f8fafc);
+  border-radius: 8px;
+}
+
+.submitter-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--mat-sys-on-surface-variant, #64748b);
+  }
+  .value {
+    font-size: 14px;
+    font-weight: 500;
+    word-break: break-word;
+  }
+  .value.ip {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-weight: 400;
+  }
+}
+
+.answers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.answer-row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 16px;
+  padding: 10px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 6px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
+.answer-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface-variant, #475569);
+}
+
+.answer-value {
+  font-size: 14px;
+  word-break: break-word;
+
+  .muted { color: #94a3b8; }
+  .answer-text { white-space: pre-wrap; }
+}
+
+.signature-thumb {
+  max-width: 220px;
+  max-height: 80px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  background: #fff;
+}
+
+.file-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--mat-sys-primary, #6366f1);
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
+}
+
+.rating-cell {
+  display: inline-flex;
+  gap: 2px;
+
+  mat-icon {
+    color: #cbd5e1;
+    &.filled { color: #f59e0b; }
+  }
+}
+
+.notes-section {
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.full-width { width: 100%; }
+
+.dialog-actions {
+  padding: 8px 16px 16px;
+}
