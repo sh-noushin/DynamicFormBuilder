@@ -98,6 +98,13 @@ app.UseHttpsRedirection();
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Lightweight liveness probe for orchestrators (docker-compose healthcheck,
+// Kubernetes livenessProbe, etc.). Deliberately doesn't touch the DB - a
+// stalled DB should show up via slow /api/forms responses, not by killing
+// the container.
+app.MapGet("/healthz", () => Results.Ok(new { status = "ok" })).AllowAnonymous();
+
 app.MapControllers();
 
 // Always ensure the schema is up to date; only seed sample data in Development.
