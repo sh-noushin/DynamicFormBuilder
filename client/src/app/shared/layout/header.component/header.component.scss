@@ -7,11 +7,11 @@
   // Light header with a soft shadow beneath so it separates cleanly from
   // the canvas without needing a heavy border. Consistent with Linear /
   // Notion dashboard chrome.
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  background: var(--brand-surface);
+  border-bottom: 1px solid var(--brand-border);
+  box-shadow: var(--brand-shadow-sm);
   backdrop-filter: none;
-  color: #0f172a;
+  color: var(--brand-text-strong);
 
   .mat-icon {
     color: inherit;
@@ -22,7 +22,7 @@
   font-size: 1.15rem;
   font-weight: 600;
   letter-spacing: 0.01em;
-  color: #0f172a;
+  color: var(--brand-text-strong);
 }
 
 .spacer {
@@ -30,13 +30,13 @@
 }
 
 .menu-toggle {
-  color: #475569;
+  color: var(--brand-text);
   background: transparent;
 
   &:hover,
   &:focus-visible {
-    background: #f1f5f9;
-    color: #0f172a;
+    background: var(--brand-surface-alt);
+    color: var(--brand-text-strong);
   }
 }
 
@@ -46,9 +46,9 @@
   gap: 10px;
   padding: 4px 12px 4px 5px;
   border-radius: 999px;
-  background: #f8fafc;
-  border: 1px solid #e5e7eb;
-  color: #334155;
+  background: var(--brand-canvas);
+  border: 1px solid var(--brand-border);
+  color: var(--brand-text);
   text-transform: none;
   font-weight: 500;
   letter-spacing: 0.01em;
@@ -56,9 +56,9 @@
 
   &:hover,
   &:focus-visible {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
-    color: #0f172a;
+    background: var(--brand-surface-alt);
+    border-color: var(--brand-border-strong);
+    color: var(--brand-text-strong);
   }
 
   .mat-icon {
@@ -72,8 +72,9 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: #ffffff;
+  // Two-hue gradient kept for a bit of brand personality on the avatar.
+  background: linear-gradient(135deg, var(--brand-primary), #8b5cf6);
+  color: var(--brand-surface);
   font-weight: 600;
   font-size: 0.85rem;
   letter-spacing: 0.04em;
@@ -103,8 +104,8 @@
 // since the user-menu is styled globally via .cdk-overlay-container.
 .user-menu {
   .mat-mdc-menu-content {
-    background: #ffffff;
-    color: #0f172a;
+    background: var(--brand-surface);
+    color: var(--brand-text-strong);
     padding: 6px 0;
   }
 
@@ -113,13 +114,13 @@
     font-weight: 500;
 
     .mat-icon {
-      color: #64748b;
+      color: var(--brand-text-muted);
     }
 
     &:hover {
-      background: #f1f5f9;
+      background: var(--brand-surface-alt);
 
-      .mat-icon { color: #4f46e5; }
+      .mat-icon { color: var(--brand-primary-hover); }
     }
   }
 }

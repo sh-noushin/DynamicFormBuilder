@@ -11,7 +11,7 @@
   align-items: center;
   gap: 12px;
   padding: 96px 16px;
-  color: #64748b;
+  color: var(--brand-text-muted);
 }
 
 .stats-grid {
@@ -26,22 +26,22 @@
   align-items: center;
   gap: 16px;
   padding: 20px 22px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  color: #0f172a;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--brand-radius-lg);
+  color: var(--brand-text-strong);
+  box-shadow: var(--brand-shadow-sm);
 }
 
 .stat-icon-wrap {
   width: 44px;
   height: 44px;
-  border-radius: 10px;
+  border-radius: var(--brand-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(99, 102, 241, 0.10);
-  color: #4f46e5;
+  background: var(--brand-primary-soft);
+  color: var(--brand-primary-hover);
 
   mat-icon {
     font-size: 22px;
@@ -49,6 +49,8 @@
     height: 22px;
   }
 
+  // Semantic-color variants use their own soft tints so the icon reads as
+  // "active / success / warning" without requiring a full palette change.
   &.accent {
     background: rgba(14, 165, 233, 0.10);
     color: #0284c7;
@@ -73,12 +75,12 @@
   font-size: 26px;
   font-weight: 700;
   line-height: 1;
-  color: #0f172a;
+  color: var(--brand-text-strong);
 }
 
 .stat-label {
   font-size: 12px;
-  color: #64748b;
+  color: var(--brand-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -91,17 +93,17 @@
 
 .panel {
   padding: 20px 24px;
-  border-radius: 10px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  color: #0f172a;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  border-radius: var(--brand-radius-lg);
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-border);
+  color: var(--brand-text-strong);
+  box-shadow: var(--brand-shadow-sm);
 
-  mat-card-title { font-size: 16px; font-weight: 600; color: #0f172a; }
-  mat-card-subtitle { color: #64748b; font-size: 13px; margin-top: 2px; }
+  mat-card-title { font-size: 16px; font-weight: 600; color: var(--brand-text-strong); }
+  mat-card-subtitle { color: var(--brand-text-muted); font-size: 13px; margin-top: 2px; }
   mat-card-header {
     padding-bottom: 12px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--brand-border);
     margin-bottom: 12px;
     display: block;
   }
@@ -114,13 +116,13 @@
   gap: 8px;
   padding: 32px 16px;
   text-align: center;
-  color: #64748b;
+  color: var(--brand-text-muted);
 
   mat-icon {
     font-size: 36px;
     width: 36px;
     height: 36px;
-    color: #cbd5e1;
+    color: var(--brand-border-strong);
   }
 }
 
@@ -137,12 +139,12 @@
 .recent-item,
 .top-item {
   padding: 10px 12px;
-  border-radius: 6px;
+  border-radius: var(--brand-radius-sm);
   cursor: pointer;
   transition: background 0.12s ease;
 
   &:hover {
-    background: #f1f5f9;
+    background: var(--brand-surface-alt);
   }
 }
 
@@ -156,18 +158,18 @@
 
 .recent-form {
   font-weight: 600;
-  color: #0f172a;
+  color: var(--brand-text-strong);
 }
 
 .recent-time {
   font-size: 12px;
-  color: #64748b;
+  color: var(--brand-text-muted);
   white-space: nowrap;
 }
 
 .recent-secondary {
   font-size: 13px;
-  color: #64748b;
+  color: var(--brand-text-muted);
   margin-top: 2px;
 }
 
@@ -176,7 +178,7 @@
 }
 
 .top-icon {
-  color: #94a3b8;
+  color: var(--brand-text-subtle);
   font-size: 20px;
   width: 20px;
   height: 20px;
@@ -185,14 +187,14 @@
 .top-name {
   flex: 1;
   font-weight: 500;
-  color: #0f172a;
+  color: var(--brand-text-strong);
 }
 
 .top-count {
   padding: 2px 10px;
   border-radius: 999px;
-  background: rgba(99, 102, 241, 0.10);
-  color: #4f46e5;
+  background: var(--brand-primary-soft);
+  color: var(--brand-primary-hover);
   font-size: 13px;
   font-weight: 600;
   min-width: 32px;

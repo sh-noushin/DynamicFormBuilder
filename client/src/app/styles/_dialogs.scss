@@ -1,36 +1,29 @@
 @use './variables' as *;
 
-// Shared dialog styling — light mode, Linear/Notion aesthetic. Every
-// component-level dialog SCSS inherits from this, so tweaking values here
-// updates the whole app.
-$dialog-surface: #ffffff;
-$dialog-shadow: 0 12px 40px rgba(15, 23, 42, 0.10), 0 4px 12px rgba(15, 23, 42, 0.04);
-$dialog-border: #e5e7eb;
-$dialog-border-soft: #f1f5f9;
-$dialog-text-strong: #0f172a;
-$dialog-text: #334155;
-$dialog-text-muted: #64748b;
-$dialog-icon: #4f46e5;
-$dialog-accent: #6366f1;
+// Shared dialog styling — pulls every color from the global token set in
+// styles.scss (:root). Every component-level dialog SCSS inherits from
+// this, so tweaking values here updates the whole app.
 
 .mat-mdc-dialog-panel {
-  --dialog-surface-bg: #{$dialog-surface};
-  --dialog-surface-border: #{$dialog-border};
-  --dialog-surface-border-soft: #{$dialog-border-soft};
-  --dialog-text-strong: #{$dialog-text-strong};
-  --dialog-text: #{$dialog-text};
-  --dialog-text-muted: #{$dialog-text-muted};
-  --dialog-icon: #{$dialog-icon};
-  --dialog-accent: #{$dialog-accent};
+  // Re-export the global tokens under the older --dialog-* names so any
+  // dialog template still using them keeps working without a rename.
+  --dialog-surface-bg: var(--brand-surface);
+  --dialog-surface-border: var(--brand-border);
+  --dialog-surface-border-soft: var(--brand-border-subtle);
+  --dialog-text-strong: var(--brand-text-strong);
+  --dialog-text: var(--brand-text);
+  --dialog-text-muted: var(--brand-text-muted);
+  --dialog-icon: var(--brand-primary-hover);
+  --dialog-accent: var(--brand-primary);
   color: var(--dialog-text-strong);
 
   .mdc-dialog__surface,
   &.elevated-dialog-panel .mdc-dialog__surface,
   &.wide-dialog-panel .mdc-dialog__surface {
-    border-radius: 12px !important;
-    background: $dialog-surface;
+    border-radius: var(--brand-radius-lg) !important;
+    background: var(--brand-surface);
     color: var(--dialog-text-strong);
-    box-shadow: $dialog-shadow;
+    box-shadow: var(--brand-shadow-lg);
     border: 1px solid var(--dialog-surface-border);
     overflow: hidden;
     position: relative;
@@ -51,8 +44,8 @@ $dialog-accent: #6366f1;
 
   .dialog-title mat-icon {
     color: var(--dialog-icon);
-    background: rgba(99, 102, 241, 0.10);
-    border-radius: 8px;
+    background: var(--brand-primary-soft);
+    border-radius: var(--brand-radius-md);
     padding: 6px;
   }
 
@@ -90,18 +83,18 @@ $dialog-accent: #6366f1;
   }
 
   // Angular Material's outlined text field is already light-mode by
-  // default; we just tighten the label color + rounded shape here.
+  // default; we just tighten the shape here to match the app's radius scale.
   .mat-mdc-form-field {
-    --mdc-outlined-text-field-container-shape: 8px;
+    --mdc-outlined-text-field-container-shape: var(--brand-radius-md);
     --mdc-outlined-text-field-outline-width: 1px;
     color: var(--dialog-text-strong);
   }
 
   .btn-primary {
-    border-radius: 8px;
+    border-radius: var(--brand-radius-md);
     text-transform: none;
-    background: #6366f1;
-    color: #ffffff;
+    background: var(--brand-primary);
+    color: var(--brand-surface);
     border: none;
     box-shadow: none;
     letter-spacing: 0;
@@ -109,7 +102,7 @@ $dialog-accent: #6366f1;
   }
 
   .btn-primary:hover {
-    background: #4f46e5;
+    background: var(--brand-primary-hover);
   }
 
   .btn-primary:disabled {
@@ -118,16 +111,16 @@ $dialog-accent: #6366f1;
   }
 
   .btn-cancel {
-    border-radius: 8px;
+    border-radius: var(--brand-radius-md);
     text-transform: none;
     color: var(--dialog-text);
-    background: #ffffff;
+    background: var(--brand-surface);
     border: 1px solid var(--dialog-surface-border);
     font-weight: 500;
   }
 
   .btn-cancel:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
+    background: var(--brand-canvas);
+    border-color: var(--brand-border-strong);
   }
 }

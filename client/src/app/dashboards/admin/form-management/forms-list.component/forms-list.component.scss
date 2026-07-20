@@ -4,12 +4,12 @@
   h1 {
     font-size: 2rem;
     font-weight: 600;
-    color: #0f172a;
+    color: var(--brand-text-strong);
     margin: 0 0 8px 0;
   }
 
   p {
-    color: #64748b;
+    color: var(--brand-text-muted);
     font-size: 1rem;
     margin: 0;
   }
@@ -27,7 +27,7 @@
     max-width: 480px;
 
     mat-icon[matPrefix] {
-      color: #94a3b8;
+      color: var(--brand-text-subtle);
       margin-right: 6px;
     }
   }
@@ -44,35 +44,35 @@
     height: 34px;
     padding: 0 14px;
     border-radius: 999px;
-    border: 1px solid #e5e7eb;
-    color: #475569;
-    background: #fff;
+    border: 1px solid var(--brand-border);
+    color: var(--brand-text);
+    background: var(--brand-surface);
     font-weight: 500;
 
     &:hover:not(.chip-active) {
-      background: #f1f5f9;
+      background: var(--brand-surface-alt);
     }
 
     &.chip-active {
-      background: rgba(99, 102, 241, 0.10);
+      background: var(--brand-primary-soft);
       border-color: rgba(99, 102, 241, 0.35);
-      color: #4f46e5;
+      color: var(--brand-primary-hover);
     }
   }
 }
 
 .forms-table-card {
   margin-top: 48px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
-  border-radius: 10px;
+  box-shadow: var(--brand-shadow-md);
+  border-radius: var(--brand-radius-lg);
   overflow: hidden;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-border);
 
   mat-card-header {
     background: transparent;
     padding: 20px 24px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--brand-border);
     display: flex;
     align-items: center;
     gap: 16px;
@@ -80,11 +80,11 @@
     mat-card-title {
       font-size: 1.125rem;
       font-weight: 600;
-      color: #0f172a;
+      color: var(--brand-text-strong);
     }
 
     mat-card-subtitle {
-      color: #64748b;
+      color: var(--brand-text-muted);
       font-size: 0.875rem;
       margin-top: 4px;
     }
@@ -99,7 +99,7 @@
 
   mat-card-content {
     padding: 0;
-    color: #0f172a;
+    color: var(--brand-text-strong);
   }
 }
 
@@ -111,21 +111,21 @@
     gap: 8px;
     cursor: pointer;
     padding: 4px 8px;
-    border-radius: 6px;
+    border-radius: var(--brand-radius-sm);
     transition: background-color 120ms ease;
 
     &:hover {
-      background: rgba(99, 102, 241, 0.08);
+      background: var(--brand-primary-soft);
     }
 
     .count-number {
       font-weight: 600;
-      color: #4f46e5;
+      color: var(--brand-primary-hover);
     }
 
     .count-icon {
       font-size: 18px;
-      color: #4f46e5;
+      color: var(--brand-primary-hover);
     }
   }
 }
@@ -139,11 +139,11 @@
     font-weight: 500;
 
     &.status-active {
-      background-color: #dcfce7;
+      background-color: var(--brand-success-soft);
       color: #166534;
     }
     &.status-inactive {
-      background-color: #fef3c7;
+      background-color: var(--brand-warning-soft);
       color: #92400e;
     }
   }
@@ -157,7 +157,7 @@
   }
 
   .btn-edit { color: #0284c7; }
-  .btn-delete { color: #ef4444; }
+  .btn-delete { color: var(--brand-danger); }
 }
 
 .empty-state {
@@ -166,18 +166,18 @@
 
   .empty-icon {
     font-size: 56px;
-    color: #cbd5e1;
+    color: var(--brand-border-strong);
     margin-bottom: 12px;
   }
 
   h3 {
-    color: #334155;
+    color: var(--brand-text);
     margin: 0 0 8px 0;
     font-weight: 600;
   }
 
   p {
-    color: #64748b;
+    color: var(--brand-text-muted);
     margin: 0;
   }
 }
@@ -187,7 +187,7 @@
   padding: 48px 24px;
 
   p {
-    color: #64748b;
+    color: var(--brand-text-muted);
     font-size: 1rem;
   }
 }
@@ -198,7 +198,7 @@
 
   .error-icon {
     font-size: 48px;
-    color: #ef4444;
+    color: var(--brand-danger);
     margin-bottom: 12px;
   }
 
@@ -232,10 +232,10 @@
 
 .name-cell {
   .form-name { display: flex; align-items: center; gap: 12px; }
-  .form-icon { color: #6366f1; font-size: 20px; }
+  .form-icon { color: var(--brand-primary); font-size: 20px; }
   .name-text {
     font-weight: 500;
     font-size: 0.95rem;
-    color: #0f172a;
+    color: var(--brand-text-strong);
   }
 }

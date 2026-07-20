@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: var(--brand-shadow-sm);
 }
 
 .toolbar-title {
@@ -18,7 +18,7 @@
 
 .logout-btn {
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--brand-surface-alt);
   }
 }
 
@@ -28,11 +28,10 @@
   flex-direction: column;
   gap: 0;
   // Subtle off-white canvas so light-surface cards read as depth-1 layers
-  // (Linear / Notion / Vercel scale). The previous dark gradient made every
-  // card float on navy which read as a demo, not a product.
-  background: #f8fafc;
+  // (Linear / Notion / Vercel scale).
+  background: var(--brand-canvas);
   min-height: 100vh;
-  color: #0f172a;
+  color: var(--brand-text-strong);
 }
 
 .dashboard-tabs {
@@ -52,8 +51,8 @@
 }
 
 .tab-label-primary {
-  background: rgba(99, 102, 241, 0.08);
-  color: #4f46e5;
+  background: var(--brand-primary-soft);
+  color: var(--brand-primary-hover);
 }
 
 .tab-icon {
@@ -71,17 +70,17 @@
   }
   .mat-mdc-tab-indicator, .mat-ink-bar {
     height: 3px !important;
-    background-color: #6366f1 !important;
+    background-color: var(--brand-primary) !important;
     border-radius: 2px;
   }
   .mat-mdc-tab-label .tab-label, .mat-tab-label .tab-label {
     background: transparent;
-    color: #64748b;
+    color: var(--brand-text-muted);
   }
   .mat-mdc-tab-label.mat-mdc-tab-label-active .tab-label,
   .mat-tab-label.mat-tab-label-active .tab-label {
-    background: rgba(99, 102, 241, 0.10);
-    color: #4f46e5;
+    background: var(--brand-primary-soft);
+    color: var(--brand-primary-hover);
   }
   .mat-mdc-tab-label, .mat-tab-label {
     padding: 4px 6px;

@@ -8,26 +8,28 @@
   align-items: center;
   min-height: 100vh;
   padding: 20px;
-  background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+  // Two-tone gradient — pure canvas at top-left, indigo-tinted at bottom-
+  // right. Keeps the page from looking sterile without going full brand.
+  background: linear-gradient(135deg, var(--brand-canvas) 0%, #eef2ff 100%);
 }
 
 .login-card {
   width: 100%;
   max-width: 420px;
-  border-radius: 12px;
+  border-radius: var(--brand-radius-lg);
   overflow: hidden;
-  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.04);
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  box-shadow: var(--brand-shadow-lg);
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-border);
   padding: 28px;
-  color: #0f172a;
+  color: var(--brand-text-strong);
 }
 
 .login-title {
   text-align: center;
   font-size: 1.75rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--brand-text-strong);
   margin: 0 0 6px 0;
   letter-spacing: -0.5px;
 }
@@ -35,7 +37,7 @@
 .login-subtitle {
   text-align: center;
   font-size: 0.95rem;
-  color: #64748b;
+  color: var(--brand-text-muted);
   margin-bottom: 12px;
   font-weight: 400;
 }
@@ -58,9 +60,9 @@
   width: 100%;
   font-size: 15px;
   font-weight: 500;
-  border-radius: 8px;
-  color: #ffffff;
-  background: #6366f1;
+  border-radius: var(--brand-radius-md);
+  color: var(--brand-surface);
+  background: var(--brand-primary);
   border: none;
   text-transform: none;
   padding: 0;
@@ -68,7 +70,7 @@
 }
 
 .login-button:hover, .register-button:hover {
-  background: #4f46e5;
+  background: var(--brand-primary-hover);
 }
 
 .login-button:active, .register-button:active {
@@ -82,21 +84,21 @@
   text-align: center;
   font-weight: 500;
   padding: 8px 12px;
-  background: #fef2f2;
+  background: var(--brand-danger-soft);
   border: 1px solid #fecaca;
-  border-radius: 6px;
+  border-radius: var(--brand-radius-sm);
 }
 
 .demo-credentials {
   margin-top: 20px;
   padding: 12px 14px;
-  background: #f8fafc;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  color: #475569;
+  background: var(--brand-canvas);
+  border-radius: var(--brand-radius-md);
+  border: 1px solid var(--brand-border);
+  color: var(--brand-text);
 
   h4 {
-    color: #334155;
+    color: var(--brand-text);
     margin: 0 0 6px 0;
     font-weight: 600;
     font-size: 12px;
@@ -106,7 +108,7 @@
   p {
     margin: 3px 0;
     font-size: 12px;
-    color: #475569;
+    color: var(--brand-text);
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   }
 }

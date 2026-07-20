@@ -21,12 +21,12 @@
   border-radius: 10px;
   overflow: hidden;
   background: #ffffff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--brand-border);
 
   mat-card-header {
     background: transparent;
     padding: 20px 24px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--brand-border);
     display: flex;
     align-items: center;
     gap: 16px;
@@ -34,11 +34,11 @@
     mat-card-title {
       font-size: 1.125rem;
       font-weight: 600;
-      color: #0f172a;
+      color: var(--brand-text-strong);
     }
 
     mat-card-subtitle {
-      color: #64748b;
+      color: var(--brand-text-muted);
       font-size: 0.875rem;
       margin-top: 4px;
     }
@@ -135,7 +135,7 @@
     box-shadow: 0 1px 2px rgba(0,0,0,0.08);
   }
   .btn-edit { color: #0284c7; }
-  .btn-delete { color: #ef4444; }
+  .btn-delete { color: var(--brand-danger); }
 }
 
 .empty-state {
