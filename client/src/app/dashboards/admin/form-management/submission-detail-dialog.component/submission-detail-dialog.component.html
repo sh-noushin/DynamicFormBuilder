@@ -63,6 +63,29 @@
     }
   </div>
 
+  <div class="tags-section">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Tags</mat-label>
+      <mat-chip-grid #chipGrid aria-label="Submission tags">
+        @for (tag of tags(); track tag) {
+          <mat-chip-row (removed)="removeTag(tag)">
+            {{ tag }}
+            <button matChipRemove [attr.aria-label]="'Remove ' + tag">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-row>
+        }
+      </mat-chip-grid>
+      <input
+        placeholder="Add a tag..."
+        [matChipInputFor]="chipGrid"
+        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+        [matChipInputAddOnBlur]="true"
+        (matChipInputTokenEnd)="addTag($event)" />
+      <mat-hint>Press Enter or comma to add. Tags save automatically.</mat-hint>
+    </mat-form-field>
+  </div>
+
   <div class="notes-section">
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Private admin notes</mat-label>

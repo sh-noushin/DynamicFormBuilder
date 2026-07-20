@@ -13,6 +13,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatSelectModule } from '@angular/material/select';
 import { MatDialog } from '@angular/material/dialog';
 import { Client, FormDto, FormFieldDto, FormSubmissionDto, FormVersionDto } from '../../../../core/services/api-service';
 import { environment } from '../../../../../environments/environment';
@@ -37,6 +39,8 @@ import { SubmissionDetailDialogComponent, SubmissionDetailDialogData } from '../
     MatInputModule,
     MatPaginatorModule,
     MatCheckboxModule,
+    MatChipsModule,
+    MatSelectModule,
     DatePipe,
   ],
   templateUrl: './admin-submissions.component.html',
@@ -60,6 +64,9 @@ export class AdminSubmissionsComponent {
   // filter has run.
   fromDate = signal<string>('');
   toDate = signal<string>('');
+  // Tag filter: submissions must carry at least one of the selected tags to
+  // pass through. Empty selection = no tag filter.
+  selectedTagFilter = signal<string[]>([]);
   pageIndex = signal(0);
   pageSize = signal(25);
   // Submission ids the admin has ticked. Kept as a Set for O(1) membership
@@ -76,12 +83,19 @@ export class AdminSubmissionsComponent {
     const from = this.fromDate() ? new Date(this.fromDate() + 'T00:00:00').getTime() : null;
     const to = this.toDate() ? new Date(this.toDate() + 'T23:59:59.999').getTime() : null;
 
+    const selectedTags = this.selectedTagFilter();
+    const tagFilterActive = selectedTags.length > 0;
+
     return this.submissions().filter(s => {
       if (from != null || to != null) {
         const ts = s.submittedAt ? new Date(s.submittedAt as any).getTime() : NaN;
         if (Number.isNaN(ts)) return false;
         if (from != null && ts < from) return false;
         if (to != null && ts > to) return false;
+      }
+      if (tagFilterActive) {
+        const rowTags: string[] = Array.isArray((s as any).tags) ? (s as any).tags : [];
+        if (!selectedTags.some(t => rowTags.includes(t))) return false;
       }
       if (!q) return true;
       if ((s.submitterName ?? '').toLowerCase().includes(q)) return true;
@@ -91,6 +105,17 @@ export class AdminSubmissionsComponent {
       }
       return false;
     });
+  });
+
+  // Union of tags across all currently-loaded submissions. Drives the
+  // toolbar filter dropdown so admins don't have to remember exact labels.
+  availableTags = computed<string[]>(() => {
+    const set = new Set<string>();
+    for (const s of this.submissions()) {
+      const arr = (s as any).tags;
+      if (Array.isArray(arr)) for (const t of arr) if (t) set.add(String(t));
+    }
+    return Array.from(set).sort();
   });
 
   pagedSubmissions = computed<FormSubmissionDto[]>(() => {
@@ -112,7 +137,7 @@ export class AdminSubmissionsComponent {
       .filter(Boolean)
   );
 
-  displayedColumns = computed(() => ['select', 'submittedAt', 'submitterName', 'submitterEmail', ...this.fieldColumns(), 'actions']);
+  displayedColumns = computed(() => ['select', 'submittedAt', 'submitterName', 'submitterEmail', ...this.fieldColumns(), 'tags', 'actions']);
 
   isSelected(id: string | undefined): boolean {
     return !!id && this.selectedIds().has(id);
@@ -166,7 +191,10 @@ export class AdminSubmissionsComponent {
         // Patch the AdminNotes value in-place on the existing instance so we
         // stay type-compatible with the generated FormSubmissionDto class.
         const patched = this.submissions().map(s => {
-          if (String(s.id) === updatedId) (s as any).adminNotes = (result.updated as any).adminNotes;
+          if (String(s.id) === updatedId) {
+            (s as any).adminNotes = (result.updated as any).adminNotes;
+            (s as any).tags = (result.updated as any).tags;
+          }
           return s;
         });
         this.submissions.set(patched);
@@ -289,6 +317,16 @@ export class AdminSubmissionsComponent {
     this.pageIndex.set(0);
   }
   hasDateFilter(): boolean { return !!this.fromDate() || !!this.toDate(); }
+
+  setTagFilter(tags: string[]): void {
+    this.selectedTagFilter.set(tags ?? []);
+    this.pageIndex.set(0);
+  }
+  clearTagFilter(): void { this.setTagFilter([]); }
+  tagsFor(submission: FormSubmissionDto): string[] {
+    const arr = (submission as any).tags;
+    return Array.isArray(arr) ? arr : [];
+  }
   onPage(event: PageEvent): void {
     this.pageIndex.set(event.pageIndex);
     this.pageSize.set(event.pageSize);

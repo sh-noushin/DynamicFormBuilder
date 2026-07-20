@@ -138,6 +138,19 @@ public class FormSubmissionRepository : IFormSubmissionRepository
         return submission;
     }
 
+    public async Task<FormSubmission?> UpdateTagsAsync(Guid id, string? tagsCsv)
+    {
+        var submission = await _context.FormSubmissions
+            .Include(s => s.Values)
+            .FirstOrDefaultAsync(s => s.Id == id);
+
+        if (submission == null) return null;
+
+        submission.Tags = tagsCsv;
+        await _context.SaveChangesAsync();
+        return submission;
+    }
+
     public async Task<int> DeleteManyByFormAsync(Guid formId, IReadOnlyList<Guid> ids)
     {
         if (ids.Count == 0) return 0;

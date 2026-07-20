@@ -13,7 +13,15 @@ public class MappingProfile : Profile
         CreateMap<Form, FormDto>();
         CreateMap<FormVersion, FormVersionDto>();
         CreateMap<FormVersionField, FormFieldDto>();
-        CreateMap<FormSubmission, FormSubmissionDto>();
+        CreateMap<FormSubmission, FormSubmissionDto>()
+            // Entity stores tags CSV-encoded so we don't need a join table
+            // for this labeling use case. Split at the DTO boundary and trim.
+            .ForMember(dest => dest.Tags, opt => opt.MapFrom(src =>
+                string.IsNullOrWhiteSpace(src.Tags)
+                    ? new List<string>()
+                    : src.Tags
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        .ToList()));
         CreateMap<FormSubmissionValue, FormSubmissionValueDto>();
 
         // Create/update DTO -> entity (one-way; services materialize entities

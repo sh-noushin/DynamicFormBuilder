@@ -20,6 +20,9 @@ public interface IFormSubmissionRepository
     // full submission (SubmitterName / Email / all field values) just to
     // change a private admin annotation.
     Task<FormSubmission?> UpdateAdminNotesAsync(Guid id, string? adminNotes);
+    // Tags-only update: writes a normalized CSV string to the Tags column
+    // without touching notes, submitter info, or field values.
+    Task<FormSubmission?> UpdateTagsAsync(Guid id, string? tagsCsv);
     Task<bool> DeleteAsync(Guid id);
     // Deletes every submission whose id is in ids AND whose parent form has
     // Id == formId. The formId scoping is a defense-in-depth guard so a

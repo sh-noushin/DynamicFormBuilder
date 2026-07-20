@@ -160,6 +160,37 @@ public class FormSubmissionService : IFormSubmissionService
         return _mapper.Map<FormSubmissionDto>(updated);
     }
 
+    // Normalizes user-provided tag input before persistence: trim + lower +
+    // dedupe + drop empties. Individual labels are capped at 40 chars so a
+    // rogue payload can't saturate the 500-char Tags column, and the total
+    // count is capped at 20 tags per submission.
+    private const int MaxTagLength = 40;
+    private const int MaxTagCount = 20;
+
+    public async Task<FormSubmissionDto> UpdateTagsAsync(Guid id, IEnumerable<string> tags)
+    {
+        if (id == Guid.Empty)
+            throw new ArgumentException("Submission ID cannot be empty.", nameof(id));
+        if (tags == null)
+            throw new ArgumentNullException(nameof(tags));
+
+        var normalized = tags
+            .Where(t => !string.IsNullOrWhiteSpace(t))
+            .Select(t => t.Trim().ToLowerInvariant())
+            .Where(t => t.Length > 0)
+            .Select(t => t.Length > MaxTagLength ? t.Substring(0, MaxTagLength) : t)
+            .Distinct()
+            .Take(MaxTagCount)
+            .ToList();
+
+        var csv = normalized.Count == 0 ? null : string.Join(",", normalized);
+
+        var updated = await _repository.UpdateTagsAsync(id, csv);
+        if (updated == null)
+            throw new FormSubmissionNotFoundException(id);
+        return _mapper.Map<FormSubmissionDto>(updated);
+    }
+
     public async Task<int> BulkDeleteSubmissionsAsync(Guid formId, IReadOnlyList<Guid> ids)
     {
         if (formId == Guid.Empty)

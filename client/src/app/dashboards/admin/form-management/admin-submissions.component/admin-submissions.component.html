@@ -94,6 +94,17 @@
             <span>Clear dates</span>
           </button>
         }
+
+        @if (availableTags().length > 0) {
+          <mat-form-field appearance="outline" class="tag-filter">
+            <mat-label>Filter tags</mat-label>
+            <mat-select multiple [value]="selectedTagFilter()" (selectionChange)="setTagFilter($any($event).value)">
+              @for (t of availableTags(); track t) {
+                <mat-option [value]="t">{{ t }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
       </div>
 
       <div class="table-scroll">
@@ -168,6 +179,21 @@
               </td>
             </ng-container>
           }
+
+          <ng-container matColumnDef="tags">
+            <th mat-header-cell *matHeaderCellDef>Tags</th>
+            <td mat-cell *matCellDef="let s" class="tags-cell">
+              @if (tagsFor(s).length === 0) {
+                <span class="muted">—</span>
+              } @else {
+                <mat-chip-set>
+                  @for (t of tagsFor(s); track t) {
+                    <mat-chip disableRipple>{{ t }}</mat-chip>
+                  }
+                </mat-chip-set>
+              }
+            </td>
+          </ng-container>
 
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef class="actions-cell"></th>

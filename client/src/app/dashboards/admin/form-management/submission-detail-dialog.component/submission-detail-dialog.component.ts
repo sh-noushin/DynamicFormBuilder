@@ -7,6 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatChipsModule, MatChipInputEvent } from '@angular/material/chips';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { FormFieldDto, FormSubmissionDto } from '../../../../core/services/api-service';
 import { environment } from '../../../../../environments/environment';
 
@@ -34,6 +36,7 @@ interface RenderedField {
     MatFormFieldModule,
     MatInputModule,
     MatSnackBarModule,
+    MatChipsModule,
     DatePipe,
   ],
   templateUrl: './submission-detail-dialog.component.html',
@@ -43,6 +46,11 @@ export class SubmissionDetailDialogComponent {
   submission = signal<FormSubmissionDto | null>(null);
   adminNotes = signal<string>('');
   savingNotes = signal(false);
+  tags = signal<string[]>([]);
+  savingTags = signal(false);
+  // Chip input commits on Enter or comma; matches most tag-input UX in the
+  // wild and avoids surprising users who paste comma-separated lists.
+  readonly separatorKeysCodes = [ENTER, COMMA];
 
   // Field defs in display order with their submitted values resolved. Fields
   // that were never answered still render as an em-dash so the layout stays
@@ -74,6 +82,51 @@ export class SubmissionDetailDialogComponent {
   ) {
     this.submission.set(data.submission);
     this.adminNotes.set(String((data.submission as any).adminNotes ?? ''));
+    const rawTags = (data.submission as any).tags;
+    this.tags.set(Array.isArray(rawTags) ? rawTags.map((t: any) => String(t)) : []);
+  }
+
+  addTag(event: MatChipInputEvent) {
+    const value = (event.value || '').trim().toLowerCase();
+    if (value && !this.tags().includes(value)) {
+      const next = [...this.tags(), value];
+      this.tags.set(next);
+      this.saveTags(next);
+    }
+    event.chipInput?.clear();
+  }
+
+  removeTag(tag: string) {
+    const next = this.tags().filter(t => t !== tag);
+    this.tags.set(next);
+    this.saveTags(next);
+  }
+
+  private saveTags(next: string[]) {
+    const s = this.submission();
+    if (!s?.id) return;
+    this.savingTags.set(true);
+
+    const token = typeof localStorage !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
+
+    this.http
+      .patch<FormSubmissionDto>(
+        `${environment.apiBaseUrl}/api/FormSubmissions/${encodeURIComponent(String(s.id))}/tags`,
+        { tags: next },
+        { headers },
+      )
+      .subscribe({
+        next: (updated) => {
+          this.savingTags.set(false);
+          this.submission.set(updated);
+          this.dialogRef.close({ updated });
+        },
+        error: () => {
+          this.savingTags.set(false);
+          this.snack.open('Failed to save tags', 'Close', { duration: 3000 });
+        },
+      });
   }
 
   setNotesFromEvent(ev: Event) {

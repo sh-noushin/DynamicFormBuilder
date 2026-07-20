@@ -149,6 +149,18 @@ table {
   .date-field {
     width: 160px;
   }
+
+  .tag-filter {
+    min-width: 200px;
+  }
+}
+
+.tags-cell {
+  mat-chip-set { display: inline-flex; }
+  mat-chip {
+    font-size: 12px !important;
+    min-height: 22px !important;
+  }
 }
 
 mat-paginator {

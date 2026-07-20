@@ -218,6 +218,17 @@ public class FormSubmissionsController : ControllerBase
         return Ok(updated);
     }
 
+    [HttpPatch("{id}/tags")]
+    [Authorize(Roles = Roles.AdminOrUser)]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(FormSubmissionDto), 200)]
+    [ProducesResponseType(typeof(void), 404)]
+    public async Task<ActionResult<FormSubmissionDto>> UpdateTags(Guid id, [FromBody] UpdateSubmissionTagsDto payload)
+    {
+        var updated = await _submissionService.UpdateTagsAsync(id, payload.Tags ?? new List<string>());
+        return Ok(updated);
+    }
+
     [HttpPost("form/{formId}/bulk-delete")]
     [Authorize(Roles = Roles.Admin)]
     [Produces("application/json")]
