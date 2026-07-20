@@ -1,0 +1,21 @@
+<h2 mat-dialog-title class="dialog-title">
+  <mat-icon>qr_code_2</mat-icon>
+  <span>Scan to open &ldquo;{{ data.formName }}&rdquo;</span>
+</h2>
+
+<mat-dialog-content class="dialog-content">
+  <div class="qr-frame" [innerHTML]="svg()"></div>
+  <div class="url-row" [attr.title]="data.publicUrl">{{ data.publicUrl }}</div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-stroked-button type="button" (click)="copyUrl()">
+    <mat-icon>content_copy</mat-icon>
+    <span>Copy link</span>
+  </button>
+  <button mat-stroked-button type="button" (click)="downloadSvg()">
+    <mat-icon>download</mat-icon>
+    <span>Download SVG</span>
+  </button>
+  <button mat-raised-button color="primary" type="button" (click)="close()">Close</button>
+</mat-dialog-actions>

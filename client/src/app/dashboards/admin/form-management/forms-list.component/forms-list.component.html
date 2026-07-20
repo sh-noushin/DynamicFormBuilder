@@ -123,6 +123,15 @@
 
               <button
                 mat-icon-button
+                (click)="openQrDialog(form)"
+                [matTooltip]="canShare(form) ? 'QR code for this link' : 'Publish a version to share'"
+                [disabled]="!canShare(form)"
+                class="btn-qr">
+                <mat-icon>qr_code_2</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
                 (click)="editForm(form)"
                 matTooltip="Edit Form"
                 class="btn-edit">
