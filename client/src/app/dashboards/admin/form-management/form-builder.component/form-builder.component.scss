@@ -1,0 +1,444 @@
+// Form builder — 3-pane visual designer:
+//   [ Toolbox 260px ] [ Canvas 1fr ] [ Properties 340px ]
+// The whole shell is a CSS grid pinned to the viewport height beneath
+// the fixed header so each pane owns its own scroll and the canvas
+// doesn't push the toolbox off-screen when it fills with fields.
+
+.builder-shell {
+  display: flex;
+  flex-direction: column;
+  // The builder lives inside the admin shell's content area which already
+  // accounts for the header + tab strip. min-height fills whatever space
+  // that gives us; the body pane below is what actually scrolls.
+  min-height: calc(100vh - 180px);
+  background: var(--brand-canvas);
+  border-radius: var(--brand-radius-lg);
+  overflow: hidden;
+}
+
+// -- Topbar -----------------------------------------------------------
+.builder-topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 24px;
+  background: var(--brand-surface);
+  border-bottom: 1px solid var(--brand-border);
+  box-shadow: var(--brand-shadow-sm);
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--brand-text-muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+
+    &:hover { color: var(--brand-text-strong); }
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  }
+}
+
+.builder-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+
+  h1 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--brand-text-strong);
+  }
+
+  .version-tag {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--brand-primary-soft);
+    color: var(--brand-primary-hover);
+    font-weight: 500;
+  }
+}
+
+.topbar-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .dirty-indicator {
+    font-size: 0.8125rem;
+    color: var(--brand-warning);
+    font-weight: 500;
+  }
+
+  .btn-primary {
+    --mdc-filled-button-container-color: var(--brand-primary);
+    --mdc-filled-button-label-text-color: #ffffff;
+    --mdc-filled-button-container-shape: var(--brand-radius-md);
+    font-weight: 500;
+
+    &:hover { --mdc-filled-button-container-color: var(--brand-primary-hover); }
+  }
+}
+
+// -- Body: 3-pane grid ------------------------------------------------
+.builder-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 260px 1fr 340px;
+  min-height: 0;
+}
+
+// -- Left toolbox -----------------------------------------------------
+.builder-toolbox {
+  background: var(--brand-surface);
+  border-right: 1px solid var(--brand-border);
+  overflow-y: auto;
+  padding: 16px 12px;
+}
+
+.toolbox-heading {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--brand-text-muted);
+  padding: 0 8px 8px;
+  font-weight: 600;
+}
+
+.toolbox-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toolbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px;
+  border-radius: var(--brand-radius-sm);
+  cursor: grab;
+  transition: background 120ms ease;
+  border: 1px solid transparent;
+
+  &:hover {
+    background: var(--brand-surface-alt);
+    border-color: var(--brand-border);
+
+    .toolbox-drag-hint { opacity: 1; }
+  }
+
+  &:active,
+  &.cdk-drag-dragging {
+    cursor: grabbing;
+  }
+
+  .toolbox-icon {
+    color: var(--brand-primary-hover);
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .toolbox-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .toolbox-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--brand-text-strong);
+  }
+
+  .toolbox-desc {
+    font-size: 0.75rem;
+    color: var(--brand-text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .toolbox-drag-hint {
+    color: var(--brand-text-subtle);
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    opacity: 0.4;
+    transition: opacity 120ms ease;
+  }
+}
+
+// -- Center canvas ----------------------------------------------------
+.builder-canvas-wrap {
+  overflow-y: auto;
+  padding: 32px 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.canvas-frame {
+  width: 100%;
+  max-width: 720px;
+  min-height: 400px;
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--brand-radius-lg);
+  box-shadow: var(--brand-shadow-md);
+  padding: 24px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  // Highlighted state while a toolbox item is being dragged over.
+  &.cdk-drop-list-dragging {
+    background: var(--brand-primary-soft);
+    border-color: var(--brand-primary);
+    border-style: dashed;
+  }
+}
+
+.canvas-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 16px;
+  color: var(--brand-text-muted);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: var(--brand-border-strong);
+  }
+  h3 { margin: 4px 0 0; color: var(--brand-text); font-weight: 600; }
+  p  { margin: 0; text-align: center; max-width: 320px; font-size: 0.875rem; }
+}
+
+.canvas-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--brand-border);
+  border-radius: var(--brand-radius-md);
+  background: var(--brand-surface);
+  cursor: pointer;
+  transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+
+  &:hover {
+    border-color: var(--brand-border-strong);
+    background: var(--brand-canvas);
+  }
+
+  &.selected {
+    border-color: var(--brand-primary);
+    background: var(--brand-primary-soft);
+    box-shadow: 0 0 0 1px var(--brand-primary);
+  }
+
+  &.cdk-drag-dragging {
+    box-shadow: var(--brand-shadow-lg);
+    opacity: 0.9;
+  }
+
+  .canvas-field-drag {
+    color: var(--brand-text-subtle);
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    cursor: grab;
+    flex-shrink: 0;
+
+    &:active { cursor: grabbing; }
+  }
+
+  .canvas-field-icon {
+    color: var(--brand-primary-hover);
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  .canvas-field-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .canvas-field-label {
+    font-weight: 500;
+    color: var(--brand-text-strong);
+    font-size: 0.9375rem;
+
+    .required-star {
+      color: var(--brand-danger);
+      margin-left: 2px;
+    }
+  }
+
+  .canvas-field-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 0.75rem;
+  }
+
+  .type-chip {
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--brand-primary-soft);
+    color: var(--brand-primary-hover);
+    font-weight: 500;
+  }
+
+  .name-chip {
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--brand-surface-alt);
+    color: var(--brand-text-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  .new-chip {
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--brand-warning-soft);
+    color: #92400e;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+}
+
+// Placeholder that renders inside the canvas while a drag is over.
+::ng-deep .cdk-drag-placeholder {
+  opacity: 0.35;
+  border: 1px dashed var(--brand-primary);
+  background: var(--brand-primary-soft);
+}
+
+::ng-deep .cdk-drag-preview {
+  box-shadow: var(--brand-shadow-lg);
+  background: var(--brand-surface);
+  border-radius: var(--brand-radius-md);
+  border: 1px solid var(--brand-primary);
+}
+
+// -- Right properties -------------------------------------------------
+.builder-properties {
+  background: var(--brand-surface);
+  border-left: 1px solid var(--brand-border);
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.properties-empty {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 16px;
+  color: var(--brand-text-muted);
+  text-align: center;
+
+  mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    color: var(--brand-border-strong);
+  }
+  h3 { margin: 4px 0 0; color: var(--brand-text); font-weight: 600; }
+  p  { margin: 0; font-size: 0.875rem; max-width: 260px; }
+}
+
+.properties-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.properties-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--brand-border);
+  margin-bottom: 4px;
+
+  > mat-icon {
+    color: var(--brand-primary-hover);
+    background: var(--brand-primary-soft);
+    border-radius: var(--brand-radius-md);
+    padding: 6px;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.properties-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--brand-text-strong);
+}
+.properties-subtitle {
+  font-size: 0.75rem;
+  color: var(--brand-text-muted);
+}
+
+.btn-delete-field {
+  margin-left: auto;
+  color: var(--brand-danger);
+}
+
+.full-width { width: 100%; }
+
+.toggle-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 2px;
+  margin-top: 4px;
+}
+
+// -- Responsive --------------------------------------------------------
+@media (max-width: 1100px) {
+  .builder-body {
+    grid-template-columns: 220px 1fr 300px;
+  }
+}
+
+@media (max-width: 900px) {
+  .builder-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  .builder-toolbox,
+  .builder-properties {
+    max-height: 240px;
+    border-right: none;
+    border-left: none;
+    border-bottom: 1px solid var(--brand-border);
+  }
+}

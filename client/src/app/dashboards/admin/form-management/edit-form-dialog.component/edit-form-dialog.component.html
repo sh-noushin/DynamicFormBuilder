@@ -250,8 +250,8 @@
             <button mat-icon-button class="btn-current" matTooltip="Make current" (click)="makeCurrent(v)" [disabled]="v.isCurrentVersion">
               <mat-icon>check_circle</mat-icon>
             </button>
-            <button mat-icon-button class="btn-edit" matTooltip="Manage fields" (click)="manageFields(v)">
-              <mat-icon>view_list</mat-icon>
+            <button mat-icon-button class="btn-edit" matTooltip="Edit fields (drag & drop builder)" (click)="openBuilder(v)">
+              <mat-icon>dashboard_customize</mat-icon>
             </button>
             <button mat-icon-button class="btn-preview" matTooltip="Preview" (click)="previewVersion(v)">
               <mat-icon>visibility</mat-icon>

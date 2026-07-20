@@ -17,6 +17,7 @@ import { CreateVersionDialogComponent } from '../create-version-dialog.component
 import { ManageFieldsDialogComponent } from '../manage-fields-dialog.component/manage-fields-dialog.component';
 import { DeleteDialogComponent, DeleteDialogData } from '../../../../shared/delete-dialog.component/delete-dialog.component';
 import { EditVersionDialogComponent } from '../edit-version-dialog.component/edit-version-dialog.component';
+import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
 
@@ -85,6 +86,7 @@ export class EditFormDialogComponent implements OnInit {
 			private snack: MatSnackBar,
 			private dialog: MatDialog,
 			private dialogRef: MatDialogRef<EditFormDialogComponent>,
+			private router: Router,
 			@Inject(MAT_DIALOG_DATA) public data: EditFormDialogData,
 		) {
 			const src = data.form;
@@ -443,6 +445,15 @@ export class EditFormDialogComponent implements OnInit {
 					}
 				});
 			});
+	}
+
+	openBuilder(v: FormVersionDto) {
+		if (!this.data.form.id || v.versionNumber == null) return;
+		// Close the edit dialog before navigating so the builder gets a clean
+		// full-page canvas — leaving the dialog open would render behind the
+		// backdrop and swallow drag events.
+		this.dialogRef.close();
+		this.router.navigate(['/admin/forms', this.data.form.id, 'versions', v.versionNumber, 'builder']);
 	}
 
 	manageFields(v: FormVersionDto) {

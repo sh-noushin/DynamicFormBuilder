@@ -1,0 +1,183 @@
+<div class="builder-shell">
+  <header class="builder-topbar">
+    <a class="back-link" [routerLink]="['/admin/forms']">
+      <mat-icon>arrow_back</mat-icon>
+      <span>Forms</span>
+    </a>
+    <div class="builder-title">
+      <h1>Form builder</h1>
+      <span class="version-tag">version {{ versionNumber() }}</span>
+    </div>
+    <div class="topbar-actions">
+      @if (hasChanges()) {
+        <span class="dirty-indicator">Unsaved changes</span>
+      }
+      <button mat-flat-button class="btn-primary" (click)="save()" [disabled]="saving() || !hasChanges()">
+        <mat-icon>{{ saving() ? 'hourglass_top' : 'save' }}</mat-icon>
+        <span>{{ saving() ? 'Saving…' : 'Save' }}</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="builder-body">
+    <!-- LEFT: toolbox -->
+    <aside class="builder-toolbox">
+      <div class="toolbox-heading">Fields</div>
+      <ul class="toolbox-list"
+          cdkDropList
+          [id]="TOOLBOX_LIST_ID"
+          [cdkDropListData]="toolbox"
+          [cdkDropListConnectedTo]="[CANVAS_LIST_ID]"
+          cdkDropListSortingDisabled>
+        @for (t of toolbox; track t.type) {
+          <li class="toolbox-item" cdkDrag [cdkDragData]="t">
+            <mat-icon class="toolbox-icon">{{ t.icon }}</mat-icon>
+            <div class="toolbox-text">
+              <span class="toolbox-label">{{ t.label }}</span>
+              <span class="toolbox-desc">{{ t.description }}</span>
+            </div>
+            <mat-icon class="toolbox-drag-hint">drag_indicator</mat-icon>
+          </li>
+        }
+      </ul>
+    </aside>
+
+    <!-- CENTER: canvas -->
+    <section class="builder-canvas-wrap">
+      <div class="canvas-frame"
+           cdkDropList
+           [id]="CANVAS_LIST_ID"
+           [cdkDropListData]="visibleFields()"
+           [cdkDropListConnectedTo]="[TOOLBOX_LIST_ID]"
+           (cdkDropListDropped)="onCanvasDrop($event)">
+
+        @if (loading()) {
+          <div class="canvas-empty">
+            <mat-icon>hourglass_top</mat-icon>
+            <h3>Loading fields…</h3>
+          </div>
+        } @else if (visibleFields().length === 0) {
+          <div class="canvas-empty">
+            <mat-icon>space_dashboard</mat-icon>
+            <h3>Drag a field from the left</h3>
+            <p>Or click Save once you've dropped something to persist it.</p>
+          </div>
+        } @else {
+          @for (f of visibleFields(); track f.clientId) {
+            <div class="canvas-field"
+                 cdkDrag
+                 [class.selected]="selectedClientId() === f.clientId"
+                 (click)="selectField(f.clientId)">
+              <mat-icon class="canvas-field-drag" cdkDragHandle>drag_indicator</mat-icon>
+              <mat-icon class="canvas-field-icon">{{ iconFor(f.type) }}</mat-icon>
+              <div class="canvas-field-body">
+                <div class="canvas-field-label">
+                  {{ f.label }}
+                  @if (f.isRequired) { <span class="required-star">*</span> }
+                </div>
+                <div class="canvas-field-meta">
+                  <span class="type-chip">{{ labelFor(f.type) }}</span>
+                  <span class="name-chip">{{ f.name }}</span>
+                  @if (f.id === null) { <span class="new-chip">NEW</span> }
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </section>
+
+    <!-- RIGHT: properties -->
+    <aside class="builder-properties">
+      @if (!selectedField()) {
+        <div class="properties-empty">
+          <mat-icon>tune</mat-icon>
+          <h3>Select a field</h3>
+          <p>Click any field on the canvas to edit its properties here.</p>
+        </div>
+      } @else {
+        <div class="properties-body">
+          <div class="properties-header">
+            <mat-icon>{{ iconFor(selectedField()!.type) }}</mat-icon>
+            <div>
+              <div class="properties-title">{{ labelFor(selectedField()!.type) }}</div>
+              <div class="properties-subtitle">Field properties</div>
+            </div>
+            <button mat-icon-button class="btn-delete-field"
+                    matTooltip="Delete field"
+                    (click)="deleteSelected()">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Label</mat-label>
+            <input matInput [value]="selectedField()!.label" (input)="bindTextInput('label', $event)" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Field name</mat-label>
+            <input matInput [value]="selectedField()!.name" (input)="bindTextInput('name', $event)" />
+            <mat-hint>Used in submissions + URL prefill. Letters / numbers / underscores.</mat-hint>
+          </mat-form-field>
+
+          @if (selectedField()!.type !== 'PageBreak' && selectedField()!.type !== 'HiddenField') {
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Placeholder</mat-label>
+              <input matInput [value]="selectedField()!.placeholder" (input)="bindTextInput('placeholder', $event)" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Help text</mat-label>
+              <input matInput [value]="selectedField()!.helpText" (input)="bindTextInput('helpText', $event)" />
+              <mat-hint>Shown below the field. Supports **bold** and [links](url).</mat-hint>
+            </mat-form-field>
+          }
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Default value</mat-label>
+            <input matInput [value]="selectedField()!.defaultValue" (input)="bindTextInput('defaultValue', $event)" />
+          </mat-form-field>
+
+          @if (selectedField()!.type === 'Radio' || selectedField()!.type === 'Select') {
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Options (JSON)</mat-label>
+              <textarea matInput rows="4"
+                        [value]="selectedField()!.options"
+                        (input)="bindTextInput('options', $event)"
+                        placeholder='[{"value":"yes","label":"Yes"}]'></textarea>
+              <mat-hint>Array of &#123;value, label&#125; pairs.</mat-hint>
+            </mat-form-field>
+          }
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Validation (JSON, optional)</mat-label>
+            <textarea matInput rows="3"
+                      [value]="selectedField()!.validation"
+                      (input)="bindTextInput('validation', $event)"
+                      placeholder='{"pattern":"^[a-zA-Z]+$","minLength":2}'></textarea>
+            <mat-hint>See docs for the schema per field type.</mat-hint>
+          </mat-form-field>
+
+          <div class="toggle-row">
+            <mat-slide-toggle color="primary"
+                              [checked]="selectedField()!.isRequired"
+                              (change)="updateSelected('isRequired', $any($event).checked)">
+              Required
+            </mat-slide-toggle>
+            <mat-slide-toggle color="primary"
+                              [checked]="selectedField()!.isVisible"
+                              (change)="updateSelected('isVisible', $any($event).checked)">
+              Visible
+            </mat-slide-toggle>
+            <mat-slide-toggle color="primary"
+                              [checked]="selectedField()!.isReadOnly"
+                              (change)="updateSelected('isReadOnly', $any($event).checked)">
+              Read only
+            </mat-slide-toggle>
+          </div>
+        </div>
+      }
+    </aside>
+  </main>
+</div>

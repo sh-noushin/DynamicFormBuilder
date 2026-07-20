@@ -47,6 +47,10 @@ export const routes: Routes = [
         loadComponent: () => import('./dashboards/admin/form-management/admin-preview.component/admin-preview.component').then(m => m.AdminPreviewComponent)
       },
       {
+        path: 'forms/:id/versions/:version/builder',
+        loadComponent: () => import('./dashboards/admin/form-management/form-builder.component/form-builder.component').then(m => m.FormBuilderComponent)
+      },
+      {
         path: 'users',
         loadComponent: () => import('./dashboards/admin/user-management/users-list.component/users-list.component').then(m => m.UsersListComponent)
       },
