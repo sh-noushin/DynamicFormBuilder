@@ -129,6 +129,26 @@ table {
   }
 }
 
+.submissions-toolbar {
+  padding: 4px 4px 12px;
+
+  .search-field {
+    width: 100%;
+    max-width: 480px;
+
+    mat-icon[matPrefix] {
+      color: #94a3b8;
+      margin-right: 6px;
+    }
+  }
+}
+
+mat-paginator {
+  background: transparent;
+  color: #cbd5e1;
+  margin-top: 8px;
+}
+
 .muted { color: #64748b; }
 
 .signature-thumb {

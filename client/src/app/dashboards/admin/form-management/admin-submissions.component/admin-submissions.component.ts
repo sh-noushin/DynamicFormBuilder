@@ -9,6 +9,9 @@ import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { Client, FormDto, FormFieldDto, FormSubmissionDto, FormVersionDto } from '../../../../core/services/api-service';
 import { environment } from '../../../../../environments/environment';
 
@@ -26,6 +29,9 @@ import { environment } from '../../../../../environments/environment';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatTooltipModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatPaginatorModule,
     DatePipe,
   ],
   templateUrl: './admin-submissions.component.html',
@@ -42,8 +48,29 @@ export class AdminSubmissionsComponent {
   loading = signal(true);
   downloading = signal(false);
   errorMessage = signal<string | null>(null);
+  searchQuery = signal<string>('');
+  pageIndex = signal(0);
+  pageSize = signal(25);
 
   formId = computed(() => this.route.snapshot.paramMap.get('id') ?? '');
+
+  filteredSubmissions = computed<FormSubmissionDto[]>(() => {
+    const q = this.searchQuery().trim().toLowerCase();
+    if (!q) return this.submissions();
+    return this.submissions().filter(s => {
+      if ((s.submitterName ?? '').toLowerCase().includes(q)) return true;
+      if ((s.submitterEmail ?? '').toLowerCase().includes(q)) return true;
+      for (const v of (s.values ?? [])) {
+        if ((v.fieldValue ?? '').toLowerCase().includes(q)) return true;
+      }
+      return false;
+    });
+  });
+
+  pagedSubmissions = computed<FormSubmissionDto[]>(() => {
+    const start = this.pageIndex() * this.pageSize();
+    return this.filteredSubmissions().slice(start, start + this.pageSize());
+  });
 
   currentVersion = computed<FormVersionDto | null>(() => {
     const f = this.form();
@@ -113,6 +140,16 @@ export class AdminSubmissionsComponent {
   fileOriginalName(token: string): string {
     const idx = token.indexOf('__');
     return idx >= 0 ? token.substring(idx + 2) : token;
+  }
+
+  setSearch(value: string): void {
+    this.searchQuery.set(value);
+    this.pageIndex.set(0);
+  }
+  clearSearch(): void { this.setSearch(''); }
+  onPage(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
   }
 
   downloadCsv(): void {
