@@ -10,6 +10,8 @@ public class FormDto
     public string? AccessPassword { get; set; }
     public string? ThankYouMessage { get; set; }
     public string? RedirectUrl { get; set; }
+    public int? MaxSubmissions { get; set; }
+    public DateTime? ClosesAt { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public bool IsActive { get; set; } = true;

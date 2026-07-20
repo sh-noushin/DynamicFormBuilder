@@ -32,6 +32,12 @@
           <p>Your submission has been recorded.</p>
         }
       </mat-card>
+    } @else if (formClosed() && form(); as f) {
+      <mat-card class="state-card">
+        <mat-icon class="state-icon">event_busy</mat-icon>
+        <h2>{{ f.name }}</h2>
+        <p>{{ closedReason() }}</p>
+      </mat-card>
     } @else if (passwordRequired() && form(); as f) {
       <mat-card class="form-card password-gate-card">
         <mat-card-header>

@@ -61,6 +61,8 @@ public class FormRepository : IFormRepository
         existingForm.AccessPassword = form.AccessPassword;
         existingForm.ThankYouMessage = form.ThankYouMessage;
         existingForm.RedirectUrl = form.RedirectUrl;
+        existingForm.MaxSubmissions = form.MaxSubmissions;
+        existingForm.ClosesAt = form.ClosesAt;
         existingForm.IsActive = form.IsActive;
 
         await _context.SaveChangesAsync();

@@ -16,6 +16,11 @@ public class PublicFormDto
     // True when the form has an AccessPassword and the caller has not yet
     // supplied it. When true, Fields is empty and FormVersionId is Guid.Empty.
     public bool RequiresPassword { get; set; }
+    // True when the form has closed - either its submission cap has been hit
+    // or the ClosesAt moment has passed. When true, Fields is empty and
+    // ClosedReason gives a short user-facing explanation.
+    public bool IsClosed { get; set; }
+    public string? ClosedReason { get; set; }
     public Guid FormVersionId { get; set; }
     public int VersionNumber { get; set; }
     public List<FormFieldDto> Fields { get; set; } = new List<FormFieldDto>();

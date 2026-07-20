@@ -18,6 +18,11 @@ public class Form
     // External URL to redirect to after a successful submission. Must be
     // absolute and use http/https - validated in the service layer.
     public string? RedirectUrl { get; set; }
+    // Total submissions allowed across all versions. Null means uncapped.
+    public int? MaxSubmissions { get; set; }
+    // UTC moment after which the form stops accepting responses. Null means
+    // no scheduled close.
+    public DateTime? ClosesAt { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public bool IsActive { get; set; } = true;

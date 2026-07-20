@@ -2389,6 +2389,8 @@ export class CreateFormDto implements ICreateFormDto {
     accessPassword?: string | undefined;
     thankYouMessage?: string | undefined;
     redirectUrl?: string | undefined;
+    maxSubmissions?: number | undefined;
+    closesAt?: Date | undefined;
     fields?: CreateFormFieldDto[];
 
     [key: string]: any;
@@ -2414,6 +2416,8 @@ export class CreateFormDto implements ICreateFormDto {
             this.accessPassword = _data["accessPassword"];
             this.thankYouMessage = _data["thankYouMessage"];
             this.redirectUrl = _data["redirectUrl"];
+            this.maxSubmissions = _data["maxSubmissions"];
+            this.closesAt = _data["closesAt"] ? new Date(_data["closesAt"].toString()) : undefined as any;
             if (Array.isArray(_data["fields"])) {
                 this.fields = [] as any;
                 for (let item of _data["fields"])
@@ -2441,6 +2445,8 @@ export class CreateFormDto implements ICreateFormDto {
         data["accessPassword"] = this.accessPassword;
         data["thankYouMessage"] = this.thankYouMessage;
         data["redirectUrl"] = this.redirectUrl;
+        data["maxSubmissions"] = this.maxSubmissions;
+        data["closesAt"] = this.closesAt ? this.closesAt.toISOString() : undefined as any;
         if (Array.isArray(this.fields)) {
             data["fields"] = [];
             for (let item of this.fields)
@@ -2699,6 +2705,8 @@ export class FormDto implements IFormDto {
     accessPassword?: string | undefined;
     thankYouMessage?: string | undefined;
     redirectUrl?: string | undefined;
+    maxSubmissions?: number | undefined;
+    closesAt?: Date | undefined;
     createdAt?: Date;
     updatedAt?: Date;
     isActive?: boolean;
@@ -2730,6 +2738,8 @@ export class FormDto implements IFormDto {
             this.accessPassword = _data["accessPassword"];
             this.thankYouMessage = _data["thankYouMessage"];
             this.redirectUrl = _data["redirectUrl"];
+            this.maxSubmissions = _data["maxSubmissions"];
+            this.closesAt = _data["closesAt"] ? new Date(_data["closesAt"].toString()) : undefined as any;
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : undefined as any;
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : undefined as any;
             this.isActive = _data["isActive"];
@@ -2763,6 +2773,8 @@ export class FormDto implements IFormDto {
         data["accessPassword"] = this.accessPassword;
         data["thankYouMessage"] = this.thankYouMessage;
         data["redirectUrl"] = this.redirectUrl;
+        data["maxSubmissions"] = this.maxSubmissions;
+        data["closesAt"] = this.closesAt ? this.closesAt.toISOString() : undefined as any;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : undefined as any;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : undefined as any;
         data["isActive"] = this.isActive;
@@ -3309,6 +3321,8 @@ export class UpdateFormDto implements IUpdateFormDto {
     accessPassword?: string | undefined;
     thankYouMessage?: string | undefined;
     redirectUrl?: string | undefined;
+    maxSubmissions?: number | undefined;
+    closesAt?: Date | undefined;
     isActive?: boolean;
 
     [key: string]: any;
@@ -3334,6 +3348,8 @@ export class UpdateFormDto implements IUpdateFormDto {
             this.accessPassword = _data["accessPassword"];
             this.thankYouMessage = _data["thankYouMessage"];
             this.redirectUrl = _data["redirectUrl"];
+            this.maxSubmissions = _data["maxSubmissions"];
+            this.closesAt = _data["closesAt"] ? new Date(_data["closesAt"].toString()) : undefined as any;
             this.isActive = _data["isActive"];
         }
     }
@@ -3357,6 +3373,8 @@ export class UpdateFormDto implements IUpdateFormDto {
         data["accessPassword"] = this.accessPassword;
         data["thankYouMessage"] = this.thankYouMessage;
         data["redirectUrl"] = this.redirectUrl;
+        data["maxSubmissions"] = this.maxSubmissions;
+        data["closesAt"] = this.closesAt ? this.closesAt.toISOString() : undefined as any;
         data["isActive"] = this.isActive;
         return data;
     }

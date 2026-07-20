@@ -75,6 +75,29 @@
       @if (redirectUrlError()) { <mat-error>{{ redirectUrlError() }}</mat-error> }
       <mat-hint>Must start with http:// or https://. Takes priority over the message.</mat-hint>
     </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Response limit (optional)</mat-label>
+      <input matInput type="number" min="1" step="1"
+             [value]="maxSubmissions()"
+             (input)="setMaxSubmissionsFromEvent($event)"
+             placeholder="e.g. 100" />
+      @if (maxSubmissionsError()) { <mat-error>{{ maxSubmissionsError() }}</mat-error> }
+      <mat-hint>Form closes automatically once this many submissions have been received.</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Auto-close date & time (optional)</mat-label>
+      <input matInput type="datetime-local"
+             [value]="closesAtInput()"
+             (input)="setClosesAtFromEvent($event)" />
+      @if (closesAtInput()) {
+        <button mat-icon-button matSuffix type="button" (click)="clearClosesAt()" aria-label="Clear close date">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+      <mat-hint>Uses your local time zone. After this moment the form stops accepting responses.</mat-hint>
+    </mat-form-field>
   </div>
 
   <mat-card class="versions-table-card">

@@ -122,7 +122,7 @@ export class FormsListComponent implements OnInit {
       disableClose: true
     });
 
-    dialogRef.afterClosed().subscribe((result?: { name: string; description?: string; brandColor?: string; accessPassword?: string; thankYouMessage?: string; redirectUrl?: string }) => {
+    dialogRef.afterClosed().subscribe((result?: { name: string; description?: string; brandColor?: string; accessPassword?: string; thankYouMessage?: string; redirectUrl?: string; maxSubmissions?: number; closesAt?: Date }) => {
       if (!result) return;
       const payload: CreateFormDto = new CreateFormDto({
         name: result.name,
@@ -131,6 +131,8 @@ export class FormsListComponent implements OnInit {
         accessPassword: result.accessPassword || undefined,
         thankYouMessage: result.thankYouMessage || undefined,
         redirectUrl: result.redirectUrl || undefined,
+        maxSubmissions: result.maxSubmissions,
+        closesAt: result.closesAt,
       });
       this.isLoading.set(true);
       this.apiClient.formsPOST(payload).subscribe({

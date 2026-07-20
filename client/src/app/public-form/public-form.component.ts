@@ -38,6 +38,8 @@ interface PublicForm {
   thankYouMessage?: string;
   redirectUrl?: string;
   requiresPassword?: boolean;
+  isClosed?: boolean;
+  closedReason?: string;
   formVersionId: string;
   versionNumber: number;
   fields: PublicField[];
@@ -79,6 +81,8 @@ export class PublicFormComponent {
   submitted = signal(false);
   errorMessage = signal<string | null>(null);
   passwordRequired = signal(false);
+  formClosed = signal(false);
+  closedReason = signal<string | null>(null);
   passwordValue = signal('');
   passwordAttempted = signal(false);
   passwordError = signal<string | null>(null);
@@ -153,6 +157,13 @@ export class PublicFormComponent {
           this.form.set(form);
           this.loading.set(false);
           this.passwordSubmitting.set(false);
+          if (form.isClosed) {
+            this.formClosed.set(true);
+            this.closedReason.set(form.closedReason ?? 'This form is no longer accepting responses.');
+            return;
+          }
+          this.formClosed.set(false);
+          this.closedReason.set(null);
           if (form.requiresPassword) {
             this.passwordRequired.set(true);
             if (this.passwordAttempted()) {
@@ -315,6 +326,9 @@ export class PublicFormComponent {
             this.errorMessage.set('The form password has changed. Please reload and enter it again.');
             this.passwordRequired.set(true);
             this.passwordValue.set('');
+          } else if (err?.status === 410) {
+            this.formClosed.set(true);
+            this.closedReason.set(err?.error?.message ?? err?.error?.detail ?? 'This form is no longer accepting responses.');
           } else if (err?.status === 404) {
             this.errorMessage.set('This form is no longer accepting responses.');
           } else {

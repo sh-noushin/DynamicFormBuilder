@@ -22,5 +22,10 @@ public class UpdateFormDto
     [StringLength(500)]
     public string? RedirectUrl { get; set; }
 
+    [Range(1, int.MaxValue)]
+    public int? MaxSubmissions { get; set; }
+
+    public DateTime? ClosesAt { get; set; }
+
     public bool IsActive { get; set; } = true;
 }

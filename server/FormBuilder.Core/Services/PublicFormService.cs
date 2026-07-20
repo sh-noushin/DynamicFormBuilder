@@ -36,6 +36,23 @@ public class PublicFormService : IPublicFormService
 
         var (form, version) = await ResolvePublishedCurrentVersionAsync(slug);
 
+        // Closed check runs before the password gate so a visitor with the
+        // correct password still can't submit against a closed form, and so
+        // that the closed state is visible without needing the password.
+        var closedReason = await GetClosedReasonAsync(form);
+        if (closedReason != null)
+        {
+            return new PublicFormDto
+            {
+                Slug = form.Slug,
+                Name = form.Name,
+                Description = form.Description,
+                BrandColor = form.BrandColor,
+                IsClosed = true,
+                ClosedReason = closedReason
+            };
+        }
+
         // If the form is password-protected and the caller has not supplied the
         // matching password, return a stub response that reveals only the name
         // and description so the client can render its unlock gate. Fields are
@@ -58,6 +75,8 @@ public class PublicFormService : IPublicFormService
             Name = form.Name,
             Description = form.Description,
             BrandColor = form.BrandColor,
+            ThankYouMessage = form.ThankYouMessage,
+            RedirectUrl = form.RedirectUrl,
             FormVersionId = version.Id,
             VersionNumber = version.VersionNumber,
             Fields = _mapper.Map<List<FormFieldDto>>(version.Fields)
@@ -70,6 +89,13 @@ public class PublicFormService : IPublicFormService
             throw new ArgumentNullException(nameof(submission));
 
         var (form, version) = await ResolvePublishedCurrentVersionAsync(slug);
+
+        // Same ordering as GetBySlugAsync: closed check first, then password.
+        var closedReason = await GetClosedReasonAsync(form);
+        if (closedReason != null)
+        {
+            throw new FormClosedException(closedReason);
+        }
 
         // Enforce the password gate on submit too - the client sends the same
         // header on both GET and POST.
@@ -105,6 +131,26 @@ public class PublicFormService : IPublicFormService
         var dto = _mapper.Map<FormSubmissionDto>(created);
         await _notifier.NotifyAsync(form.Name, dto);
         return dto;
+    }
+
+    // Returns a user-facing reason string when the form is closed, or null when
+    // it is still accepting submissions. Checks ClosesAt first (cheap), then
+    // MaxSubmissions (one extra count query).
+    private async Task<string?> GetClosedReasonAsync(Form form)
+    {
+        if (form.ClosesAt.HasValue && DateTime.UtcNow >= form.ClosesAt.Value)
+        {
+            return "This form has closed and is no longer accepting responses.";
+        }
+        if (form.MaxSubmissions.HasValue)
+        {
+            var count = await _submissionRepository.GetSubmissionCountByFormIdAsync(form.Id);
+            if (count >= form.MaxSubmissions.Value)
+            {
+                return "This form has reached its response limit.";
+            }
+        }
+        return null;
     }
 
     // Constant-time-ish comparison. AccessPassword is stored plaintext (form-

@@ -36,6 +36,8 @@ export class CreateFormDialogComponent {
   showPassword = signal<boolean>(false);
   thankYouMessage = signal('');
   redirectUrl = signal('');
+  maxSubmissions = signal('');
+  closesAtInput = signal('');
   touched = {
     name: signal(false),
     description: signal(false)
@@ -57,8 +59,26 @@ export class CreateFormDialogComponent {
   };
 
   get invalid(): boolean {
-    return !!this.nameError() || !!this.redirectUrlError();
+    return !!this.nameError() || !!this.redirectUrlError() || !!this.maxSubmissionsError();
   }
+
+  maxSubmissionsError(): string | null {
+    const v = this.maxSubmissions().trim();
+    if (!v) return null;
+    const n = Number(v);
+    if (!Number.isInteger(n) || n < 1) return 'Must be a whole number of 1 or more';
+    return null;
+  }
+
+  setMaxSubmissionsFromEvent(ev: Event) {
+    const val = (ev.target as HTMLInputElement)?.value ?? '';
+    this.maxSubmissions.set(val);
+  }
+  setClosesAtFromEvent(ev: Event) {
+    const val = (ev.target as HTMLInputElement)?.value ?? '';
+    this.closesAtInput.set(val);
+  }
+  clearClosesAt() { this.closesAtInput.set(''); }
 
   redirectUrlError(): string | null {
     const v = this.redirectUrl().trim();
@@ -91,7 +111,9 @@ export class CreateFormDialogComponent {
       brandColor: this.brandColor().trim() || undefined,
       accessPassword: this.accessPassword().trim() || undefined,
       thankYouMessage: this.thankYouMessage().trim() || undefined,
-      redirectUrl: this.redirectUrl().trim() || undefined
+      redirectUrl: this.redirectUrl().trim() || undefined,
+      maxSubmissions: this.maxSubmissions().trim() ? Number(this.maxSubmissions()) : undefined,
+      closesAt: this.closesAtInput() ? new Date(this.closesAtInput()) : undefined
     };
     this.dialogRef.close(result);
   }

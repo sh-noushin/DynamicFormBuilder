@@ -53,6 +53,8 @@ export class EditFormDialogComponent implements OnInit {
 	showPassword = signal<boolean>(false);
 	thankYouMessage = signal<string>('');
 	redirectUrl = signal<string>('');
+	maxSubmissions = signal<string>('');
+	closesAtInput = signal<string>('');
 
 	nameTouched = signal<boolean>(false);
 	isSaving = signal(false);
@@ -74,6 +76,21 @@ export class EditFormDialogComponent implements OnInit {
 			this.accessPassword.set((src as any).accessPassword ?? '');
 			this.thankYouMessage.set((src as any).thankYouMessage ?? '');
 			this.redirectUrl.set((src as any).redirectUrl ?? '');
+			const cap = (src as any).maxSubmissions;
+			this.maxSubmissions.set(cap == null ? '' : String(cap));
+			this.closesAtInput.set(this.dateToLocalInput((src as any).closesAt));
+		}
+
+		// datetime-local <input> values are naive local wall-clock strings like
+		// "2026-07-20T14:30". Reading a Date back needs the same shape in local
+		// time; writing sends it through new Date(...) so JS interprets it as
+		// local time and .toISOString() (upstream) turns it into UTC on the wire.
+		private dateToLocalInput(d: Date | string | null | undefined): string {
+			if (!d) return '';
+			const date = d instanceof Date ? d : new Date(d);
+			if (Number.isNaN(date.getTime())) return '';
+			const pad = (n: number) => String(n).padStart(2, '0');
+			return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 		}
 
 		setThankYouMessageFromEvent(ev: Event) {
@@ -95,6 +112,24 @@ export class EditFormDialogComponent implements OnInit {
 				return 'Enter a full URL (including https://)';
 			}
 		}
+
+		maxSubmissionsError(): string | null {
+			const v = this.maxSubmissions().trim();
+			if (!v) return null;
+			const n = Number(v);
+			if (!Number.isInteger(n) || n < 1) return 'Must be a whole number of 1 or more';
+			return null;
+		}
+
+		setMaxSubmissionsFromEvent(ev: Event) {
+			const val = (ev.target as HTMLInputElement)?.value ?? '';
+			this.maxSubmissions.set(val);
+		}
+		setClosesAtFromEvent(ev: Event) {
+			const val = (ev.target as HTMLInputElement)?.value ?? '';
+			this.closesAtInput.set(val);
+		}
+		clearClosesAt() { this.closesAtInput.set(''); }
 
 		clearBrandColor() { this.brandColor.set(''); }
 		setAccessPasswordFromEvent(ev: Event) {
@@ -130,6 +165,8 @@ export class EditFormDialogComponent implements OnInit {
 			accessPassword: this.accessPassword().trim() || undefined,
 			thankYouMessage: this.thankYouMessage().trim() || undefined,
 			redirectUrl: this.redirectUrl().trim() || undefined,
+			maxSubmissions: this.maxSubmissions().trim() ? Number(this.maxSubmissions()) : undefined,
+			closesAt: this.closesAtInput() ? new Date(this.closesAtInput()) : undefined,
 		});
 		this.api.formsPUT(this.data.form.id, payload).subscribe({
 			next: updated => {
@@ -372,7 +409,7 @@ export class EditFormDialogComponent implements OnInit {
 	}
 
 	invalid(): boolean {
-		return this.nameError() != null || this.redirectUrlError() != null;
+		return this.nameError() != null || this.redirectUrlError() != null || this.maxSubmissionsError() != null;
 	}
 
 	setNameFromEvent(ev: Event) {

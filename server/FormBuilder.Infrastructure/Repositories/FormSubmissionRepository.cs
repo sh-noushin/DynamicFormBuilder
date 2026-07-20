@@ -55,6 +55,12 @@ public class FormSubmissionRepository : IFormSubmissionRepository
             .CountAsync(s => s.FormVersionId == formVersionId);
     }
 
+    public async Task<int> GetSubmissionCountByFormIdAsync(Guid formId)
+    {
+        return await _context.FormSubmissions
+            .CountAsync(s => s.FormVersion.FormId == formId);
+    }
+
     public async Task<FormSubmission?> UpdateAsync(Guid id, FormSubmission source)
     {
         var submission = await _context.FormSubmissions
