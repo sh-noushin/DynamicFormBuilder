@@ -508,6 +508,20 @@ export class UserDashboardComponent implements OnInit {
   }
 
 
+  // Wires the "View submissions" button that lives on each row of the
+  // Fill Form tab's version table: it reuses the same submission-loading
+  // pipeline as the (now-removed) Submissions tab but pre-populates the
+  // submissionForm state from whatever form the user was already viewing.
+  viewSubmissionsForVersion(v: FormVersionDto) {
+    const form = this.selectedForm();
+    if (!form) return;
+    if (this.submissionForm()?.id !== form.id) {
+      this.submissionForm.set(form);
+      this.submissionVersions.set(this.versions());
+    }
+    this.selectSubmissionVersion(v);
+  }
+
   selectSubmissionForm(form: FormDto) {
     this.submissionForm.set(form);
     this.submissionVersion.set(undefined);
