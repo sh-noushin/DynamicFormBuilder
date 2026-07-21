@@ -43,12 +43,15 @@ public sealed class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAu
             return AuthenticateResult.Fail("Invalid API key.");
 
         // Synthetic identity - not a real user in the Identity store. Name
-        // reflects the admin-set label so audit logs are legible.
+        // reflects the admin-set label so audit logs are legible. The
+        // orgId claim carries the tenant the key was minted under so the
+        // request runs scoped to that org via ICurrentUserService.
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, $"apikey:{validated.Id}"),
             new Claim(ClaimTypes.Name, validated.Name),
             new Claim(ClaimTypes.Role, Roles.Admin),
+            new Claim("orgId", validated.OrganizationId.ToString()),
         };
         var identity = new ClaimsIdentity(claims, SchemeName);
         var principal = new ClaimsPrincipal(identity);

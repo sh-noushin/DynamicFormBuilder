@@ -60,6 +60,9 @@ public class UserDto
     public string Email { get; set; } = string.Empty;
     public List<UserRole> Roles { get; set; } = new List<UserRole>();
     public DateTime CreatedAt { get; set; }
+    // Tenant the user belongs to. Included in the JWT as an "orgId" claim
+    // so the service layer can scope queries without another DB lookup.
+    public Guid OrganizationId { get; set; }
 }
 
 public class ChangePasswordDto

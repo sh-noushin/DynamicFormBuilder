@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FormBuilder.Core.DTOs;
+using FormBuilder.Core.Interfaces;
 using FormBuilder.Core.Services;
 using FormBuilder.Models.Entities;
+using FormBuilder.Models.Repositories;
 using Microsoft.AspNetCore.Identity;
 using NSubstitute;
 using Xunit;
@@ -16,7 +18,12 @@ namespace FormBuilder.Tests.Services
     {
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ICurrentUserService _currentUser;
+        private readonly IOrganizationRepository _orgs;
         private readonly UserService _userService;
+        // Fixed org so tests can create Users with matching OrganizationId
+        // and pass the tenant-check that GetById / Update / Delete now do.
+        private static readonly Guid TestOrgId = Guid.NewGuid();
 
         public UserServiceTests()
         {
@@ -24,7 +31,11 @@ namespace FormBuilder.Tests.Services
                 Substitute.For<IUserStore<User>>(), null, null, null, null, null, null, null, null);
             _roleManager = Substitute.For<RoleManager<IdentityRole>>(
                 Substitute.For<IRoleStore<IdentityRole>>(), null, null, null, null);
-            _userService = new UserService(_userManager, _roleManager);
+            _currentUser = Substitute.For<ICurrentUserService>();
+            _currentUser.GetOrganizationId().Returns(TestOrgId);
+            _currentUser.GetOrganizationIdOrNull().Returns(TestOrgId);
+            _orgs = Substitute.For<IOrganizationRepository>();
+            _userService = new UserService(_userManager, _roleManager, _currentUser, _orgs);
         }
 
         [Fact]
@@ -71,7 +82,7 @@ namespace FormBuilder.Tests.Services
         [Fact]
         public async Task GetUsersAsync_ReturnsUserDtos()
         {
-            var user = new User { Id = "1", UserName = "user", Email = "email@test.com" };
+            var user = new User { Id = "1", UserName = "user", Email = "email@test.com", OrganizationId = TestOrgId };
             var users = new List<User> { user };
             _userManager.Users.Returns(users.AsQueryable());
             _roleManager.Roles.Returns(new List<IdentityRole> { new IdentityRole("User") }.AsQueryable());
@@ -99,7 +110,7 @@ namespace FormBuilder.Tests.Services
         [Fact]
         public async Task GetUserByIdAsync_ReturnsUserDto_WhenFound()
         {
-            var user = new User { Id = "1", UserName = "user", Email = "email@test.com" };
+            var user = new User { Id = "1", UserName = "user", Email = "email@test.com", OrganizationId = TestOrgId };
             _userManager.FindByIdAsync("1").Returns(user);
             _userManager.GetRolesAsync(user).Returns(new List<string> { "User" });
 

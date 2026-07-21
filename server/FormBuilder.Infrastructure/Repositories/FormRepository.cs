@@ -35,7 +35,11 @@ public class FormRepository : IFormRepository
 
     public async Task<Form?> GetBySlugAsync(string slug)
     {
+        // Public /f/:slug access is anonymous — no orgId claim to filter
+        // by. Slugs are globally unique across tenants, so bypassing the
+        // tenant filter is safe.
         return await _context.Forms
+            .IgnoreQueryFilters()
             .Include(f => f.Versions.OrderBy(v => v.VersionNumber))
                 .ThenInclude(v => v.Fields.OrderBy(field => field.Order))
             .FirstOrDefaultAsync(f => f.Slug == slug);

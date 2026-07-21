@@ -32,15 +32,16 @@ public static class DataSeeder
             throw new InvalidOperationException($"'{SeedOptions.SectionName}:{nameof(SeedOptions.UserPassword)}' is required to seed the sample user.");
 
         await EnsureDatabaseAsync(context);
+        var defaultOrg = await SeedDefaultOrganizationAsync(context);
         await SeedRolesAsync(roleManager);
-        await SeedUsersAsync(userManager, options);
+        await SeedUsersAsync(userManager, options, defaultOrg.Id);
 
         if (await context.Forms.AnyAsync())
         {
             return;
         }
 
-        await SeedFormsAsync(context);
+        await SeedFormsAsync(context, defaultOrg.Id);
         await SeedSampleSubmissionsAsync(context);
     }
 
@@ -48,14 +49,36 @@ public static class DataSeeder
     public static async Task SeedAsync(FormBuilderDbContext context)
     {
         await EnsureDatabaseAsync(context);
+        var defaultOrg = await SeedDefaultOrganizationAsync(context);
 
         if (await context.Forms.AnyAsync())
         {
             return;
         }
 
-        await SeedFormsAsync(context);
+        await SeedFormsAsync(context, defaultOrg.Id);
         await SeedSampleSubmissionsAsync(context);
+    }
+
+    // Every DB — dev, test, seeded prod — gets one "Default Workspace"
+    // org so users and forms have a tenant to belong to from the start.
+    // Once real customers sign up they'll get their own org via the
+    // /register endpoint; this default is only for the seeded admin/user.
+    private static async Task<Organization> SeedDefaultOrganizationAsync(FormBuilderDbContext context)
+    {
+        var existing = await context.Organizations.FirstOrDefaultAsync(o => o.Slug == "default");
+        if (existing != null) return existing;
+
+        var org = new Organization
+        {
+            Id = Guid.NewGuid(),
+            Name = "Default Workspace",
+            Slug = "default",
+            CreatedAt = DateTime.UtcNow,
+        };
+        context.Organizations.Add(org);
+        await context.SaveChangesAsync();
+        return org;
     }
 
     private static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
@@ -71,14 +94,15 @@ public static class DataSeeder
         }
     }
 
-    private static async Task SeedUsersAsync(UserManager<User> userManager, SeedOptions options)
+    private static async Task SeedUsersAsync(UserManager<User> userManager, SeedOptions options, Guid defaultOrgId)
     {
         if (await userManager.FindByNameAsync("admin") == null)
         {
             var adminUser = new User
             {
                 UserName = "admin",
-                Email = "admin@formbuilder.com"
+                Email = "admin@formbuilder.com",
+                OrganizationId = defaultOrgId,
             };
 
             var result = await userManager.CreateAsync(adminUser, options.AdminPassword);
@@ -93,7 +117,8 @@ public static class DataSeeder
             var regularUser = new User
             {
                 UserName = "user",
-                Email = "user@formbuilder.com"
+                Email = "user@formbuilder.com",
+                OrganizationId = defaultOrgId,
             };
 
             var result = await userManager.CreateAsync(regularUser, options.UserPassword);
@@ -104,10 +129,11 @@ public static class DataSeeder
         }
     }
 
-    private static async Task SeedFormsAsync(FormBuilderDbContext context)
+    private static async Task SeedFormsAsync(FormBuilderDbContext context, Guid orgId)
     {
         var contactForm = new Form
         {
+            OrganizationId = orgId,
             Name = "Contact Form",
             Description = "A comprehensive contact form for customer inquiries",
             Slug = FormBuilder.Core.Common.SlugGenerator.Generate(),
@@ -219,6 +245,7 @@ public static class DataSeeder
 
         var surveyForm = new Form
         {
+            OrganizationId = orgId,
             Name = "Customer Satisfaction Survey",
             Description = "Help us improve our services with your feedback",
             Slug = FormBuilder.Core.Common.SlugGenerator.Generate(),
@@ -304,6 +331,7 @@ public static class DataSeeder
         // Add a form with multiple versions to demonstrate versioning
         var registrationForm = new Form
         {
+            OrganizationId = orgId,
             Name = "Event Registration",
             Description = "Register for our upcoming events",
             Slug = FormBuilder.Core.Common.SlugGenerator.Generate(),
@@ -428,6 +456,7 @@ public static class DataSeeder
         // pops on first login.
         var npsForm = new Form
         {
+            OrganizationId = orgId,
             Name = "NPS Survey",
             Description = "One-question survey with a follow-up",
             Slug = FormBuilder.Core.Common.SlugGenerator.Generate(),
@@ -479,6 +508,7 @@ public static class DataSeeder
         // Hidden field to capture ?utm_source= for campaign attribution.
         var jobForm = new Form
         {
+            OrganizationId = orgId,
             Name = "Job Application",
             Description = "Tell us about yourself",
             Slug = FormBuilder.Core.Common.SlugGenerator.Generate(),

@@ -1,3 +1,4 @@
+using FormBuilder.API.Services;
 using FormBuilder.Core.Interfaces;
 using FormBuilder.Core.Services;
 using FormBuilder.Core.Services.FieldRules;
@@ -43,6 +44,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFormSubmissionRepository, FormSubmissionRepository>();
         services.AddScoped<IFormSubmissionDraftRepository, FormSubmissionDraftRepository>();
         services.AddScoped<IApiKeyRepository, ApiKeyRepository>();
+        services.AddScoped<IOrganizationRepository, OrganizationRepository>();
         return services;
     }
 
@@ -75,6 +77,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPasswordService, PasswordService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IJwtService, JwtService>();
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
         return services;
     }
 }

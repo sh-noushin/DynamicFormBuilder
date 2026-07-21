@@ -11,6 +11,9 @@ namespace FormBuilder.Models.Entities;
 public class ApiKey
 {
     public Guid Id { get; set; }
+    // Tenant the key was minted under. Callers presenting the key are
+    // treated as acting inside this org for all query scoping.
+    public Guid OrganizationId { get; set; }
     // Human-friendly label shown in the admin UI ("Zapier integration").
     public string Name { get; set; } = string.Empty;
     // First few chars of the raw key, kept in plaintext so admins can

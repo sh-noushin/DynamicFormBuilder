@@ -21,10 +21,12 @@ public class ApiKeyService : IApiKeyService
     private const int DisplayPrefixLength = 8;
 
     private readonly IApiKeyRepository _repository;
+    private readonly ICurrentUserService _currentUser;
 
-    public ApiKeyService(IApiKeyRepository repository)
+    public ApiKeyService(IApiKeyRepository repository, ICurrentUserService currentUser)
     {
         _repository = repository;
+        _currentUser = currentUser;
     }
 
     public async Task<IEnumerable<ApiKeyDto>> ListAsync()
@@ -42,6 +44,9 @@ public class ApiKeyService : IApiKeyService
         var rawKey = GenerateKey();
         var entity = new ApiKey
         {
+            // Key is minted under the calling admin's tenant so callers
+            // presenting the key are treated as acting inside that org.
+            OrganizationId = _currentUser.GetOrganizationId(),
             Name = payload.Name.Trim(),
             KeyPrefix = rawKey.Substring(0, DisplayPrefixLength),
             KeyHash = Hash(rawKey),
@@ -108,5 +113,6 @@ public class ApiKeyService : IApiKeyService
         CreatedAt = key.CreatedAt,
         LastUsedAt = key.LastUsedAt,
         IsRevoked = key.RevokedAt.HasValue,
+        OrganizationId = key.OrganizationId,
     };
 }

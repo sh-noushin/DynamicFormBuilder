@@ -24,7 +24,12 @@ public class ApiKeyRepository : IApiKeyRepository
 
     public async Task<ApiKey?> GetByHashAsync(string keyHash)
     {
+        // Called from the API-key auth handler before any user identity
+        // has been established — bypass the tenant filter so we can find
+        // the key by its globally-unique hash. The caller is then trusted
+        // to be acting inside the key's OrganizationId.
         return await _context.ApiKeys
+            .IgnoreQueryFilters()
             .AsNoTracking()
             .FirstOrDefaultAsync(k => k.KeyHash == keyHash);
     }

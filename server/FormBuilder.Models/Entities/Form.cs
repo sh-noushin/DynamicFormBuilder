@@ -3,6 +3,10 @@
 public class Form
 {
     public Guid Id { get; set; }
+    // Tenant the form belongs to. Every authenticated API query filters
+    // on this; public /f/:slug access finds the form by globally-unique
+    // slug and doesn't need to know the caller's org.
+    public Guid OrganizationId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string Slug { get; set; } = string.Empty;

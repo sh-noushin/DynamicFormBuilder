@@ -11,11 +11,13 @@ public class FormService : IFormService
 {
     private readonly IFormRepository _formRepository;
     private readonly IMapper _mapper;
+    private readonly ICurrentUserService _currentUser;
 
-    public FormService(IFormRepository formRepository, IMapper mapper)
+    public FormService(IFormRepository formRepository, IMapper mapper, ICurrentUserService currentUser)
     {
         _formRepository = formRepository;
         _mapper = mapper;
+        _currentUser = currentUser;
     }
 
     public async Task<IEnumerable<FormDto>> GetAllFormsAsync()
@@ -44,6 +46,10 @@ public class FormService : IFormService
         ValidateRedirectUrl(formDto.RedirectUrl);
         ValidateWebhookUrl(formDto.WebhookUrl);
         var entity = _mapper.Map<FormBuilder.Models.Entities.Form>(formDto);
+        // Every form lives inside the calling admin's tenant. This is
+        // set on the entity — not the DTO — so callers can't pick a
+        // different org by passing OrganizationId in the request body.
+        entity.OrganizationId = _currentUser.GetOrganizationId();
         entity.CreatedAt = DateTime.UtcNow;
         entity.UpdatedAt = DateTime.UtcNow;
         entity.Slug = SlugGenerator.Generate();
@@ -246,6 +252,9 @@ public class FormService : IFormService
 
         var entity = new FormBuilder.Models.Entities.Form
         {
+            // Imported form belongs to the admin's tenant, same rule as
+            // CreateFormAsync — the export file has no OrganizationId.
+            OrganizationId = _currentUser.GetOrganizationId(),
             Name = payload.Form.Name,
             Description = payload.Form.Description,
             BrandColor = payload.Form.BrandColor,

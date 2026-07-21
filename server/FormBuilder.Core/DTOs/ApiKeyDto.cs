@@ -12,6 +12,10 @@ public class ApiKeyDto
     public DateTime CreatedAt { get; set; }
     public DateTime? LastUsedAt { get; set; }
     public bool IsRevoked { get; set; }
+    // Tenant the key belongs to. Populated on ValidateAsync so the
+    // ApiKey auth handler can put an orgId claim on the resulting
+    // ClaimsPrincipal — that's what downstream tenant filtering uses.
+    public Guid OrganizationId { get; set; }
 }
 
 // Extends ApiKeyDto with the raw key value - returned ONCE at mint time.

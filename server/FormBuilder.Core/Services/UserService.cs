@@ -4,6 +4,7 @@ using FormBuilder.Core.DTOs;
 using FormBuilder.Core.Interfaces;
 using FormBuilder.Models.Entities;
 using FormBuilder.Models.Exceptions;
+using FormBuilder.Models.Repositories;
 
 namespace FormBuilder.Core.Services;
 
@@ -11,11 +12,19 @@ public class UserService : IUserService
 {
     private readonly UserManager<User> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly ICurrentUserService _currentUser;
+    private readonly IOrganizationRepository _orgs;
 
-    public UserService(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+    public UserService(
+        UserManager<User> userManager,
+        RoleManager<IdentityRole> roleManager,
+        ICurrentUserService currentUser,
+        IOrganizationRepository orgs)
     {
         _userManager = userManager;
         _roleManager = roleManager;
+        _currentUser = currentUser;
+        _orgs = orgs;
     }
 
     public async Task<UserDto> RegisterUserAsync(RegisterUserDto registerDto)
@@ -31,10 +40,19 @@ public class UserService : IUserService
         if (existingEmailUser != null)
             throw new DuplicateEmailException(registerDto.Email);
 
+        // Two call sites, one endpoint: an authenticated admin creating a
+        // teammate reuses their org; an anonymous self-signup spins up a
+        // fresh org (customer creating an account for their company).
+        var callerOrgId = _currentUser.GetOrganizationIdOrNull();
+        var (organizationId, isSelfSignup) = callerOrgId != null
+            ? (callerOrgId.Value, false)
+            : (await CreateOrganizationForSignupAsync(registerDto.Username), true);
+
         var user = new User
         {
             UserName = registerDto.Username,
-            Email = registerDto.Email
+            Email = registerDto.Email,
+            OrganizationId = organizationId,
         };
 
         var result = await _userManager.CreateAsync(user, registerDto.Password);
@@ -44,7 +62,10 @@ public class UserService : IUserService
             throw new UserCreationFailedException($"Failed to create user: {errors}");
         }
 
-        await AssignRoleAsync(user, registerDto.Role.ToString());
+        // Self-signup users are always the admin of the org they just
+        // created — otherwise there'd be nobody who could manage forms.
+        var effectiveRole = isSelfSignup ? UserRole.Admin.ToString() : registerDto.Role.ToString();
+        await AssignRoleAsync(user, effectiveRole);
 
         var roles = await _userManager.GetRolesAsync(user);
         return new UserDto
@@ -53,13 +74,18 @@ public class UserService : IUserService
             Username = user.UserName!,
             Email = user.Email!,
             Roles = RoleMapper.ToEnumRoles(roles),
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            OrganizationId = user.OrganizationId,
         };
     }
 
     public async Task<IEnumerable<UserDto>> GetUsersAsync()
     {
-        var users = _userManager.Users.ToList();
+        // Tenant scope: admins only see users inside their own org.
+        // Identity's UserManager.Users bypasses the DbContext query
+        // filters we set up for Form/ApiKey, so filter explicitly here.
+        var orgId = _currentUser.GetOrganizationId();
+        var users = _userManager.Users.Where(u => u.OrganizationId == orgId).ToList();
         var userIdToRoles = await BuildUserRoleMapAsync();
 
         return users.Select(user => new UserDto
@@ -68,7 +94,8 @@ public class UserService : IUserService
             Username = user.UserName!,
             Email = user.Email!,
             Roles = RoleMapper.ToEnumRoles(userIdToRoles.GetValueOrDefault(user.Id, new List<string>())),
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            OrganizationId = user.OrganizationId,
         }).ToList();
     }
 
@@ -103,7 +130,9 @@ public class UserService : IUserService
             throw new ArgumentException("User ID cannot be null or empty.", nameof(id));
 
         var user = await _userManager.FindByIdAsync(id);
-        if (user == null)
+        // Treat cross-tenant access as "not found" so probing another
+        // org's user IDs doesn't leak existence.
+        if (user == null || user.OrganizationId != _currentUser.GetOrganizationId())
             throw new UserNotFoundException(id);
         var roles = await _userManager.GetRolesAsync(user);
         return new UserDto
@@ -112,7 +141,8 @@ public class UserService : IUserService
             Username = user.UserName!,
             Email = user.Email!,
             Roles = RoleMapper.ToEnumRoles(roles),
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            OrganizationId = user.OrganizationId,
         };
     }
 
@@ -124,7 +154,7 @@ public class UserService : IUserService
             throw new ArgumentNullException(nameof(updateDto), "Update data cannot be null.");
 
         var user = await _userManager.FindByIdAsync(id);
-        if (user == null)
+        if (user == null || user.OrganizationId != _currentUser.GetOrganizationId())
             throw new UserNotFoundException(id);
 
         if (!string.IsNullOrEmpty(updateDto.Username) && updateDto.Username != user.UserName)
@@ -164,7 +194,8 @@ public class UserService : IUserService
             Username = user.UserName!,
             Email = user.Email!,
             Roles = RoleMapper.ToEnumRoles(roles),
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            OrganizationId = user.OrganizationId,
         };
     }
 
@@ -174,7 +205,7 @@ public class UserService : IUserService
             throw new ArgumentException("User ID cannot be null or empty.", nameof(id));
 
         var user = await _userManager.FindByIdAsync(id);
-        if (user == null)
+        if (user == null || user.OrganizationId != _currentUser.GetOrganizationId())
             throw new UserNotFoundException(id);
         var result = await _userManager.DeleteAsync(user);
         if (!result.Succeeded)
@@ -183,6 +214,29 @@ public class UserService : IUserService
             throw new UserDeletionFailedException($"Failed to delete user: {errors}");
         }
         return true;
+    }
+
+    // Spins up a new tenant for a self-registered admin. The org's Name
+    // defaults to the username's workspace ("alice's Workspace") — the
+    // admin can rename it later. Slug is derived from the username but
+    // guaranteed unique by appending a short random suffix.
+    private async Task<Guid> CreateOrganizationForSignupAsync(string username)
+    {
+        var baseSlug = new string((username ?? "workspace").ToLowerInvariant()
+            .Where(c => char.IsLetterOrDigit(c) || c == '-')
+            .ToArray());
+        if (string.IsNullOrWhiteSpace(baseSlug)) baseSlug = "workspace";
+        var suffix = Guid.NewGuid().ToString("N").Substring(0, 6);
+        var slug = $"{baseSlug}-{suffix}";
+        var org = new Organization
+        {
+            Id = Guid.NewGuid(),
+            Name = $"{username}'s Workspace",
+            Slug = slug,
+            CreatedAt = DateTime.UtcNow,
+        };
+        var created = await _orgs.CreateAsync(org);
+        return created.Id;
     }
 
     private async Task AssignRoleAsync(User user, string roleName)
