@@ -1,0 +1,21 @@
+<h2 mat-dialog-title class="dialog-title">
+  <mat-icon>edit</mat-icon>
+  <span>Rename tenant</span>
+</h2>
+
+<mat-dialog-content class="dialog-content">
+  <div class="dialog-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>New name</mat-label>
+      <input matInput [value]="name()" (input)="name.set($any($event.target).value)" />
+    </mat-form-field>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-raised-button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
+  <button mat-raised-button color="primary" class="btn-primary" (click)="save()">
+    <mat-icon>save</mat-icon>
+    <span>Save</span>
+  </button>
+</mat-dialog-actions>

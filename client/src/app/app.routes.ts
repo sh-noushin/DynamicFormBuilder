@@ -67,6 +67,16 @@ export const routes: Routes = [
     loadComponent: () => import('./dashboards/user/user-dashboard.component/user-dashboard.component').then(m => m.UserDashboardComponent)
   },
   {
+    path: 'superadmin',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: [UserRole.SuperAdmin] },
+    loadComponent: () => import('./dashboards/super-admin/super-admin.component').then(m => m.SuperAdminComponent)
+  },
+  {
+    path: 'register/:tenantSlug',
+    loadComponent: () => import('./core/components/register.component/register.component').then(m => m.RegisterComponent)
+  },
+  {
     path: '',
     redirectTo: '/login',
     pathMatch: 'full'

@@ -63,7 +63,9 @@ export class RoleGuard implements CanActivate {
         return of(null);
       })
     ).subscribe(userInfo => {
-      if (userInfo?.roles?.includes(UserRole.Admin)) {
+      if (userInfo?.roles?.includes(UserRole.SuperAdmin)) {
+        this.router.navigate(['/superadmin']);
+      } else if (userInfo?.roles?.includes(UserRole.Admin)) {
         this.router.navigate(['/admin']);
       } else if (userInfo?.roles?.includes(UserRole.User)) {
         this.router.navigate(['/user']);

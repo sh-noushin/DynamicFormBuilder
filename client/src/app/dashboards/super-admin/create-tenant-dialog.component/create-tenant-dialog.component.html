@@ -1,0 +1,50 @@
+<h2 mat-dialog-title class="dialog-title">
+  <mat-icon>workspaces</mat-icon>
+  <span>Create tenant</span>
+</h2>
+
+<mat-dialog-content class="dialog-content">
+  <div class="dialog-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Workspace name</mat-label>
+      <input matInput [value]="name()" (input)="name.set($any($event.target).value)" placeholder="Acme Corp" />
+      <mat-hint>Shown to users. Slug is generated automatically from this name.</mat-hint>
+    </mat-form-field>
+
+    <mat-slide-toggle color="primary"
+                      [checked]="provisionAdmin()"
+                      (change)="provisionAdmin.set($any($event).checked)">
+      Provision first admin now
+    </mat-slide-toggle>
+
+    @if (provisionAdmin()) {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Admin username</mat-label>
+        <input matInput [value]="adminUsername()" (input)="adminUsername.set($any($event.target).value)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Admin email</mat-label>
+        <input matInput type="email" [value]="adminEmail()" (input)="adminEmail.set($any($event.target).value)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Admin password</mat-label>
+        <input matInput type="password" [value]="adminPassword()" (input)="adminPassword.set($any($event.target).value)" />
+        <mat-hint>At least 6 characters. Share securely with the customer.</mat-hint>
+      </mat-form-field>
+    }
+
+    @if (error()) {
+      <div class="error-message">{{ error() }}</div>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-raised-button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
+  <button mat-raised-button color="primary" class="btn-primary" (click)="save()">
+    <mat-icon>save</mat-icon>
+    <span>Create</span>
+  </button>
+</mat-dialog-actions>

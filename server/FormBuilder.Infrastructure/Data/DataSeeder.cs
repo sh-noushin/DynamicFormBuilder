@@ -30,11 +30,14 @@ public static class DataSeeder
             throw new InvalidOperationException($"'{SeedOptions.SectionName}:{nameof(SeedOptions.AdminPassword)}' is required to seed the admin user.");
         if (string.IsNullOrWhiteSpace(options.UserPassword))
             throw new InvalidOperationException($"'{SeedOptions.SectionName}:{nameof(SeedOptions.UserPassword)}' is required to seed the sample user.");
+        if (string.IsNullOrWhiteSpace(options.SuperAdminPassword))
+            throw new InvalidOperationException($"'{SeedOptions.SectionName}:{nameof(SeedOptions.SuperAdminPassword)}' is required to seed the super admin.");
 
         await EnsureDatabaseAsync(context);
         var defaultOrg = await SeedDefaultOrganizationAsync(context);
         await SeedRolesAsync(roleManager);
         await SeedUsersAsync(userManager, options, defaultOrg.Id);
+        await SeedSuperAdminAsync(userManager, options);
 
         if (await context.Forms.AnyAsync())
         {
@@ -91,6 +94,34 @@ public static class DataSeeder
         if (!await roleManager.RoleExistsAsync(Roles.User))
         {
             await roleManager.CreateAsync(new IdentityRole(Roles.User));
+        }
+
+        if (!await roleManager.RoleExistsAsync(Roles.SuperAdmin))
+        {
+            await roleManager.CreateAsync(new IdentityRole(Roles.SuperAdmin));
+        }
+    }
+
+    // Super admin owns no workspace, so OrganizationId is left at
+    // Guid.Empty. Their role check is what gates the /superadmin API;
+    // tenant-scoped queries never return anything for them (their org
+    // doesn't match any Form/ApiKey row) which is the intended safe
+    // default — they use dedicated endpoints instead.
+    private static async Task SeedSuperAdminAsync(UserManager<User> userManager, SeedOptions options)
+    {
+        if (await userManager.FindByNameAsync("super") != null) return;
+
+        var user = new User
+        {
+            UserName = "super",
+            Email = "super@formbuilder.com",
+            OrganizationId = Guid.Empty,
+        };
+
+        var result = await userManager.CreateAsync(user, options.SuperAdminPassword);
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(user, Roles.SuperAdmin);
         }
     }
 

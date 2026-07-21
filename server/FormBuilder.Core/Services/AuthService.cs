@@ -5,6 +5,7 @@ using FormBuilder.Core.DTOs;
 using FormBuilder.Core.Interfaces;
 using FormBuilder.Models.Entities;
 using FormBuilder.Models.Exceptions;
+using FormBuilder.Models.Repositories;
 using Microsoft.AspNetCore.Identity;
 
 namespace FormBuilder.Core.Services;
@@ -14,12 +15,14 @@ public class AuthService : IAuthService
     private readonly UserManager<User> _userManager;
     private readonly IJwtService _jwtService;
     private readonly IMapper _mapper;
+    private readonly IOrganizationRepository _orgs;
 
-    public AuthService(UserManager<User> userManager, IJwtService jwtService, IMapper mapper)
+    public AuthService(UserManager<User> userManager, IJwtService jwtService, IMapper mapper, IOrganizationRepository orgs)
     {
         _userManager = userManager;
         _jwtService = jwtService;
         _mapper = mapper;
+        _orgs = orgs;
     }
 
     public async Task<LoginResultDto> LoginAsync(LoginDto loginDto)
@@ -38,6 +41,7 @@ public class AuthService : IAuthService
         var roles = await _userManager.GetRolesAsync(user);
         var userDto = _mapper.Map<UserDto>(user);
         var token = _jwtService.GenerateToken(userDto, roles);
+        var org = await _orgs.GetByIdAsync(user.OrganizationId);
 
         return new LoginResultDto
         {
@@ -45,7 +49,8 @@ public class AuthService : IAuthService
             Username = userDto.Username,
             Email = userDto.Email,
             Roles = RoleMapper.ToEnumRoles(roles),
-            Token = token
+            Token = token,
+            OrganizationName = org?.Name ?? string.Empty,
         };
     }
 
@@ -60,16 +65,44 @@ public class AuthService : IAuthService
         if (string.IsNullOrEmpty(userName))
             throw new InvalidCredentialsException();
 
+        // Impersonation tokens carry a synthetic NameIdentifier
+        // ("impersonation:{orgId}") and don't correspond to a real user
+        // in the Identity store. Look up the target tenant by orgId
+        // claim and return a synthetic UserInfoDto instead of failing
+        // with UserNotFound.
+        var nameId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(nameId) && nameId.StartsWith("impersonation:"))
+        {
+            var orgIdClaim = principal.FindFirst("orgId")?.Value;
+            Organization? impersonatedOrg = null;
+            if (Guid.TryParse(orgIdClaim, out var impersonatedOrgId))
+            {
+                impersonatedOrg = await _orgs.GetByIdAsync(impersonatedOrgId);
+            }
+            var impersonatedRoles = principal.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+            return new UserInfoDto
+            {
+                Username = userName,
+                Email = string.Empty,
+                Roles = RoleMapper.ToEnumRoles(impersonatedRoles),
+                OrganizationName = impersonatedOrg != null
+                    ? $"[Impersonating] {impersonatedOrg.Name}"
+                    : string.Empty,
+            };
+        }
+
         var user = await _userManager.FindByNameAsync(userName);
         if (user == null)
             throw new UserNotFoundException(userName);
 
         var roles = await _userManager.GetRolesAsync(user);
+        var org = await _orgs.GetByIdAsync(user.OrganizationId);
         return new UserInfoDto
         {
             Username = user.UserName!,
             Email = user.Email!,
-            Roles = RoleMapper.ToEnumRoles(roles)
+            Roles = RoleMapper.ToEnumRoles(roles),
+            OrganizationName = org?.Name ?? string.Empty,
         };
     }
 }

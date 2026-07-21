@@ -1,0 +1,35 @@
+<div class="register-container">
+  <div class="register-card">
+    <h1 class="register-title">Join workspace</h1>
+    <p class="register-subtitle">Signing up to <strong>{{ tenantSlug }}</strong></p>
+
+    <div class="register-fields">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Username</mat-label>
+        <input matInput type="text" [value]="username()" (input)="username.set($any($event.target).value)" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" [value]="email()" (input)="email.set($any($event.target).value)" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" [value]="password()" (input)="password.set($any($event.target).value)" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Confirm password</mat-label>
+        <input matInput type="password" [value]="confirmPassword()" (input)="confirmPassword.set($any($event.target).value)" />
+      </mat-form-field>
+
+      <button class="primary-button" [disabled]="isLoading()" (click)="submit()">
+        @if (isLoading()) { <span>Creating account&hellip;</span> } @else { <span>Create account</span> }
+      </button>
+
+      @if (error()) {
+        <div class="error-message">{{ error() }}</div>
+      }
+
+      <p class="login-hint">Already have an account? <a routerLink="/login">Log in</a></p>
+    </div>
+  </div>
+</div>

@@ -4,6 +4,10 @@ export interface AuthUser {
   username: string;
   email: string;
   roles: string[];
+  // Workspace label rendered in the app header. Populated from the
+  // login response's OrganizationName. Older sessions saved to
+  // localStorage before this field existed will show empty.
+  organizationName?: string;
 }
 
 @Injectable({ providedIn: 'root' })

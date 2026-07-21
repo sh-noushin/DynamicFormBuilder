@@ -40,19 +40,18 @@ public class UserService : IUserService
         if (existingEmailUser != null)
             throw new DuplicateEmailException(registerDto.Email);
 
-        // Two call sites, one endpoint: an authenticated admin creating a
-        // teammate reuses their org; an anonymous self-signup spins up a
-        // fresh org (customer creating an account for their company).
-        var callerOrgId = _currentUser.GetOrganizationIdOrNull();
-        var (organizationId, isSelfSignup) = callerOrgId != null
-            ? (callerOrgId.Value, false)
-            : (await CreateOrganizationForSignupAsync(registerDto.Username), true);
+        // Authenticated flow only: caller must be an admin creating a
+        // user inside their own tenant. Public sign-up runs through
+        // RegisterInTenantAsync where the tenant is named explicitly
+        // via the URL slug.
+        var callerOrgId = _currentUser.GetOrganizationIdOrNull()
+            ?? throw new UnauthorizedAccessException("Authentication required to create a user in an existing workspace.");
 
         var user = new User
         {
             UserName = registerDto.Username,
             Email = registerDto.Email,
-            OrganizationId = organizationId,
+            OrganizationId = callerOrgId,
         };
 
         var result = await _userManager.CreateAsync(user, registerDto.Password);
@@ -62,10 +61,7 @@ public class UserService : IUserService
             throw new UserCreationFailedException($"Failed to create user: {errors}");
         }
 
-        // Self-signup users are always the admin of the org they just
-        // created — otherwise there'd be nobody who could manage forms.
-        var effectiveRole = isSelfSignup ? UserRole.Admin.ToString() : registerDto.Role.ToString();
-        await AssignRoleAsync(user, effectiveRole);
+        await AssignRoleAsync(user, registerDto.Role.ToString());
 
         var roles = await _userManager.GetRolesAsync(user);
         return new UserDto
@@ -216,27 +212,52 @@ public class UserService : IUserService
         return true;
     }
 
-    // Spins up a new tenant for a self-registered admin. The org's Name
-    // defaults to the username's workspace ("alice's Workspace") — the
-    // admin can rename it later. Slug is derived from the username but
-    // guaranteed unique by appending a short random suffix.
-    private async Task<Guid> CreateOrganizationForSignupAsync(string username)
+    // Anonymous sign-up into an existing tenant. Called from the public
+    // /register/{tenantSlug} endpoint. The tenant admin shares this URL
+    // with their team; anyone with the URL can create a User-role
+    // account inside that specific tenant. Role from the DTO is ignored
+    // — public sign-ups always land as User.
+    public async Task<UserDto> RegisterInTenantAsync(string tenantSlug, RegisterUserDto registerDto)
     {
-        var baseSlug = new string((username ?? "workspace").ToLowerInvariant()
-            .Where(c => char.IsLetterOrDigit(c) || c == '-')
-            .ToArray());
-        if (string.IsNullOrWhiteSpace(baseSlug)) baseSlug = "workspace";
-        var suffix = Guid.NewGuid().ToString("N").Substring(0, 6);
-        var slug = $"{baseSlug}-{suffix}";
-        var org = new Organization
+        if (registerDto == null)
+            throw new ArgumentNullException(nameof(registerDto), "Register data cannot be null.");
+        if (string.IsNullOrWhiteSpace(tenantSlug))
+            throw new ArgumentException("Tenant slug is required.", nameof(tenantSlug));
+
+        var org = await _orgs.GetBySlugAsync(tenantSlug)
+            ?? throw new InvalidOperationException($"Workspace '{tenantSlug}' not found.");
+
+        var existingUser = await _userManager.FindByNameAsync(registerDto.Username);
+        if (existingUser != null)
+            throw new DuplicateUsernameException(registerDto.Username);
+        var existingEmailUser = await _userManager.FindByEmailAsync(registerDto.Email);
+        if (existingEmailUser != null)
+            throw new DuplicateEmailException(registerDto.Email);
+
+        var user = new User
         {
-            Id = Guid.NewGuid(),
-            Name = $"{username}'s Workspace",
-            Slug = slug,
-            CreatedAt = DateTime.UtcNow,
+            UserName = registerDto.Username,
+            Email = registerDto.Email,
+            OrganizationId = org.Id,
         };
-        var created = await _orgs.CreateAsync(org);
-        return created.Id;
+        var result = await _userManager.CreateAsync(user, registerDto.Password);
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new UserCreationFailedException($"Failed to create user: {errors}");
+        }
+
+        await AssignRoleAsync(user, UserRole.User.ToString());
+        var roles = await _userManager.GetRolesAsync(user);
+        return new UserDto
+        {
+            Id = user.Id,
+            Username = user.UserName!,
+            Email = user.Email!,
+            Roles = RoleMapper.ToEnumRoles(roles),
+            CreatedAt = DateTime.UtcNow,
+            OrganizationId = user.OrganizationId,
+        };
     }
 
     private async Task AssignRoleAsync(User user, string roleName)

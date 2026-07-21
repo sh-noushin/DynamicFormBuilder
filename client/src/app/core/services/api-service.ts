@@ -3867,6 +3867,7 @@ export interface IUserInfoDto {
 export enum UserRole {
     User = "User",
     Admin = "Admin",
+    SuperAdmin = "SuperAdmin",
 }
 
 export class ApiException extends Error {

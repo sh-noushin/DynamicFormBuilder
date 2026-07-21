@@ -20,13 +20,31 @@ public class UserController : ControllerBase
         _passwordService = passwordService;
     }
 
+    // Tenant admin creating a user inside their own workspace. The
+    // request must be authenticated — the callers's org is read from
+    // the JWT claim, so no orgId is accepted in the body.
     [HttpPost("register")]
+    [Authorize(AuthenticationSchemes = "Bearer", Roles = Roles.Admin)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(UserDto), 201)]
     [ProducesResponseType(typeof(void), 400)]
     public async Task<ActionResult<UserDto>> RegisterUser(RegisterUserDto registerDto)
     {
         var userDto = await _userService.RegisterUserAsync(registerDto);
+        return CreatedAtAction(nameof(GetUser), new { id = userDto.Id }, userDto);
+    }
+
+    // Public tenant sign-up. Anonymous callers land as User role inside
+    // the named tenant. Tenant admin shares this URL with their team.
+    [HttpPost("register/{tenantSlug}")]
+    [AllowAnonymous]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(UserDto), 201)]
+    [ProducesResponseType(typeof(void), 400)]
+    [ProducesResponseType(typeof(void), 404)]
+    public async Task<ActionResult<UserDto>> RegisterInTenant(string tenantSlug, RegisterUserDto registerDto)
+    {
+        var userDto = await _userService.RegisterInTenantAsync(tenantSlug, registerDto);
         return CreatedAtAction(nameof(GetUser), new { id = userDto.Id }, userDto);
     }
 

@@ -1,5 +1,11 @@
 <mat-toolbar color="primary" class="toolbar">
   <span class="toolbar-title">{{ title }}</span>
+  @if (user()?.organizationName) {
+    <span class="workspace-chip" [attr.title]="user()?.organizationName">
+      <mat-icon>workspaces</mat-icon>
+      <span>{{ user()?.organizationName }}</span>
+    </span>
+  }
   <span class="spacer"></span>
   <button
     type="button"

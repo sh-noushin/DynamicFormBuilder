@@ -3,52 +3,24 @@
     <h1 class="login-title">FormBuilder</h1>
     <p class="login-subtitle">Sign in to your workspace</p>
 
-    <mat-tab-group class="login-tabs" mat-stretch-tabs="true" mat-align-tabs="center">
-      <mat-tab label="Login">
-        <div class="login-fields">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Username</mat-label>
-            <input matInput type="text" [value]="username()" (input)="username.set($event.target.value)" />
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Password</mat-label>
-            <input matInput type="password" [value]="password()" (input)="password.set($event.target.value)" />
-          </mat-form-field>
-          <button class="primary-button" [disabled]="isLoading()" (click)="login()">
-            @if (isLoading()) { <span>Logging in&hellip;</span> } @else { <span>Login</span> }
-          </button>
-          @if (error()) {
-            <div class="error-message">{{ error() }}</div>
-          }
-        </div>
-      </mat-tab>
-
-      <mat-tab label="Register">
-        <div class="register-fields">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Username</mat-label>
-            <input matInput type="text" [value]="regUsername()" (input)="regUsername.set($event.target.value)" />
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Email</mat-label>
-            <input matInput type="email" [value]="regEmail()" (input)="regEmail.set($event.target.value)" />
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Password</mat-label>
-            <input matInput type="password" [value]="regPassword()" (input)="regPassword.set($event.target.value)" />
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Confirm Password</mat-label>
-            <input matInput type="password" [value]="regConfirmPassword()" (input)="regConfirmPassword.set($event.target.value)" />
-          </mat-form-field>
-          <button class="primary-button" [disabled]="isLoading()" (click)="register()">
-            @if (isLoading()) { <span>Registering&hellip;</span> } @else { <span>Create account</span> }
-          </button>
-          @if (error()) {
-            <div class="error-message">{{ error() }}</div>
-          }
-        </div>
-      </mat-tab>
-    </mat-tab-group>
+    <div class="login-fields">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Username</mat-label>
+        <input matInput type="text" [value]="username()" (input)="username.set($event.target.value)" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" [value]="password()" (input)="password.set($event.target.value)" />
+      </mat-form-field>
+      <button class="primary-button" [disabled]="isLoading()" (click)="login()">
+        @if (isLoading()) { <span>Logging in&hellip;</span> } @else { <span>Login</span> }
+      </button>
+      @if (error()) {
+        <div class="error-message">{{ error() }}</div>
+      }
+      <p class="signup-hint">
+        Need an account? Ask your workspace admin for your sign-up link.
+      </p>
+    </div>
   </div>
 </div>

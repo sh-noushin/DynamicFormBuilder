@@ -29,6 +29,39 @@
   flex: 1 1 auto;
 }
 
+// Workspace name badge — sits between the title and the spacer so the
+// admin can see which tenant they're currently signed in to. Hidden on
+// narrow viewports since the profile trigger already shows the account.
+.workspace-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 16px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--brand-primary-soft);
+  color: var(--brand-primary-hover);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  .mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: inherit;
+  }
+}
+
+@media (max-width: 640px) {
+  .workspace-chip {
+    display: none;
+  }
+}
+
 .menu-toggle {
   color: var(--brand-text);
   background: transparent;

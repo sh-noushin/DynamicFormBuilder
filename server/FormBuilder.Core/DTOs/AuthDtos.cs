@@ -19,6 +19,8 @@ public class LoginResultDto
     public string Email { get; set; } = string.Empty;
     public List<UserRole> Roles { get; set; } = new List<UserRole>();
     public string Token { get; set; } = string.Empty;
+    // Workspace name shown in the app header once the user is logged in.
+    public string OrganizationName { get; set; } = string.Empty;
 }
 
 public class UserInfoDto
@@ -26,6 +28,7 @@ public class UserInfoDto
     public string Username { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public List<UserRole> Roles { get; set; } = new List<UserRole>();
+    public string OrganizationName { get; set; } = string.Empty;
 }
 
 public class RegisterUserDto

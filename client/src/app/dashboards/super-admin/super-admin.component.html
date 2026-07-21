@@ -1,0 +1,87 @@
+<app-header title="Super Admin"></app-header>
+
+<div class="super-admin-shell">
+  <mat-card class="tenants-card">
+    <mat-card-header>
+      <mat-card-title>Customer workspaces</mat-card-title>
+      <mat-card-subtitle>{{ tenants().length }} tenant{{ tenants().length === 1 ? '' : 's' }} in the system</mat-card-subtitle>
+      <div class="header-actions">
+        <button mat-raised-button color="primary" class="btn-primary" (click)="openCreate()">
+          <mat-icon>add</mat-icon>
+          <span>Create tenant</span>
+        </button>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (isLoading()) {
+        <div class="loading-state">Loading…</div>
+      } @else if (!tenants().length) {
+        <div class="empty-state">
+          <mat-icon class="empty-icon">workspaces</mat-icon>
+          <h3>No tenants yet</h3>
+          <p>Create your first customer workspace to get started.</p>
+        </div>
+      } @else {
+        <table mat-table [dataSource]="pagedTenants()" class="table-base">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let t">{{ t.name }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="slug">
+            <th mat-header-cell *matHeaderCellDef>Slug</th>
+            <td mat-cell *matCellDef="let t">
+              <span class="slug-chip">{{ t.slug }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="users">
+            <th mat-header-cell *matHeaderCellDef>Users</th>
+            <td mat-cell *matCellDef="let t">{{ t.userCount }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="forms">
+            <th mat-header-cell *matHeaderCellDef>Forms</th>
+            <td mat-cell *matCellDef="let t">{{ t.formCount }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="createdAt">
+            <th mat-header-cell *matHeaderCellDef>Created</th>
+            <td mat-cell *matCellDef="let t">{{ t.createdAt | date:'MMM d, y' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let t" class="actions-cell">
+              <button mat-icon-button matTooltip="Impersonate admin" class="btn-impersonate" (click)="impersonate(t)">
+                <mat-icon>login</mat-icon>
+              </button>
+              <button mat-icon-button matTooltip="Copy sign-up URL" (click)="copySignupUrl(t)">
+                <mat-icon>link</mat-icon>
+              </button>
+              <button mat-icon-button matTooltip="Rename" (click)="openRename(t)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button matTooltip="Delete" class="btn-delete" (click)="confirmDelete(t)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></tr>
+        </table>
+
+        <mat-paginator
+          [length]="tenants().length"
+          [pageSize]="pageSize()"
+          [pageIndex]="pageIndex()"
+          [pageSizeOptions]="[5, 10, 25, 50]"
+          showFirstLastButtons
+          (page)="onPage($event)">
+        </mat-paginator>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>
