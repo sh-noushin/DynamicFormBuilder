@@ -57,6 +57,10 @@ export const routes: Routes = [
       {
         path: 'api-keys',
         loadComponent: () => import('./dashboards/admin/api-keys/api-keys.component').then(m => m.ApiKeysComponent)
+      },
+      {
+        path: 'billing',
+        loadComponent: () => import('./dashboards/admin/billing.component/billing.component').then(m => m.BillingComponent)
       }
     ]
   },

@@ -52,6 +52,11 @@ builder.Services.AddFormBuilderServices();
 builder.Services.Configure<FormBuilder.Core.Options.FileUploadOptions>(
     builder.Configuration.GetSection(FormBuilder.Core.Options.FileUploadOptions.SectionName));
 
+// Stripe billing options (SecretKey / WebhookSecret / ProPriceId).
+// Read via IOptions<BillingOptions> in BillingService.
+builder.Services.Configure<FormBuilder.Core.Options.BillingOptions>(
+    builder.Configuration.GetSection(FormBuilder.Core.Options.BillingOptions.SectionName));
+
 // Per-IP rate limit on the public submission endpoint. Anonymous, so IP is
 // the best cheap-and-cheerful partition key we have. 10 req/min per IP is
 // generous for a real filler and painful for a naive bot flood.

@@ -1,0 +1,64 @@
+<div class="billing-shell">
+  @if (isLoading()) {
+    <div class="loading-state">Loading billing info…</div>
+  } @else if (status(); as s) {
+    <mat-card class="billing-card">
+      <mat-card-header>
+        <mat-card-title>Your plan</mat-card-title>
+        <mat-card-subtitle>Manage your workspace subscription</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="plan-badge" [class.plan-pro]="s.plan === 'Pro'">
+          <mat-icon>{{ s.plan === 'Pro' ? 'stars' : 'workspace_premium' }}</mat-icon>
+          <div>
+            <div class="plan-name">{{ s.plan }}</div>
+            @if (s.status) {
+              <div class="plan-status">Status: {{ s.status }}</div>
+            }
+            @if (s.currentPeriodEnd) {
+              <div class="plan-period">Renews {{ s.currentPeriodEnd | date:'MMM d, y' }}</div>
+            }
+          </div>
+        </div>
+
+        <div class="usage-block">
+          <div class="usage-row">
+            <div class="usage-label">
+              <span>Forms</span>
+              <span class="usage-count">{{ s.formCount }} / {{ s.maxForms }}</span>
+            </div>
+            <mat-progress-bar mode="determinate" [value]="formsPercent()"
+              [color]="formsPercent() >= 100 ? 'warn' : 'primary'"></mat-progress-bar>
+          </div>
+
+          <div class="usage-row">
+            <div class="usage-label">
+              <span>Submissions this month</span>
+              <span class="usage-count">{{ s.submissionsThisMonth }} / {{ s.maxSubmissionsPerMonth }}</span>
+            </div>
+            <mat-progress-bar mode="determinate" [value]="submissionsPercent()"
+              [color]="submissionsPercent() >= 100 ? 'warn' : 'primary'"></mat-progress-bar>
+          </div>
+        </div>
+
+        <div class="cta-row">
+          @if (s.plan === 'Free') {
+            <button mat-raised-button color="primary" class="btn-primary"
+                    [disabled]="isRedirecting()" (click)="upgrade()">
+              <mat-icon>upgrade</mat-icon>
+              <span>{{ isRedirecting() ? 'Redirecting…' : 'Upgrade to Pro' }}</span>
+            </button>
+            <p class="cta-note">$19/month · 25 forms · 5,000 submissions/month</p>
+          } @else {
+            <button mat-raised-button color="primary" class="btn-primary"
+                    [disabled]="isRedirecting()" (click)="managePortal()">
+              <mat-icon>settings</mat-icon>
+              <span>{{ isRedirecting() ? 'Redirecting…' : 'Manage subscription' }}</span>
+            </button>
+            <p class="cta-note">Change payment method, download invoices, or cancel via Stripe.</p>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

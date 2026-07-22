@@ -30,6 +30,10 @@ public sealed class DomainExceptionHandler : IExceptionHandler
             FormClosedException => (StatusCodes.Status410Gone, "Form Closed"),
             DuplicateSubmissionException => (StatusCodes.Status409Conflict, "Duplicate Submission"),
             HoneypotTriggeredException => (StatusCodes.Status400BadRequest, "Submission Blocked"),
+            // 402 Payment Required — the caller's plan doesn't cover this
+            // action. Frontend interceptor listens for this and redirects
+            // to the billing page with an upgrade prompt.
+            PlanLimitExceededException => (StatusCodes.Status402PaymentRequired, "Plan Limit Reached"),
             ArgumentException => (StatusCodes.Status400BadRequest, "Bad Request"),
             _ => (0, string.Empty)
         };

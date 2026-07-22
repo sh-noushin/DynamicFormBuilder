@@ -2,6 +2,8 @@ using AutoMapper;
 using FormBuilder.Core.Common;
 using FormBuilder.Core.DTOs;
 using FormBuilder.Core.Interfaces;
+using FormBuilder.Core.Options;
+using FormBuilder.Models.Entities;
 using FormBuilder.Models.Exceptions;
 using FormBuilder.Models.Repositories;
 
@@ -12,12 +14,18 @@ public class FormService : IFormService
     private readonly IFormRepository _formRepository;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUser;
+    private readonly IOrganizationRepository _orgs;
 
-    public FormService(IFormRepository formRepository, IMapper mapper, ICurrentUserService currentUser)
+    public FormService(
+        IFormRepository formRepository,
+        IMapper mapper,
+        ICurrentUserService currentUser,
+        IOrganizationRepository orgs)
     {
         _formRepository = formRepository;
         _mapper = mapper;
         _currentUser = currentUser;
+        _orgs = orgs;
     }
 
     public async Task<IEnumerable<FormDto>> GetAllFormsAsync()
@@ -45,11 +53,18 @@ public class FormService : IFormService
 
         ValidateRedirectUrl(formDto.RedirectUrl);
         ValidateWebhookUrl(formDto.WebhookUrl);
+
+        // Plan-limit gate: block form creation once the tenant hits
+        // their plan's form cap. Middleware surfaces the exception as
+        // HTTP 402 and the frontend redirects to the billing page.
+        var orgId = _currentUser.GetOrganizationId();
+        await EnforceFormLimitAsync(orgId);
+
         var entity = _mapper.Map<FormBuilder.Models.Entities.Form>(formDto);
         // Every form lives inside the calling admin's tenant. This is
         // set on the entity — not the DTO — so callers can't pick a
         // different org by passing OrganizationId in the request body.
-        entity.OrganizationId = _currentUser.GetOrganizationId();
+        entity.OrganizationId = orgId;
         entity.CreatedAt = DateTime.UtcNow;
         entity.UpdatedAt = DateTime.UtcNow;
         entity.Slug = SlugGenerator.Generate();
@@ -250,11 +265,14 @@ public class FormService : IFormService
             });
         }
 
+        var orgIdForImport = _currentUser.GetOrganizationId();
+        await EnforceFormLimitAsync(orgIdForImport);
+
         var entity = new FormBuilder.Models.Entities.Form
         {
             // Imported form belongs to the admin's tenant, same rule as
             // CreateFormAsync — the export file has no OrganizationId.
-            OrganizationId = _currentUser.GetOrganizationId(),
+            OrganizationId = orgIdForImport,
             Name = payload.Form.Name,
             Description = payload.Form.Description,
             BrandColor = payload.Form.BrandColor,
@@ -288,6 +306,23 @@ public class FormService : IFormService
 
         var created = await _formRepository.CreateAsync(entity);
         return _mapper.Map<FormDto>(created);
+    }
+
+    // Checks the tenant's form count against their current plan's cap
+    // and throws PlanLimitExceededException when over. Called from both
+    // CreateFormAsync and ImportFormAsync so both paths honor the limit.
+    private async Task EnforceFormLimitAsync(Guid organizationId)
+    {
+        var org = await _orgs.GetByIdAsync(organizationId);
+        if (org == null) return;
+        var currentCount = await _orgs.GetFormCountAsync(organizationId);
+        var max = PlanLimits.MaxForms(org.Plan);
+        if (currentCount >= max)
+        {
+            throw new PlanLimitExceededException(
+                "forms",
+                $"Your {org.Plan} plan is limited to {max} forms. Upgrade to add more.");
+        }
     }
 
     // Only accept absolute http/https redirects. Blocks javascript:, data:,

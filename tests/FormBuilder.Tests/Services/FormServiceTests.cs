@@ -15,6 +15,7 @@ namespace FormBuilder.Tests.Services
         private readonly IFormRepository _repo = Substitute.For<IFormRepository>();
         private readonly AutoMapper.IMapper _mapper = Substitute.For<AutoMapper.IMapper>();
         private readonly ICurrentUserService _currentUser = MakeCurrentUser();
+        private readonly IOrganizationRepository _orgs = Substitute.For<IOrganizationRepository>();
 
         private static ICurrentUserService MakeCurrentUser()
         {
@@ -31,7 +32,7 @@ namespace FormBuilder.Tests.Services
             var formDto = new FormBuilder.Core.DTOs.FormDto { Id = form.Id, Name = form.Name };
             _repo.GetByIdAsync(form.Id).Returns(Task.FromResult<FormBuilder.Models.Entities.Form?>(form));
             _mapper.Map<FormBuilder.Core.DTOs.FormDto>(form).Returns(formDto);
-            var service = new FormService(_repo, _mapper, _currentUser);
+            var service = new FormService(_repo, _mapper, _currentUser, _orgs);
             var result = await service.GetFormByIdAsync(form.Id);
             Assert.NotNull(result);
             Assert.Equal("Test", result.Name);
@@ -44,7 +45,7 @@ namespace FormBuilder.Tests.Services
             var formDtos = new List<FormBuilder.Core.DTOs.FormDto> { new FormBuilder.Core.DTOs.FormDto { Id = forms[0].Id, Name = forms[0].Name } };
             _repo.GetAllAsync().Returns(forms);
             _mapper.Map<IEnumerable<FormBuilder.Core.DTOs.FormDto>>(forms).Returns(formDtos);
-            var service = new FormService(_repo, _mapper, _currentUser);
+            var service = new FormService(_repo, _mapper, _currentUser, _orgs);
             var result = await service.GetAllFormsAsync();
             Assert.Single(result);
             Assert.Equal("Form1", result.First().Name);
@@ -59,7 +60,7 @@ namespace FormBuilder.Tests.Services
             _mapper.Map<FormBuilder.Models.Entities.Form>(createDto).Returns(entity);
             _repo.CreateAsync(entity).Returns(entity);
             _mapper.Map<FormBuilder.Core.DTOs.FormDto>(entity).Returns(resultDto);
-            var service = new FormService(_repo, _mapper, _currentUser);
+            var service = new FormService(_repo, _mapper, _currentUser, _orgs);
             var result = await service.CreateFormAsync(createDto);
             Assert.NotNull(result);
             Assert.Equal("NewForm", result.Name);
@@ -76,7 +77,7 @@ namespace FormBuilder.Tests.Services
             _mapper.Map<FormBuilder.Models.Entities.Form>(updateDto).Returns(entity);
             _repo.UpdateAsync(formId, entity).Returns(updatedEntity);
             _mapper.Map<FormBuilder.Core.DTOs.FormDto>(updatedEntity).Returns(resultDto);
-            var service = new FormService(_repo, _mapper, _currentUser);
+            var service = new FormService(_repo, _mapper, _currentUser, _orgs);
             var result = await service.UpdateFormAsync(formId, updateDto);
             Assert.NotNull(result);
             Assert.Equal("UpdatedForm", result.Name);
@@ -87,7 +88,7 @@ namespace FormBuilder.Tests.Services
         {
             var formId = Guid.NewGuid();
             _repo.DeleteAsync(formId).Returns(true);
-            var service = new FormService(_repo, _mapper, _currentUser);
+            var service = new FormService(_repo, _mapper, _currentUser, _orgs);
             var result = await service.DeleteFormAsync(formId);
             Assert.True(result);
         }
@@ -100,7 +101,7 @@ namespace FormBuilder.Tests.Services
             var updatedForm = new FormBuilder.Models.Entities.Form { Id = formId, Name = "ActiveForm", IsActive = true };
             _repo.GetByIdAsync(formId).Returns(form);
             _repo.UpdateAsync(formId, Arg.Any<FormBuilder.Models.Entities.Form>()).Returns(updatedForm);
-            var service = new FormService(_repo, _mapper, _currentUser);
+            var service = new FormService(_repo, _mapper, _currentUser, _orgs);
             var result = await service.ActivateFormAsync(formId);
             Assert.True(result);
         }
@@ -113,7 +114,7 @@ namespace FormBuilder.Tests.Services
             var updatedForm = new FormBuilder.Models.Entities.Form { Id = formId, Name = "InactiveForm", IsActive = false };
             _repo.GetByIdAsync(formId).Returns(form);
             _repo.UpdateAsync(formId, Arg.Any<FormBuilder.Models.Entities.Form>()).Returns(updatedForm);
-            var service = new FormService(_repo, _mapper, _currentUser);
+            var service = new FormService(_repo, _mapper, _currentUser, _orgs);
             var result = await service.DeactivateFormAsync(formId);
             Assert.True(result);
         }

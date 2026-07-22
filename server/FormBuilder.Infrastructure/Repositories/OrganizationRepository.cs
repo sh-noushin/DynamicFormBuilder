@@ -24,6 +24,20 @@ public class OrganizationRepository : IOrganizationRepository
         return await _context.Organizations.AsNoTracking().FirstOrDefaultAsync(o => o.Slug == slug);
     }
 
+    public async Task<Organization?> GetByStripeCustomerIdAsync(string stripeCustomerId)
+    {
+        if (string.IsNullOrEmpty(stripeCustomerId)) return null;
+        return await _context.Organizations.AsNoTracking()
+            .FirstOrDefaultAsync(o => o.StripeCustomerId == stripeCustomerId);
+    }
+
+    public async Task<Organization?> GetByStripeSubscriptionIdAsync(string stripeSubscriptionId)
+    {
+        if (string.IsNullOrEmpty(stripeSubscriptionId)) return null;
+        return await _context.Organizations.AsNoTracking()
+            .FirstOrDefaultAsync(o => o.StripeSubscriptionId == stripeSubscriptionId);
+    }
+
     public async Task<Organization> CreateAsync(Organization organization)
     {
         _context.Organizations.Add(organization);
@@ -36,6 +50,15 @@ public class OrganizationRepository : IOrganizationRepository
         var existing = await _context.Organizations.FirstOrDefaultAsync(o => o.Id == id);
         if (existing == null) return null;
         existing.Name = name;
+        await _context.SaveChangesAsync();
+        return existing;
+    }
+
+    public async Task<Organization?> UpdateBillingAsync(Guid id, Action<Organization> mutate)
+    {
+        var existing = await _context.Organizations.FirstOrDefaultAsync(o => o.Id == id);
+        if (existing == null) return null;
+        mutate(existing);
         await _context.SaveChangesAsync();
         return existing;
     }
@@ -59,9 +82,6 @@ public class OrganizationRepository : IOrganizationRepository
 
     public async Task<Dictionary<Guid, int>> GetUserCountsAsync()
     {
-        // Bypass the tenant filter — super admin needs to count across
-        // every org, and Users aren't filtered anyway (Identity uses
-        // explicit scoping in UserService), so this is just aggregate.
         return await _context.Users
             .AsNoTracking()
             .GroupBy(u => u.OrganizationId)
@@ -77,5 +97,28 @@ public class OrganizationRepository : IOrganizationRepository
             .GroupBy(f => f.OrganizationId)
             .Select(g => new { OrgId = g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.OrgId, x => x.Count);
+    }
+
+    public async Task<int> GetFormCountAsync(Guid organizationId)
+    {
+        // Count all forms for a specific tenant. Uses IgnoreQueryFilters
+        // so the plan-limit check works even from an anonymous context
+        // (e.g. impersonation, webhook processing).
+        return await _context.Forms
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .CountAsync(f => f.OrganizationId == organizationId);
+    }
+
+    public async Task<int> GetSubmissionsThisMonthAsync(Guid organizationId)
+    {
+        // Count submissions received in the current UTC calendar month
+        // across all forms in the tenant. Joins through FormVersion -> Form
+        // to reach the organization scope.
+        var firstOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+        return await _context.FormSubmissions
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .CountAsync(s => s.FormVersion.Form.OrganizationId == organizationId && s.SubmittedAt >= firstOfMonth);
     }
 }

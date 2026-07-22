@@ -49,6 +49,15 @@ public class FormBuilderDbContext : IdentityDbContext<User>
             entity.Property(e => e.Slug).IsRequired().HasMaxLength(64);
             entity.HasIndex(e => e.Slug).IsUnique();
             entity.Property(e => e.CreatedAt).IsRequired();
+            // Store plan as an int (0 = Free, 1 = Pro). Default is Free.
+            entity.Property(e => e.Plan).HasConversion<int>().HasDefaultValue(BillingPlan.Free);
+            entity.Property(e => e.StripeCustomerId).HasMaxLength(64);
+            entity.Property(e => e.StripeSubscriptionId).HasMaxLength(64);
+            entity.Property(e => e.SubscriptionStatus).HasMaxLength(32);
+            // Look up by Stripe IDs from the webhook handler — indexed
+            // so the customer.subscription.updated hot path is O(log n).
+            entity.HasIndex(e => e.StripeCustomerId);
+            entity.HasIndex(e => e.StripeSubscriptionId);
         });
 
         modelBuilder.Entity<Form>(entity =>

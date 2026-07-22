@@ -59,6 +59,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFormSubmissionDraftService, FormSubmissionDraftService>();
         services.AddScoped<IApiKeyService, ApiKeyService>();
         services.AddScoped<IOrganizationService, OrganizationService>();
+        services.AddScoped<IBillingService, FormBuilder.Infrastructure.Services.BillingService>();
         services.AddHttpClient(FormBuilder.Infrastructure.Services.HttpWebhookSender.HttpClientName, client =>
         {
             // 10s cap keeps a slow receiver from tying up the submit path.
