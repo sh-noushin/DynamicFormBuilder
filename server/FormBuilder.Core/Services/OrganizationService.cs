@@ -14,17 +14,20 @@ public class OrganizationService : IOrganizationService
     private readonly UserManager<User> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IJwtService _jwt;
+    private readonly ICurrentUserService _currentUser;
 
     public OrganizationService(
         IOrganizationRepository repo,
         UserManager<User> userManager,
         RoleManager<IdentityRole> roleManager,
-        IJwtService jwt)
+        IJwtService jwt,
+        ICurrentUserService currentUser)
     {
         _repo = repo;
         _userManager = userManager;
         _roleManager = roleManager;
         _jwt = jwt;
+        _currentUser = currentUser;
     }
 
     public async Task<IEnumerable<OrganizationDto>> ListAsync()
@@ -131,6 +134,23 @@ public class OrganizationService : IOrganizationService
             OrganizationName = org.Name,
             OrganizationId = id,
         };
+    }
+
+    public async Task<OrganizationDto> GetCurrentAsync()
+    {
+        var orgId = _currentUser.GetOrganizationId();
+        var org = await _repo.GetByIdAsync(orgId)
+            ?? throw new InvalidOperationException("Workspace not found.");
+        return ToDto(org, userCount: 0, formCount: 0);
+    }
+
+    public async Task<OrganizationDto> RenameCurrentAsync(UpdateOrganizationDto payload)
+    {
+        if (payload == null) throw new ArgumentNullException(nameof(payload));
+        var orgId = _currentUser.GetOrganizationId();
+        var updated = await _repo.UpdateAsync(orgId, payload.Name.Trim())
+            ?? throw new InvalidOperationException("Workspace not found.");
+        return ToDto(updated, userCount: 0, formCount: 0);
     }
 
     private async Task<string> GenerateUniqueSlugAsync(string name)

@@ -61,6 +61,10 @@ export const routes: Routes = [
       {
         path: 'billing',
         loadComponent: () => import('./dashboards/admin/billing.component/billing.component').then(m => m.BillingComponent)
+      },
+      {
+        path: 'settings',
+        loadComponent: () => import('./dashboards/admin/workspace-settings.component/workspace-settings.component').then(m => m.WorkspaceSettingsComponent)
       }
     ]
   },

@@ -16,4 +16,10 @@ public interface IOrganizationService
     // super admin can walk through the app "as" that tenant's admin
     // for support / debugging.
     Task<ImpersonationResultDto> ImpersonateAsync(Guid id);
+
+    // Tenant admin: read + rename their OWN workspace. Reads the tenant
+    // id from the caller's orgId claim so a compromised admin cannot
+    // touch another tenant's workspace by passing an id.
+    Task<OrganizationDto> GetCurrentAsync();
+    Task<OrganizationDto> RenameCurrentAsync(UpdateOrganizationDto payload);
 }
