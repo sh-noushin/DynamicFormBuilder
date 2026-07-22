@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
 import { filter } from 'rxjs/operators';
 import { HeaderComponent } from '../../shared/layout/header.component/header.component';
+import { ImpersonationBannerComponent } from '../../shared/impersonation-banner/impersonation-banner.component';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -21,7 +22,8 @@ import { HeaderComponent } from '../../shared/layout/header.component/header.com
     MatToolbarModule,
     MatButtonModule,
     MatTabsModule,
-    HeaderComponent
+    HeaderComponent,
+    ImpersonationBannerComponent,
 ],
   templateUrl: './admin-dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

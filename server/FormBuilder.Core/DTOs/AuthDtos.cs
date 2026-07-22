@@ -76,3 +76,21 @@ public class ChangePasswordDto
     [Required, StringLength(256, MinimumLength = 6)]
     public string NewPassword { get; set; } = string.Empty;
 }
+
+public class RequestPasswordResetDto
+{
+    [Required, EmailAddress, StringLength(256)]
+    public string Email { get; set; } = string.Empty;
+}
+
+public class ResetPasswordDto
+{
+    [Required, EmailAddress, StringLength(256)]
+    public string Email { get; set; } = string.Empty;
+
+    [Required, StringLength(2048)]
+    public string Token { get; set; } = string.Empty;
+
+    [Required, StringLength(256, MinimumLength = 6)]
+    public string NewPassword { get; set; } = string.Empty;
+}

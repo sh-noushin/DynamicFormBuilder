@@ -22,7 +22,11 @@ public class SmtpEmailSender : IEmailSender
     {
         if (!_options.IsConfigured)
         {
-            _logger.LogInformation("SmtpEmailSender.SendAsync no-op: SMTP not configured. subject={Subject}", subject);
+            // Dev fallback — log the entire email so the developer can
+            // grab links out of it (password reset, submission confirmations).
+            _logger.LogInformation(
+                "SmtpEmailSender.SendAsync no-op (SMTP not configured).\n  to: {To}\n  subject: {Subject}\n  body:\n{Body}",
+                toAddress, subject, body);
             return;
         }
 

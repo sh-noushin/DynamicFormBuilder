@@ -1,6 +1,7 @@
 using AutoMapper;
 using FormBuilder.Core.DTOs;
 using FormBuilder.Core.Interfaces;
+using FormBuilder.Core.Options;
 using FormBuilder.Models.Entities;
 using FormBuilder.Models.Exceptions;
 using FormBuilder.Models.Repositories;
@@ -16,6 +17,7 @@ public class PublicFormService : IPublicFormService
     private readonly ISubmissionNotifier _notifier;
     private readonly IWebhookSender _webhookSender;
     private readonly ISubmitterConfirmationSender _confirmationSender;
+    private readonly IOrganizationRepository _orgs;
 
     public PublicFormService(
         IFormRepository formRepository,
@@ -24,7 +26,8 @@ public class PublicFormService : IPublicFormService
         IFieldValidator validator,
         ISubmissionNotifier notifier,
         IWebhookSender webhookSender,
-        ISubmitterConfirmationSender confirmationSender)
+        ISubmitterConfirmationSender confirmationSender,
+        IOrganizationRepository orgs)
     {
         _formRepository = formRepository;
         _submissionRepository = submissionRepository;
@@ -33,6 +36,7 @@ public class PublicFormService : IPublicFormService
         _notifier = notifier;
         _webhookSender = webhookSender;
         _confirmationSender = confirmationSender;
+        _orgs = orgs;
     }
 
     public async Task<PublicFormDto> GetBySlugAsync(string slug, string? accessPassword)
@@ -174,7 +178,8 @@ public class PublicFormService : IPublicFormService
 
     // Returns a user-facing reason string when the form is closed, or null when
     // it is still accepting submissions. Checks ClosesAt first (cheap), then
-    // MaxSubmissions (one extra count query).
+    // MaxSubmissions, then the tenant's monthly plan cap (one query for the
+    // tenant's Plan, one for the month-to-date count).
     private async Task<string?> GetClosedReasonAsync(Form form)
     {
         if (form.ClosesAt.HasValue && DateTime.UtcNow >= form.ClosesAt.Value)
@@ -187,6 +192,20 @@ public class PublicFormService : IPublicFormService
             if (count >= form.MaxSubmissions.Value)
             {
                 return "This form has reached its response limit.";
+            }
+        }
+        // Tenant-level monthly quota — blocks submissions when the
+        // workspace has hit its plan's cap. Message is intentionally
+        // generic so the submitter isn't told which plan tier the
+        // tenant is on. Tenant admin sees the real cap on /admin/billing.
+        var org = await _orgs.GetByIdAsync(form.OrganizationId);
+        if (org != null)
+        {
+            var max = PlanLimits.MaxSubmissionsPerMonth(org.Plan);
+            var used = await _orgs.GetSubmissionsThisMonthAsync(form.OrganizationId);
+            if (used >= max)
+            {
+                return "This form is temporarily paused. Please try again next month.";
             }
         }
         return null;

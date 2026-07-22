@@ -1,0 +1,12 @@
+@if (isImpersonating()) {
+  <div class="impersonation-banner" role="alert">
+    <mat-icon>visibility</mat-icon>
+    <span class="banner-text">
+      You are viewing <strong>{{ workspaceName() }}</strong> as their admin.
+    </span>
+    <button mat-flat-button class="exit-button" (click)="exit()">
+      <mat-icon>logout</mat-icon>
+      <span>Exit impersonation</span>
+    </button>
+  </div>
+}

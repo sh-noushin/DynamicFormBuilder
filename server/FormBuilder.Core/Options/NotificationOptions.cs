@@ -17,4 +17,9 @@ public sealed class NotificationOptions
 
     public bool IsConfigured =>
         !string.IsNullOrWhiteSpace(SmtpHost) && !string.IsNullOrWhiteSpace(AdminEmail);
+
+    // Frontend origin used to build absolute URLs in outbound emails
+    // (password reset link, submission confirmations, etc.). Defaults
+    // to the local Angular dev server.
+    public string AppBaseUrl { get; set; } = "http://localhost:4200";
 }

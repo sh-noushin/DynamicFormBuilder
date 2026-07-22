@@ -1,0 +1,50 @@
+.impersonation-banner {
+  position: fixed;
+  // Sit above the admin nav / header without covering it — the header
+  // is z-index 1000 with 64px height. This banner slides in above.
+  top: 64px;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 20px;
+  background: linear-gradient(90deg, #b91c1c, #dc2626);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+  font-size: 0.875rem;
+
+  mat-icon {
+    color: #ffffff;
+  }
+
+  .banner-text {
+    flex: 1;
+    strong {
+      font-weight: 600;
+    }
+  }
+
+  .exit-button {
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+    border-radius: 999px;
+    font-weight: 500;
+    padding: 4px 14px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.24);
+    }
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+// Push the admin content down so the banner doesn't overlap the tab
+// strip when it's showing. Applied via a body class or sibling padding.
+:host { display: block; }
