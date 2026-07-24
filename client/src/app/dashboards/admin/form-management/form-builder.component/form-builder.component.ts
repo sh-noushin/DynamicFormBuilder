@@ -75,7 +75,16 @@ export class FormBuilderComponent {
   fields = signal<DraftField[]>([]);
   selectedClientId = signal<string | null>(null);
 
-  visibleFields = computed(() => this.fields().filter(f => !f.deleted));
+  visibleFields = computed(() =>
+    // Sort by `order` so an in-place reorder is reflected in the UI —
+    // otherwise onCanvasDrop rewrites the order property but the render
+    // still uses the fields signal's original array order and the drag
+    // appears to snap back.
+    this.fields()
+      .filter(f => !f.deleted)
+      .slice()
+      .sort((a, b) => a.order - b.order)
+  );
   selectedField = computed<DraftField | null>(() => {
     const id = this.selectedClientId();
     if (!id) return null;

@@ -94,12 +94,12 @@ export const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: '/login',
+    loadComponent: () => import('./core/components/landing.component/landing.component').then(m => m.LandingComponent),
     pathMatch: 'full'
   },
   {
     path: '**',
-    redirectTo: '/login'
+    redirectTo: '/'
   }
 ];
 

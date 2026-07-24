@@ -1,0 +1,110 @@
+<div class="landing">
+  <nav class="landing-nav">
+    <div class="landing-nav-inner">
+      <a routerLink="/" class="landing-logo">
+        <mat-icon>description</mat-icon>
+        <span>FormBuilder</span>
+      </a>
+      <div class="landing-nav-links">
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a routerLink="/login" class="nav-cta">Sign in</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <h1 class="hero-title">
+        Beautiful forms.
+        <span class="hero-accent">Without the beautiful price tag.</span>
+      </h1>
+      <p class="hero-subtitle">
+        A dynamic form builder for teams that outgrew Google Forms and
+        can't stomach Typeform's bill. Drag-and-drop editor, real
+        submissions dashboard, webhooks, and multi-workspace billing —
+        for a fraction of the cost.
+      </p>
+      <div class="hero-cta-row">
+        <a routerLink="/login" class="btn-cta btn-cta-primary">
+          <span>Sign in</span>
+          <mat-icon>arrow_forward</mat-icon>
+        </a>
+        <a [href]="contactMailto" class="btn-cta btn-cta-secondary">
+          <mat-icon>mail</mat-icon>
+          <span>Get a workspace</span>
+        </a>
+      </div>
+      <p class="hero-hint">
+        New here? Email us to spin up a workspace for your team — we
+        onboard each customer personally.
+      </p>
+    </div>
+  </section>
+
+  <section id="features" class="features">
+    <div class="features-inner">
+      <h2 class="section-title">Everything you need. Nothing you don't.</h2>
+      <div class="feature-grid">
+        @for (f of features; track f.title) {
+          <div class="feature-card">
+            <mat-icon class="feature-icon">{{ f.icon }}</mat-icon>
+            <h3 class="feature-title">{{ f.title }}</h3>
+            <p class="feature-body">{{ f.body }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing" class="pricing">
+    <div class="pricing-inner">
+      <h2 class="section-title">Simple pricing</h2>
+      <p class="section-subtitle">Start free. Upgrade when your form list gets serious.</p>
+
+      <div class="plan-grid">
+        @for (p of plans; track p.name) {
+          <div class="plan-card" [class.plan-highlight]="p.highlight">
+            @if (p.highlight) {
+              <div class="plan-badge">Most popular</div>
+            }
+            <div class="plan-name">{{ p.name }}</div>
+            <div class="plan-price">
+              <span class="price-amount">{{ p.price }}</span>
+              <span class="price-period">{{ p.period }}</span>
+            </div>
+            <ul class="plan-features">
+              @for (f of p.features; track f) {
+                <li>
+                  <mat-icon>check_circle</mat-icon>
+                  <span>{{ f }}</span>
+                </li>
+              }
+            </ul>
+            @if (p.ctaExternal) {
+              <a [href]="contactMailto" class="btn-plan" [class.btn-plan-primary]="p.highlight">
+                {{ p.cta }}
+              </a>
+            } @else {
+              <a [routerLink]="p.ctaLink" class="btn-plan" [class.btn-plan-primary]="p.highlight">
+                {{ p.cta }}
+              </a>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <footer class="landing-footer">
+    <div class="landing-footer-inner">
+      <span>© 2026 FormBuilder</span>
+      <div class="footer-links">
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a routerLink="/login">Sign in</a>
+        <a [href]="contactMailto">Contact</a>
+      </div>
+    </div>
+  </footer>
+</div>
