@@ -4,7 +4,11 @@
   <mat-card class="tenants-card">
     <mat-card-header>
       <mat-card-title>Customer workspaces</mat-card-title>
-      <mat-card-subtitle>{{ tenants().length }} tenant{{ tenants().length === 1 ? '' : 's' }} in the system</mat-card-subtitle>
+      <mat-card-subtitle>
+        {{ tenants().length }} tenant{{ tenants().length === 1 ? '' : 's' }} in the system
+        · {{ payingCount() }} paying
+        · {{ mrr() | currency:'USD':'symbol':'1.0-0' }}/mo MRR
+      </mat-card-subtitle>
       <div class="header-actions">
         <button mat-raised-button color="primary" class="btn-primary" (click)="openCreate()">
           <mat-icon>add</mat-icon>
@@ -33,6 +37,33 @@
             <th mat-header-cell *matHeaderCellDef>Slug</th>
             <td mat-cell *matCellDef="let t">
               <span class="slug-chip">{{ t.slug }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="plan">
+            <th mat-header-cell *matHeaderCellDef>Plan</th>
+            <td mat-cell *matCellDef="let t">
+              <span class="plan-chip" [class.plan-pro]="t.plan === 'Pro'">{{ t.plan }}</span>
+              @if (isDelinquent(t)) {
+                <span class="status-chip"
+                      [matTooltip]="'Stripe subscription status: ' + t.subscriptionStatus">
+                  {{ t.subscriptionStatus }}
+                </span>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="price">
+            <th mat-header-cell *matHeaderCellDef>Price</th>
+            <td mat-cell *matCellDef="let t">
+              @if (t.monthlyPriceUsd > 0) {
+                <span class="price-amount">{{ t.monthlyPriceUsd | currency:'USD':'symbol':'1.0-2' }}/mo</span>
+                @if (t.subscriptionCurrentPeriodEnd) {
+                  <div class="price-period">Renews {{ t.subscriptionCurrentPeriodEnd | date:'MMM d, y' }}</div>
+                }
+              } @else {
+                <span class="price-free">—</span>
+              }
             </td>
           </ng-container>
 

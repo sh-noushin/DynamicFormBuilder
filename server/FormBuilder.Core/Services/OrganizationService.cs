@@ -1,6 +1,7 @@
 using FormBuilder.Core.Constants;
 using FormBuilder.Core.DTOs;
 using FormBuilder.Core.Interfaces;
+using FormBuilder.Core.Options;
 using FormBuilder.Models.Entities;
 using FormBuilder.Models.Exceptions;
 using FormBuilder.Models.Repositories;
@@ -35,15 +36,10 @@ public class OrganizationService : IOrganizationService
         var orgs = await _repo.ListAsync();
         var userCounts = await _repo.GetUserCountsAsync();
         var formCounts = await _repo.GetFormCountsAsync();
-        return orgs.Select(o => new OrganizationDto
-        {
-            Id = o.Id,
-            Name = o.Name,
-            Slug = o.Slug,
-            CreatedAt = o.CreatedAt,
-            UserCount = userCounts.GetValueOrDefault(o.Id, 0),
-            FormCount = formCounts.GetValueOrDefault(o.Id, 0),
-        });
+        return orgs.Select(o => ToDto(
+            o,
+            userCount: userCounts.GetValueOrDefault(o.Id, 0),
+            formCount: formCounts.GetValueOrDefault(o.Id, 0)));
     }
 
     public async Task<OrganizationDto> CreateAsync(CreateOrganizationDto payload)
@@ -173,5 +169,9 @@ public class OrganizationService : IOrganizationService
         CreatedAt = o.CreatedAt,
         UserCount = userCount,
         FormCount = formCount,
+        Plan = o.Plan,
+        SubscriptionStatus = o.SubscriptionStatus,
+        SubscriptionCurrentPeriodEnd = o.SubscriptionCurrentPeriodEnd,
+        MonthlyPriceUsd = PlanPricing.MonthlyPriceUsd(o.Plan),
     };
 }

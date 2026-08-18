@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using FormBuilder.Models.Entities;
 
 namespace FormBuilder.Core.DTOs;
 
@@ -13,6 +14,18 @@ public class OrganizationDto
     // Convenience count fields for the super-admin tenants table.
     public int UserCount { get; set; }
     public int FormCount { get; set; }
+
+    // -- Billing snapshot -----------------------------------------------
+    // Denormalized onto the tenant row so super admin can see who pays
+    // without opening each workspace. Tenants still manage their own
+    // subscription through /admin/billing + Stripe; this is read-only.
+    public BillingPlan Plan { get; set; } = BillingPlan.Free;
+    // Mirror of Stripe's subscription status ("active" / "past_due" /
+    // "canceled"). Null for tenants still on Free.
+    public string? SubscriptionStatus { get; set; }
+    public DateTime? SubscriptionCurrentPeriodEnd { get; set; }
+    // List price of the tenant's current plan, USD per month. 0 for Free.
+    public decimal MonthlyPriceUsd { get; set; }
 }
 
 // Super admin provisions a workspace + optionally the first tenant admin

@@ -52,3 +52,18 @@ public static class PlanLimits
         _ => 0,
     };
 }
+
+// List price per plan, in USD per month. Stripe remains the source of
+// truth for what a customer is actually charged — this is display copy
+// for the super-admin tenants table and the upgrade CTA. Keep it in sync
+// with the Stripe Price behind BillingOptions.ProPriceId and with the
+// pricing line in billing.component.html.
+public static class PlanPricing
+{
+    public static decimal MonthlyPriceUsd(FormBuilder.Models.Entities.BillingPlan plan) => plan switch
+    {
+        FormBuilder.Models.Entities.BillingPlan.Free => 0m,
+        FormBuilder.Models.Entities.BillingPlan.Pro => 19m,
+        _ => 0m,
+    };
+}

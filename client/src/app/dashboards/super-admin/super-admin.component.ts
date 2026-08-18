@@ -29,6 +29,12 @@ interface TenantRow {
   createdAt: string;
   userCount: number;
   formCount: number;
+  // Billing snapshot. Read-only here — tenants change their own plan
+  // through /admin/billing (Stripe Checkout / customer portal).
+  plan: 'Free' | 'Pro';
+  subscriptionStatus: string | null;
+  subscriptionCurrentPeriodEnd: string | null;
+  monthlyPriceUsd: number;
 }
 
 @Component({
@@ -55,7 +61,7 @@ interface TenantRow {
 export class SuperAdminComponent implements OnInit {
   tenants = signal<TenantRow[]>([]);
   isLoading = signal(false);
-  displayedColumns = ['name', 'slug', 'users', 'forms', 'createdAt', 'actions'];
+  displayedColumns = ['name', 'slug', 'plan', 'price', 'users', 'forms', 'createdAt', 'actions'];
 
   pageIndex = signal(0);
   pageSize = signal(10);
@@ -63,6 +69,28 @@ export class SuperAdminComponent implements OnInit {
     const start = this.pageIndex() * this.pageSize();
     return this.tenants().slice(start, start + this.pageSize());
   });
+
+  // Monthly recurring revenue across all tenants, at list price. Only
+  // subscriptions Stripe reports as active or trialing count — a
+  // past_due or canceled Pro tenant isn't revenue.
+  mrr = computed(() =>
+    this.tenants().reduce(
+      (sum, t) => sum + (this.isBillable(t) ? (t.monthlyPriceUsd ?? 0) : 0),
+      0
+    )
+  );
+  payingCount = computed(() => this.tenants().filter((t) => this.isBillable(t)).length);
+
+  isBillable(t: TenantRow): boolean {
+    return t.plan !== 'Free'
+      && (t.subscriptionStatus === 'active' || t.subscriptionStatus === 'trialing');
+  }
+
+  // Anything Stripe flags as not-good-standing gets a warning chip so a
+  // failed payment is visible without opening the Stripe dashboard.
+  isDelinquent(t: TenantRow): boolean {
+    return t.plan !== 'Free' && !!t.subscriptionStatus && !this.isBillable(t);
+  }
 
   private http = inject(HttpClient);
   private router = inject(Router);
