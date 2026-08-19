@@ -4,6 +4,11 @@
   "compileOnSave": false,
   "compilerOptions": {
     "strict": true,
+    "paths": {
+      "formbuilder-renderer": [
+        "./dist/formbuilder-renderer"
+      ]
+    },
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
@@ -29,6 +34,12 @@
     },
     {
       "path": "./tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/formbuilder-renderer/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/formbuilder-renderer/tsconfig.spec.json"
     }
   ]
 }

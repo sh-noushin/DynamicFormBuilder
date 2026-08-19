@@ -1,0 +1,49 @@
+<div class="playground-shell">
+  <header class="playground-header">
+    <h1>JSON &rarr; Form</h1>
+    <p>
+      Paste a form exported from FormBuilder and render it instantly. This page uses the same
+      <code>&lt;fb-form&gt;</code> component your own Angular app would install.
+    </p>
+  </header>
+
+  <div class="playground-grid">
+    <section class="pane">
+      <div class="pane-head">
+        <h2>Schema</h2>
+        <label class="file-button">
+          Open .json
+          <input hidden type="file" accept="application/json,.json" (change)="onFile($event)" />
+        </label>
+      </div>
+
+      <textarea class="json-input" spellcheck="false"
+                placeholder='{ "formatVersion": 1, "form": { "name": "Contact", "fields": [ ... ] } }'
+                [value]="jsonText()"
+                (input)="jsonText.set($any($event.target).value)"></textarea>
+
+      @if (parseError(); as err) {
+        <div class="parse-error" role="alert">{{ err }}</div>
+      }
+
+      <button type="button" class="render-button" (click)="render()">Render form</button>
+    </section>
+
+    <section class="pane">
+      <div class="pane-head"><h2>Result</h2></div>
+
+      @if (schema()) {
+        <fb-form [schema]="schema()" (submitted)="onSubmitted($event)"></fb-form>
+      } @else {
+        <p class="placeholder">Nothing rendered yet.</p>
+      }
+
+      @if (lastSubmission(); as payload) {
+        <div class="submission">
+          <h3>Submitted data</h3>
+          <pre>{{ payload }}</pre>
+        </div>
+      }
+    </section>
+  </div>
+</div>

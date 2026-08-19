@@ -81,6 +81,12 @@ export const routes: Routes = [
     loadComponent: () => import('./dashboards/super-admin/super-admin.component').then(m => m.SuperAdminComponent)
   },
   {
+    // Public demo of the formbuilder-renderer library: paste exported JSON,
+    // get a working form. No auth — it never touches tenant data.
+    path: 'playground',
+    loadComponent: () => import('./playground/playground.component').then(m => m.PlaygroundComponent)
+  },
+  {
     path: 'register/:tenantSlug',
     loadComponent: () => import('./core/components/register.component/register.component').then(m => m.RegisterComponent)
   },

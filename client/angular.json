@@ -89,6 +89,32 @@
           }
         }
       }
+    },
+    "formbuilder-renderer": {
+      "projectType": "library",
+      "root": "projects/formbuilder-renderer",
+      "sourceRoot": "projects/formbuilder-renderer/src",
+      "prefix": "fb",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/formbuilder-renderer/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/formbuilder-renderer/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/formbuilder-renderer/tsconfig.spec.json"
+          }
+        }
+      }
     }
   }
 }

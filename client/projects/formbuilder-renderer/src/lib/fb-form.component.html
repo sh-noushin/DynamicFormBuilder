@@ -1,0 +1,133 @@
+@if (schemaError(); as err) {
+  <div class="fb-error-panel" role="alert">{{ err }}</div>
+} @else if (body(); as form) {
+  <form class="fb-form" [formGroup]="formGroup" (ngSubmit)="submit()" novalidate>
+    @if (isDone()) {
+      <div class="fb-thanks" role="status">
+        {{ form.thankYouMessage || 'Thanks — your response has been recorded.' }}
+      </div>
+    } @else {
+      @if (form.name) {
+        <h2 class="fb-title">{{ form.name }}</h2>
+      }
+      @if (form.description) {
+        <p class="fb-description">{{ form.description }}</p>
+      }
+
+      @if (totalPages() > 1) {
+        <div class="fb-progress">
+          <span>Step {{ currentPage() + 1 }} of {{ totalPages() }}</span>
+          @if (currentHeading()) {
+            <strong class="fb-page-heading">{{ currentHeading() }}</strong>
+          }
+        </div>
+      }
+
+      @if (collectSubmitter()) {
+        <div class="fb-field">
+          <label class="fb-label" for="fb-submitter-name">Your name</label>
+          <input id="fb-submitter-name" class="fb-input" type="text" formControlName="submitterName" />
+        </div>
+        <div class="fb-field">
+          <label class="fb-label" for="fb-submitter-email">Your email</label>
+          <input id="fb-submitter-email" class="fb-input" type="email" formControlName="submitterEmail" />
+        </div>
+      }
+
+      @for (field of visibleFieldsOnPage(); track field.name) {
+        <div class="fb-field" [class.fb-invalid]="errorFor(field)">
+          @if (field.type === 'Checkbox') {
+            <label class="fb-checkbox-row">
+              <input type="checkbox" [formControlName]="controlName(field)"
+                     [attr.disabled]="field.isReadOnly ? true : null" />
+              <span class="fb-label-inline">{{ field.label }}</span>
+            </label>
+          } @else {
+            <label class="fb-label" [attr.for]="'fb-' + field.name">
+              {{ field.label }}
+              @if (field.isRequired) { <span class="fb-required" aria-hidden="true">*</span> }
+            </label>
+
+            @switch (field.type) {
+              @case ('Textarea') {
+                <textarea [id]="'fb-' + field.name" class="fb-input fb-textarea" rows="4"
+                          [formControlName]="controlName(field)"
+                          [attr.placeholder]="field.placeholder"
+                          [attr.readonly]="field.isReadOnly ? true : null"></textarea>
+              }
+              @case ('Select') {
+                <select [id]="'fb-' + field.name" class="fb-input fb-select"
+                        [formControlName]="controlName(field)"
+                        [attr.disabled]="field.isReadOnly ? true : null">
+                  <option value="">{{ field.placeholder || 'Choose…' }}</option>
+                  @for (opt of options(field); track opt.value) {
+                    <option [value]="opt.value">{{ opt.label }}</option>
+                  }
+                </select>
+              }
+              @case ('Radio') {
+                <div class="fb-radio-group" role="radiogroup" [attr.aria-label]="field.label">
+                  @for (opt of options(field); track opt.value) {
+                    <label class="fb-radio-row">
+                      <input type="radio" [value]="opt.value"
+                             [formControlName]="controlName(field)"
+                             [attr.disabled]="field.isReadOnly ? true : null" />
+                      <span>{{ opt.label }}</span>
+                    </label>
+                  }
+                </div>
+              }
+              @case ('Rating') {
+                <div class="fb-rating" role="group" [attr.aria-label]="field.label">
+                  @for (star of ratingScale; track star) {
+                    <button type="button" class="fb-star"
+                            [class.fb-star-on]="ratingValue(field) >= star"
+                            [attr.aria-label]="star + ' of 5'"
+                            [attr.aria-pressed]="ratingValue(field) === star"
+                            (click)="setRating(field, star)">★</button>
+                  }
+                </div>
+              }
+              @default {
+                <input [id]="'fb-' + field.name" class="fb-input"
+                       [type]="inputType(field)"
+                       [formControlName]="controlName(field)"
+                       [attr.placeholder]="field.placeholder"
+                       [attr.readonly]="field.isReadOnly ? true : null" />
+              }
+            }
+          }
+
+          @if (field.helpText) {
+            <small class="fb-help">{{ field.helpText }}</small>
+          }
+          @if (errorFor(field); as message) {
+            <small class="fb-error" role="alert">{{ message }}</small>
+          }
+        </div>
+      }
+
+      @for (field of unsupportedOnPage(); track field.name) {
+        <div class="fb-field fb-unsupported">
+          <span class="fb-label">{{ field.label }}</span>
+          <small class="fb-help">
+            “{{ field.type }}” fields aren’t supported by this renderer yet.
+          </small>
+        </div>
+      }
+
+      <div class="fb-actions">
+        @if (!isFirstPage()) {
+          <button type="button" class="fb-button fb-button-secondary" (click)="previousPage()">Back</button>
+        }
+        @if (!isLastPage()) {
+          <button type="button" class="fb-button" (click)="nextPage()">Next</button>
+        } @else {
+          <button type="submit" class="fb-button" [disabled]="submitting()">
+            {{ submitting() ? 'Submitting…' : submitLabel() }}
+          </button>
+        }
+      </div>
+    }
+  </form>
+}
